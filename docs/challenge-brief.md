@@ -1,5 +1,7 @@
 # Ground Truth: A Trusted Expert Loop for Humanitarian Risk Analysis
 
+> **Full PDF:** [`ACAPS Challenge Brief HFG#8.pdf`](ACAPS%20Challenge%20Brief%20HFG%238.pdf)
+>
 > **Challenge:** Humanitarian Risk
 > **Hackathon:** Hackathon for Good #8
 > **Date:** 6-8 November 2026
