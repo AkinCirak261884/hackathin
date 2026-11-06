@@ -1,0 +1,89 @@
+{
+  "author_token": "E01",
+  "mean_brier": 0.131,
+  "acaps_mean_brier": 0.202,
+  "resolved": [
+    {
+      "question_id": "Q-R1014-BACKTEST",
+      "risk_id": "R1014",
+      "text": "Will this risk materialise? Failure of essential services owing to the blockade in Mali leads to civil unrest and destabilisation and aggravates needs (Mali)",
+      "your_prob": 0.8,
+      "outcome": true,
+      "brier": 0.04,
+      "acaps_prob": 0.7,
+      "acaps_brier": 0.09,
+      "backtest": true
+    },
+    {
+      "question_id": "Q-R0094-BACKTEST",
+      "risk_id": "R0094",
+      "text": "Will this risk materialise? Increase of violent attacks on civilians and IDP camps in the Far North region (Cameroon)",
+      "your_prob": 0.3,
+      "outcome": false,
+      "brier": 0.09,
+      "acaps_prob": 0.5,
+      "acaps_brier": 0.25,
+      "backtest": true
+    },
+    {
+      "question_id": "Q-R0248-BACKTEST",
+      "risk_id": "R0248",
+      "text": "Will this risk materialise? Camps and basic services in East Darfur state are stretched beyond capacity following the influx of up to 100,000 South Sudanese refugees by June 2016 (Sudan)",
+      "your_prob": 0.75,
+      "outcome": true,
+      "brier": 0.0625,
+      "acaps_prob": 0.7,
+      "acaps_brier": 0.09,
+      "backtest": true
+    },
+    {
+      "question_id": "Q-R1028-BACKTEST",
+      "risk_id": "R1028",
+      "text": "Will this risk materialise? A contested April 2026 electoral process in Libya heightens localised armed clashes, displacement, and service disruptions (Libya)",
+      "your_prob": 0.2,
+      "outcome": false,
+      "brier": 0.04,
+      "acaps_prob": 0.3,
+      "acaps_brier": 0.09,
+      "backtest": true
+    },
+    {
+      "question_id": "Q-R0073-BACKTEST",
+      "risk_id": "R0073",
+      "text": "Will this risk materialise? The declaration of a state of emergency escalates protests that may lead to violence and further displacement in the Darfur region (Sudan)",
+      "your_prob": 0.35,
+      "outcome": true,
+      "brier": 0.4225,
+      "acaps_prob": 0.3,
+      "acaps_brier": 0.49,
+      "backtest": true
+    }
+  ],
+  "pending": [
+    {
+      "question_id": "Q-R1043-T0618",
+      "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
+      "your_prob": 0.65,
+      "closes_at": "2027-05-06T23:59:59Z"
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
+      "your_prob": 0.2,
+      "closes_at": "2027-05-06T23:59:59Z"
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "text": "Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
+      "your_prob": 0.45,
+      "closes_at": "2027-05-06T23:59:59Z"
+    }
+  ],
+  "impact": [
+    {
+      "risk_id": "R1043",
+      "date": "2026-11-20",
+      "note": "Your point on refugee–host tensions at water points was added to the R1043 rationale (synthetic example)."
+    }
+  ]
+}

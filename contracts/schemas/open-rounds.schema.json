@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "open-rounds.schema.json",
+  "title": "GET /rounds/open",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["round_id", "risk_id", "title", "stage", "closes_at", "n_questions", "est_minutes", "answered"],
+    "properties": {
+      "round_id": { "type": "string" }, "risk_id": { "type": "string" }, "title": { "type": "string" },
+      "stage": { "$ref": "common.schema.json#/$defs/stage" },
+      "closes_at": { "$ref": "common.schema.json#/$defs/isoDate" },
+      "n_questions": { "type": "integer" }, "est_minutes": { "type": "integer" },
+      "answered": { "type": "boolean", "description": "caller already submitted version 1" }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "track-record.schema.json",
+  "title": "GET /me/track-record?token=",
+  "type": "object",
+  "required": ["author_token", "resolved", "pending"],
+  "properties": {
+    "author_token": { "type": "string" },
+    "mean_brier": { "type": ["number", "null"] },
+    "acaps_mean_brier": { "type": ["number", "null"] },
+    "resolved": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question_id", "text", "your_prob", "outcome", "brier"],
+        "properties": {
+          "question_id": { "type": "string" }, "risk_id": { "type": "string" }, "text": { "type": "string" },
+          "your_prob": { "type": "number" }, "outcome": { "type": "boolean" },
+          "brier": { "type": "number" }, "acaps_prob": { "type": "number" }, "acaps_brier": { "type": "number" },
+          "resolved_at": { "type": "string" }
+        }
+      }
+    },
+    "pending": { "type": "array", "items": { "type": "object" } },
+    "impact": {
+      "type": "array",
+      "description": "what your input changed in ACAPS analysis",
+      "items": { "type": "object", "properties": { "risk_id": { "type": "string" }, "date": { "type": "string" }, "note": { "type": "string" } } }
+    }
+  }
+}

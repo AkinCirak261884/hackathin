@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "expert.schema.json",
+  "title": "Expert (seed data). Identity lives separately in identity_vault",
+  "type": "object",
+  "required": ["expert_id", "pseudonym", "country_panel", "lang", "default_tier", "macro_region", "profile"],
+  "properties": {
+    "expert_id": { "type": "string" },
+    "pseudonym": { "type": "string" },
+    "country_panel": { "type": "string" },
+    "lang": { "enum": ["en", "fr"] },
+    "default_tier": { "$ref": "common.schema.json#/$defs/tier" },
+    "macro_region": { "type": "string" },
+    "profile": { "type": "string" },
+    "invite_token": { "type": "string" },
+    "bias": { "type": "string", "description": "synthetic only, for Lane A simulation; never sent to clients" }
+  }
+}

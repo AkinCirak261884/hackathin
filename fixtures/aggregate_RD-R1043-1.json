@@ -1,0 +1,109 @@
+{
+  "round_id": "RD-R1043-1",
+  "n_responses": 7,
+  "suppressed": false,
+  "reason": null,
+  "rating": {
+    "probability": {
+      "too_low": 2,
+      "agree": 4,
+      "too_high": 1
+    },
+    "impact": {
+      "too_low": 1,
+      "agree": 5,
+      "too_high": 1
+    },
+    "you": {
+      "probability": "agree",
+      "impact": "agree"
+    }
+  },
+  "forecasts": [
+    {
+      "question_id": "Q-R1043-T0618",
+      "n": 7,
+      "median": 0.65,
+      "p25": 0.575,
+      "p75": 0.775,
+      "values": [
+        0.45,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.85,
+        0.9
+      ],
+      "acaps_baseline": null,
+      "seeing_count": 5,
+      "you": 0.65
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "n": 7,
+      "median": 0.35,
+      "p25": 0.25,
+      "p75": 0.425,
+      "values": [
+        0.15,
+        0.2,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.55
+      ],
+      "acaps_baseline": null,
+      "seeing_count": 1,
+      "you": 0.2
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "n": 7,
+      "median": 0.45,
+      "p25": 0.4,
+      "p75": 0.65,
+      "values": [
+        0.35,
+        0.35,
+        0.45,
+        0.45,
+        0.6,
+        0.7,
+        0.75
+      ],
+      "acaps_baseline": null,
+      "seeing_count": 4,
+      "you": 0.45
+    }
+  ],
+  "ranking": [
+    {
+      "option_id": "R1043",
+      "points": 18,
+      "first_choice": 5
+    },
+    {
+      "option_id": "SYN-TCD-01",
+      "points": 12,
+      "first_choice": 2
+    },
+    {
+      "option_id": "SYN-TCD-03",
+      "points": 9,
+      "first_choice": 0
+    },
+    {
+      "option_id": "R0233",
+      "points": 2,
+      "first_choice": 0
+    },
+    {
+      "option_id": "SYN-TCD-02",
+      "points": 1,
+      "first_choice": 0
+    }
+  ],
+  "can_revise": true
+}

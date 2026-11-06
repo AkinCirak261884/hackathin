@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "moderator-round.schema.json",
+  "title": "GET /moderator/rounds/{round_id}",
+  "type": "object",
+  "required": ["round", "n_invited", "n_responses", "tiers", "forecasts", "missing", "synthesis"],
+  "properties": {
+    "round": { "$ref": "round.schema.json" },
+    "n_invited": { "type": "integer" },
+    "n_responses": { "type": "integer" },
+    "tiers": { "type": "object", "additionalProperties": { "type": "integer" } },
+    "rating": { "type": "object" },
+    "forecasts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": { "type": "string" },
+          "v1": { "type": "object" }, "v2": { "type": "object" },
+          "acaps_baseline": { "type": "number" },
+          "mean_abs_shift": { "type": "number" },
+          "by_region": { "type": "array", "description": "regions with n<3 dropped" }
+        }
+      }
+    },
+    "missing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "contribution_id": { "type": "string" },
+          "shown_as": { "type": "string", "description": "real name for known tier, pseudonym, or 'Anonymous'" },
+          "tier": { "$ref": "common.schema.json#/$defs/tier" },
+          "text": { "type": "string" }
+        }
+      }
+    },
+    "synthesis": {
+      "type": "object",
+      "properties": {
+        "generated_by": { "type": "string" },
+        "clusters": {
+          "type": "array",
+          "items": { "type": "object", "properties": { "theme": { "type": "string" }, "summary": { "type": "string" }, "contribution_ids": { "type": "array", "items": { "type": "string" } } } }
+        },
+        "suggested_rating_change": { "type": ["string", "null"] }
+      }
+    },
+    "ranking": { "type": "array" }
+  }
+}
