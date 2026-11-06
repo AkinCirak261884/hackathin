@@ -88,6 +88,7 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 
 ## Requests between lanes
 
+- [ ] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
 - [ ] (from → to) what is needed
 
 ## Integration log
