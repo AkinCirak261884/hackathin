@@ -74,7 +74,6 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
       </div>
 
       <MyAnswers round={round} agg={agg} />
-      <a className="btn ghost inline-link" href="#/forecasts">📈 {t('go_forecasts')} →</a>
     </section>
   )
 }

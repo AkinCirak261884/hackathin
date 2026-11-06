@@ -108,8 +108,8 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       )),
     },
     {
-      key: 'forecast', title: t('s_forecast'), sub: t('s_forecast_sub'), tag: 'forecast',
-      body: [<p key="note" className="note">📈 {t('from_survey')}</p>, ...forecasts.map((q, i) => {
+      key: 'forecast', title: t('s_forecast'), sub: t('s_forecast_sub'),
+      body: forecasts.map((q, i) => {
         const p = a.prob[q.question_id] ?? 0.5
         const touched = a.prob[q.question_id] != null
         return (
@@ -136,7 +136,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
             </div>
           </div>
         )
-      })],
+      }),
     },
     {
       key: 'ranking', title: t('s_ranking'), sub: t('s_ranking_sub'),
@@ -219,7 +219,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       <aside className="desktop-only pulse-aside card"><RiskSummary risk={risk} /></aside>
       <section className="pulse-main">
         <div className="progress" aria-hidden="true"><div style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
-        <Head level={1} eyebrow={<>{t('step', step + 1, steps.length)} <span className={`mode-tag ${s.tag || 'ground'}`}>{s.tag === 'forecast' ? t('mode_forecast') : t('mode_ground')}</span></>} title={s.title} sub={s.sub} />
+        <Head level={1} eyebrow={t('step', step + 1, steps.length)} title={s.title} sub={s.sub} />
         <div className="step-body" key={s.key}>{s.body}</div>
         <div className="actionbar">
           {step > 0 ? <button className="btn ghost" onClick={() => go(-1)}>{t('back')}</button> : <a className="btn ghost" href="#/">{t('back')}</a>}

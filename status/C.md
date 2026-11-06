@@ -13,11 +13,11 @@ Folders: `web/`, `pitch/`. Don't edit `contracts/`, `api/`, `analysis/`, `modera
 
 ## Latest update
 
-### Lane C — update #4 — 19:18
-Done: Split the app into tabs: Ground truth (check-ins → survey → results) · Forecasts (Open forecasts: every open question, update any time, group median hidden until you answer; My record: profile + leaderboard) · Public. Desktop header has a Ground truth | Forecasts switch; phone has 3 bottom tabs. Survey steps are tagged Ground truth / Forecasts. 2 synthetic short-term (1–3 month) questions added.
+### Lane C — update #3 — 19:09
+Done: Lane A's 3 requests. Profile now uses A's track-record shape (super-estimator badge, rank "#3 of 7", "N more forecasts until your score counts", beat-ACAPS per question with ACAPS marker), new panel leaderboard (A's shape), ACAPS midpoint mapping (5/22/50/78/95) in fixtures + contracts. "Check my answers" replaces revise.
 Pushed: lane-c | PR: https://github.com/AkinCirak261884/hackathin/pull/1
-How to see it: cd web && npm run dev → #/ and #/forecasts
-Requests to other lanes: →B: GET /forecasts/open + POST /forecasts/{question_id} (contracts/schemas/forecasts.schema.json); store every update, group null until caller answered and n≥3. →A: score the last forecast before closes_at (not only v1/v2); real short-horizon questions can replace Q-R1043-S01/S02
-Contract change proposed: forecasts endpoints + invariant 7 + version 3+ = forecast updates (contracts/README.md)
+How to see it: cd web && npm run dev → #/me (and #/me?new=1 for a not-yet-ranked expert)
+Requests to other lanes: →B: serve GET /leaderboard (contracts/schemas/leaderboard.schema.json) and /me/track-record in A's shape + pending + impact. →A+B: align IDs/tokens (RD- vs RND-, E01 vs psd_EXP-TCD-01) on voice
+Contract change proposed: midpoint mapping; /leaderboard; track-record = A's shape (history[]). See contracts/README.md
 Next: switch web/src/api.js to B's real API once IDs/auth are agreed
 Blockers: contract freeze needs A+B OK

@@ -112,21 +112,6 @@ ANSWERS = {
 }
 REVISIONS = {"E03": (0.80, 0.40, 0.60), "E04": (0.60, 0.30, 0.40), "E06": (0.55, 0.25, 0.60)}
 
-# Short-horizon (1-3 month) questions, SYNTHETIC, so a track record builds during the ~2-month pilot (Lane A idea).
-# Kestrel has not answered these yet; panel answers are mock-only (revealed after you answer).
-SHORT_QUESTIONS = [
-    {"question_id": "Q-R1043-S01", "trigger_id": "T0618", "closes_at": "2027-01-31T23:59:59Z",
-     "title": "New cross-border strike inside eastern Chad", "title_fr": "Nouvelle frappe transfrontalière dans l'est du Tchad",
-     "text": "Will a new drone strike, shelling or armed incursion from Sudan be reported inside Ouaddaï, Sila or Wadi Fira before 31 January 2027?",
-     "text_fr": "Une nouvelle frappe de drone, un bombardement ou une incursion armée depuis le Soudan sera-t-il signalé dans le Ouaddaï, le Sila ou le Wadi Fira avant le 31 janvier 2027 ?",
-     "panel": [0.55, 0.70, 0.80, 0.60, 0.75, 0.50]},
-    {"question_id": "Q-R1043-S02", "trigger_id": "T0619", "closes_at": "2027-02-28T23:59:59Z",
-     "title": "Adré border crossing closed for a week", "title_fr": "Poste frontière d'Adré fermé une semaine",
-     "text": "Will the Adré border crossing be closed to civilians for 7 or more consecutive days before 28 February 2027?",
-     "text_fr": "Le poste frontière d'Adré sera-t-il fermé aux civils pendant 7 jours consécutifs ou plus avant le 28 février 2027 ?",
-     "panel": [0.20, 0.35, 0.15, 0.30, 0.25]},
-]
-
 RANK_OPTIONS = [
     ("R1043", "Cross-border insecurity from the Sudan conflict (eastern Chad)",
      "Insécurité transfrontalière liée au conflit soudanais (est du Tchad)", False),
@@ -370,30 +355,6 @@ def main():
     write("me_track_record.json", {**track_record(viewer, kh, ks, me_rank), "pending": pending, "impact": impact})
     nh = history(NEWCOMER_PAST)
     write("me_track_record_new.json", {**track_record("E08", nh, record_stats(nh), None), "pending": pending, "impact": []})
-
-    # open forecasts across the panel (Forecasts tab), as seen by Kestrel
-    def group_of(vals):
-        return {"n": len(vals), "median": pct(vals, 0.5), "p25": pct(vals, 0.25), "p75": pct(vals, 0.75)}
-    open_fc, hidden = [], {}
-    for qi, q in enumerate(fq):
-        vals = [latest(e, qi) for e in ANSWERS]
-        open_fc.append({"question_id": q["question_id"], "risk_id": "R1043", "trigger_id": q["trigger_id"],
-                        "title": q["title"], "title_fr": q["title_fr"], "text": q["text"], "text_fr": q["text_fr"],
-                        "closes_at": q["closes_at"], "horizon": "6m", "synthetic": False,
-                        "your_prob": ANSWERS[viewer][0][qi], "your_updated_at": "2026-11-06T18:30:00Z",
-                        "n_updates": 1, "group": group_of(vals)})
-    for sq in SHORT_QUESTIONS:
-        open_fc.append({"question_id": sq["question_id"], "risk_id": "R1043", "trigger_id": sq["trigger_id"],
-                        "title": sq["title"], "title_fr": sq["title_fr"], "text": sq["text"], "text_fr": sq["text_fr"],
-                        "closes_at": sq["closes_at"], "horizon": "short", "synthetic": True,
-                        "your_prob": None, "your_updated_at": None, "n_updates": 0, "group": None})
-        hidden[sq["question_id"]] = group_of(sq["panel"])
-    open_fc.sort(key=lambda x: x["closes_at"])
-    write("forecasts_open_TCD.json", open_fc)
-    write("forecast_update_example.json", {"question_id": "Q-R1043-S01", "your_prob": 0.6,
-                                            "your_updated_at": "2026-11-08T09:30:00Z", "n_updates": 1,
-                                            "group": hidden["Q-R1043-S01"]})
-    write("_mock_hidden_groups.json", hidden)  # mock-only: what the server reveals after your first answer
 
     # moderator view
     forecasts_mod = []

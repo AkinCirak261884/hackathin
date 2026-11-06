@@ -10,7 +10,7 @@ export default function Home() {
   if (!rounds) return <Loading />
   return (
     <section className="page">
-      <Head level={1} eyebrow={t('gt_eyebrow')} title={t('openRounds')} sub={t('openRounds_sub')} />
+      <Head level={1} title={t('openRounds')} sub={t('openRounds_sub')} />
       <div className="grid">
         {rounds.map((r) => (
           <article key={r.round_id} className="card round-card">
