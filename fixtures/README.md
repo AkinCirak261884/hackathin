@@ -9,11 +9,10 @@ Mock responses for every endpoint in `../contracts/README.md`, so every lane can
 | `rounds_open_TCD.json` | `GET /rounds/open?panel=TCD` |
 | `round_RD-R1043-1.json` | `GET /rounds/RD-R1043-1`: real R1043 risk and triggers T0618–T0620, 1 rating, 3 forecasts, 1 top-3 ranking |
 | `post_response_request.json` / `post_response_201.json` | example POST body (Kestrel, version 1) and reply |
-| `aggregate_RD-R1043-1.json` | group view as seen by Kestrel after submitting (n=7) |
+| `aggregate_RD-R1043-1.json` | group view as seen by Kestrel after submitting (n=7), incl. 5 peer comments with records |
 | `aggregate_suppressed.json` | same endpoint when n<3 |
 | `me_track_record.json` | Kestrel's track record in Lane A's shape: 8 **real resolved risks** from the CSV with synthetic forecasts, Brier vs ACAPS (midpoint mapping), rank 3 of 7, super estimator |
 | `me_track_record_new.json` | a new expert with 2 resolved forecasts: not ranked yet, "3 more until counted" |
-| `leaderboard.json` | peer leaderboard in Lane A's shape (7 ranked, 1 not yet) |
 | `moderator_round_RD-R1043-1.json` | moderator view: v1/v2 spread, revision shifts, region split (n<3 dropped), "what's missing" with tier-aware names, mock AI clusters |
 | `public_summaries.json` | public page: aggregates only (the generator asserts no tokens, pseudonyms or verbatim text) |
 | `experts.json` / `identity_vault.json` / `contributions_RD-R1043-1.json` | seed tables for Lane B's DB and Lane A's analysis |

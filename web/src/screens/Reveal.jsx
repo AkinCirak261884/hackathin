@@ -73,6 +73,7 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
         </article>
       </div>
 
+      <Comments comments={agg.comments || []} round={round} />
       <MyAnswers round={round} agg={agg} />
     </section>
   )
@@ -131,5 +132,53 @@ function MyAnswers({ round, agg }) {
         </div>
       )}
     </div>
+  )
+}
+
+// Peer comments: what each expert wrote under "why do you think this?", with their record and guesses.
+// Anonymous comments show neither (a stable record would link them across rounds).
+function Comments({ comments, round }) {
+  const { t, tx } = useT()
+  const forecastQs = round.questions.filter((q) => q.kind === 'forecast')
+  return (
+    <section className="comments">
+      <Head title={t('c_title')} sub={t('c_sub')} />
+      {comments.length === 0 && <p className="muted">{t('c_none')}</p>}
+      <div className="list">
+        {comments.map((c) => {
+          const anon = c.tier === 'anonymous'
+          return (
+            <article key={c.comment_id} className={`card comment ${c.is_you ? 'you' : ''}`}>
+              <div className="c-head">
+                <div className={`c-avatar ${anon ? 'anon' : ''}`} aria-hidden="true">{anon ? '?' : c.display_name[0]}</div>
+                <div className="c-who">
+                  <span className="c-name">{anon ? t('anon_expert') : c.display_name}
+                    {c.is_you && <span className="you-tag">{t('you')}</span>}
+                  </span>
+                  <span className="c-record">
+                    {anon ? t('c_anon_note')
+                      : c.record && c.record.resolved > 0 ? <><b>✓</b> {t('c_record', c.record.correct, c.record.resolved)}</>
+                      : t('c_new')}
+                  </span>
+                </div>
+              </div>
+              <p className="c-text">{c.text}</p>
+              {c.basis?.length > 0 && (
+                <div className="chips">{c.basis.map((b) => <span key={b} className="chip">{t(`b_${b}`)}</span>)}</div>
+              )}
+              {c.forecasts && (
+                <div className="c-guesses">
+                  {forecastQs.filter((q) => c.forecasts[q.question_id] != null).map((q) => (
+                    <span key={q.question_id} className="c-guess" title={tx(q, 'title')}>
+                      {t('c_guess')} {q.trigger_id}: <b>{asPct(c.forecasts[q.question_id])}</b>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+          )
+        })}
+      </div>
+    </section>
   )
 }

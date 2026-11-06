@@ -4,13 +4,12 @@ import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, recordSummary, verdict } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
-import { RecordHero, BrierCompare, ProbMeter, VerdictBadge, Leaderboard } from '../components/charts.jsx'
+import { RecordHero, BrierCompare, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 
-// Track record + leaderboard follow Lane A's analysis/leaderboard.py output (contracts/schemas/track-record, leaderboard).
+// Track record follows Lane A's analysis/leaderboard.py track_record() output (contracts/schemas/track-record).
 export default function Profile() {
   const { t, tx, date } = useT()
   const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
-  const [lb] = useLoad(() => api.leaderboard('TCD', DEMO_TOKEN), [])
   if (!tr) return <Loading />
   const rec = recordSummary(tr.history)
   const counted = tr.forecasts_until_counted === 0
@@ -23,7 +22,6 @@ export default function Profile() {
           <Head level={1} title={`${t('profile')} · ${demoPseudonym()}`} sub={t('profile_sub')} />
           <div className="chips">
             {tr.super_estimator && <span className="badge-star" title={t('super_est_d')}>★ {t('super_est')}</span>}
-            {tr.rank && <Chip>{t('rank_of', tr.rank, tr.n_ranked)} {t('rank_label')}</Chip>}
           </div>
         </div>
       </div>
@@ -44,12 +42,6 @@ export default function Profile() {
           <BrierCompare you={tr.mean_brier} acaps={tr.acaps_baseline_brier} />
           <p className="takeaway">{t('beat_acaps_n', tr.n_beat_acaps, tr.n_resolved)}</p>
         </article>
-        {lb && (
-          <article className="card lb-card">
-            <Head title={t('lb_title')} sub={t('lb_sub')} />
-            <Leaderboard data={lb} />
-          </article>
-        )}
       </div>
 
       <Head title={t('latest')} sub={t('latest_sub')} />

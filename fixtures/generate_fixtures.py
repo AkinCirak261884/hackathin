@@ -131,6 +131,9 @@ TITLE_FR = {
     "T0620": "Remobilisation par procuration et groupes armés transfrontaliers",
 }
 # why-I-think-this (optional, after the survey). basis: field_observation, local_contacts, media_osint, reports_data, experience
+# synthetic past record (correct, resolved) shown next to peers' comments; Kestrel's is computed from TRACK_RECORD_PAST
+PEER_RECORDS = {"E03": (6, 10), "E04": (8, 9), "E06": (4, 7)}
+
 REASONING = {
     "E01": ("Our teams in Adré see new arrivals every week and two incidents near water points in October.", ["field_observation", "local_contacts"]),
     "E03": ("Telegram channels close to the RSF openly discuss supply routes through Chad.", ["media_osint"]),
@@ -268,6 +271,26 @@ def main():
                       key=lambda x: -x["points"])
 
     viewer = "E01"
+
+    def kestrel_record():
+        ok = sum(((p > 0.5) == (rows[rid]["Status"] == "Materialised")) for rid, p in TRACK_RECORD_PAST.items() if p != 0.5)
+        return ok, len(TRACK_RECORD_PAST)
+
+    # Peer comments on the results page (only after your own submit, n >= 3). Anonymous comments carry
+    # no record or forecasts, so they can't be linked across rounds.
+    def comments_for(me):
+        out = []
+        for i, (eid, (why, basis)) in enumerate(REASONING.items()):
+            if eid not in ANSWERS:
+                continue
+            tier = exp[eid]["default_tier"]
+            anon = tier == "anonymous"
+            rec = kestrel_record() if eid == viewer else PEER_RECORDS.get(eid)
+            out.append({"comment_id": f"CM-{i + 1:03d}", "display_name": "Anonymous expert" if anon else exp[eid]["pseudonym"],
+                        "tier": tier, "text": why, "basis": basis, "is_you": eid == me,
+                        "record": None if anon or not rec else {"correct": rec[0], "resolved": rec[1]},
+                        "forecasts": None if anon else {q["question_id"]: latest(eid, qi) for qi, q in enumerate(fq)}})
+        return out
     agg_forecasts = []
     for qi, q in enumerate(fq):
         v1 = [a[0][qi] for a in ANSWERS.values()]
@@ -280,7 +303,8 @@ def main():
         "round_id": ROUND_ID, "n_responses": len(ANSWERS), "suppressed": False, "reason": None,
         "rating": {"probability": rating_counts(1), "impact": rating_counts(2),
                    "you": {"probability": ANSWERS[viewer][1], "impact": ANSWERS[viewer][2], "ranking": ANSWERS[viewer][4]}},
-        "forecasts": agg_forecasts, "ranking": ranking_points(), "can_revise": True})
+        "forecasts": agg_forecasts, "ranking": ranking_points(), "can_revise": True,
+        "comments": comments_for(viewer)})
     write("aggregate_suppressed.json", {
         "round_id": ROUND_ID, "n_responses": 2, "suppressed": True,
         "reason": "Fewer than 3 responses so far. The group view unlocks at 3 to protect anonymity.",
@@ -334,9 +358,7 @@ def main():
     for i, e in enumerate(entries):
         e["rank"] = i + 1
     entries = [{"rank": e["rank"], **{k: v for k, v in e.items() if k != "rank"}} for e in entries]
-    write("leaderboard.json", {"min_resolved": MIN_RESOLVED, "shrink_k": SHRINK_K, "acaps_mapping": "midpoint",
-                               "group_mean_brier": group_mean, "entries": entries,
-                               "n_not_yet_ranked": len(pool) - len(ranked)})
+    # leaderboard removed from the app (team decision); entries only feed rank fields in the track record
     me_rank = next(e["rank"] for e in entries if e["is_you"])
 
     def track_record(token, h, s_, rank):

@@ -5,7 +5,6 @@ import aggregate from '@fixtures/aggregate_RD-R1043-1.json'
 import postReply from '@fixtures/post_response_201.json'
 import trackRecord from '@fixtures/me_track_record.json'
 import trackRecordNew from '@fixtures/me_track_record_new.json'
-import leaderboard from '@fixtures/leaderboard.json'
 import publicSummaries from '@fixtures/public_summaries.json'
 import { pct, r05 } from './stats.js'
 
@@ -63,6 +62,18 @@ function personalise(agg, sub) {
     a.rating.you.ranking = rank.ranking
     a.ranking.sort((x, y) => y.points - x.points)
   }
+  // your own comment: swap Kestrel's fixture comment for what you wrote (or drop it if you wrote nothing)
+  const fixtureMe = a.comments?.find((c) => c.is_you)
+  a.comments = (a.comments || []).filter((c) => !c.is_you)
+  if (sub.reasoning_text) {
+    const anon = sub.tier === 'anonymous'
+    a.comments.unshift({
+      comment_id: 'CM-YOU', display_name: anon ? 'Anonymous expert' : DEMO_PSEUDONYM, tier: sub.tier,
+      text: sub.reasoning_text, basis: sub.reasoning_basis, is_you: true,
+      record: anon ? null : fixtureMe?.record ?? null,
+      forecasts: anon ? null : Object.fromEntries(sub.answers.filter((x) => x.prob != null).map((x) => [x.question_id, x.prob])),
+    })
+  }
   return a
 }
 
@@ -87,9 +98,6 @@ export const api = {
   trackRecord: (token) =>
     MOCK ? delay(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission()))
       : http(`/me/track-record?token=${encodeURIComponent(token)}`),
-  leaderboard: (panel = 'TCD', token) =>
-    MOCK ? delay(isNewcomerDemo() ? { ...leaderboard, entries: leaderboard.entries.map((e) => ({ ...e, is_you: false })) } : leaderboard)
-      : http(`/leaderboard?panel=${panel}&token=${encodeURIComponent(token)}`),
   publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries')),
 }
 

@@ -13,11 +13,11 @@ Folders: `web/`, `pitch/`. Don't edit `contracts/`, `api/`, `analysis/`, `modera
 
 ## Latest update
 
-### Lane C — update #3 — 19:09
-Done: Lane A's 3 requests. Profile now uses A's track-record shape (super-estimator badge, rank "#3 of 7", "N more forecasts until your score counts", beat-ACAPS per question with ACAPS marker), new panel leaderboard (A's shape), ACAPS midpoint mapping (5/22/50/78/95) in fixtures + contracts. "Check my answers" replaces revise.
+### Lane C — update #4 — 19:37
+Done: Peer comments on the results page ("why I think this"), each with the commenter's record ("7 of 8 correct · 88%") and their guesses; anonymous comments show no record/guesses. Leaderboard + rank removed from the app (team decision). Step 6 privacy note updated. Temporary "Reset my answers (demo)" button on Home.
 Pushed: lane-c | PR: https://github.com/AkinCirak261884/hackathin/pull/1
-How to see it: cd web && npm run dev → #/me (and #/me?new=1 for a not-yet-ranked expert)
-Requests to other lanes: →B: serve GET /leaderboard (contracts/schemas/leaderboard.schema.json) and /me/track-record in A's shape + pending + impact. →A+B: align IDs/tokens (RD- vs RND-, E01 vs psd_EXP-TCD-01) on voice
-Contract change proposed: midpoint mapping; /leaderboard; track-record = A's shape (history[]). See contracts/README.md
+How to see it: cd web && npm run dev → answer the R1043 check-in → results page, "Comments from the panel"
+Requests to other lanes: →B: add `comments[]` to /aggregate (contracts/schemas/aggregate.schema.json, invariant 1b): reasoning_text to peers only after own submit and n≥3, pseudonym or "Anonymous expert", no record/forecasts for anonymous. →A: per-expert correct/resolved count for the comment record (or I compute it from history[])
+Contract change proposed: aggregate.comments + invariant 1b; /leaderboard removed (contracts/README.md)
 Next: switch web/src/api.js to B's real API once IDs/auth are agreed
 Blockers: contract freeze needs A+B OK

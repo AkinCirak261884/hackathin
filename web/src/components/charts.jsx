@@ -185,26 +185,3 @@ export function ProbMeter({ p, marker }) {
     </div>
   )
 }
-
-export function Leaderboard({ data }) {
-  const { t } = useT()
-  return (
-    <div className="lb">
-      <ol className="lb-list">
-        {data.entries.map((e) => (
-          <li key={e.rank} className={`lb-row ${e.is_you ? 'you' : ''}`}>
-            <span className="lb-rank">{e.rank}</span>
-            <span className="lb-name">
-              <b>{e.display_name}</b>
-              {e.is_you && <span className="you-tag">{t('you')}</span>}
-              {e.super_estimator && <span className="star" title={t('super_est')} aria-label={t('super_est')}>★</span>}
-              <span className="muted small">{t('lb_forecasts', e.n_resolved)} · {t('lb_vs_acaps', e.acaps_brier_same_questions.toFixed(3))}</span>
-            </span>
-            <span className="lb-score">{e.shrunk_brier.toFixed(3)}</span>
-          </li>
-        ))}
-      </ol>
-      <p className="muted small">{t('lb_foot', data.min_resolved, data.n_not_yet_ranked)}</p>
-    </div>
-  )
-}
