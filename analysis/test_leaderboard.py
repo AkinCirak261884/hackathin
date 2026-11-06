@@ -7,7 +7,8 @@ import unittest
 from pathlib import Path
 
 from backtest import run
-from leaderboard import MIN_RESOLVED, SHRINK_K, improvement_lower90, leaderboard, shrunk, track_record
+from leaderboard import (MIN_RESOLVED, SHRINK_K, improvement_lower90, leaderboard, more_forecasts_needed, shrunk,
+                         track_record)
 from scoring import ACAPS_PROB, calibrated_acaps, label_counts, resolved_outcomes, wilson
 
 SCHEMA = """
@@ -133,6 +134,37 @@ class AnonymityTest(unittest.TestCase):
         self.assertNotIn("psd_", json.dumps(board))
 
 
+class BothBaselinesTest(unittest.TestCase):
+    def test_beating_raw_acaps_only_is_not_enough(self):
+        # 10 Very Low risks that all didn't happen. Raw ACAPS says 5%; calibrated (leave-one-out) ~1.8%.
+        qs = [(f"Q{i}", "Very Low", 0) for i in range(10)]
+        con = make_db(qs, [("psd_EXP-1", q, 0.03) for q, _, _ in qs])
+        con.execute("UPDATE risks SET status = 'Not materialised'")
+        rec = track_record(con, "psd_EXP-1")
+        self.assertGreater(rec["gain_vs_acaps_lower90"], 0)             # clearly beats raw ACAPS
+        self.assertLess(rec["gain_vs_calibrated_acaps"], 0)             # but not calibrated ACAPS
+        self.assertFalse(rec["super_estimator"])
+        self.assertEqual(rec["badge_progress"]["baseline"], "calibrated_acaps")
+        self.assertIsNone(rec["badge_progress"]["more_forecasts_needed"])
+
+    def test_badge_progress_fields(self):
+        qs = [(f"Q{i}", "Medium", i % 2) for i in range(8)]
+        con = make_db(qs, [("psd_EXP-1", q, 0.8 if y else 0.2) for q, _, y in qs])
+        rec = track_record(con, "psd_EXP-1")
+        p = rec["badge_progress"]
+        self.assertEqual(set(p), {"baseline", "gain", "gain_ci90", "more_forecasts_needed"})
+        self.assertAlmostEqual(p["gain"], 0.25 - 0.04)
+        self.assertTrue(rec["super_estimator"])
+        self.assertEqual(p["more_forecasts_needed"], 0)
+
+    def test_more_forecasts_needed(self):
+        # mean gain 0.02, sd 0.1 → N > (1.645·0.1/0.02)² = 67.7 → 68 in total, 58 more after 10.
+        self.assertEqual(more_forecasts_needed(0.02, 0.1, 10), 58)
+        self.assertEqual(more_forecasts_needed(0.05, 0.0, 2), MIN_RESOLVED - 2)
+        self.assertIsNone(more_forecasts_needed(-0.01, 0.1, 10))
+        self.assertIsNone(more_forecasts_needed(0.0, 0.1, 10))
+
+
 class HedgingTest(unittest.TestCase):
     """The badge must not be winnable by hedging ACAPS towards 50% with no extra knowledge."""
 
@@ -164,6 +196,7 @@ class HedgingTest(unittest.TestCase):
         self.assertLess(rec["mean_brier"], rec["calibrated_acaps_baseline_brier"])
         # ...but not clearly, so no badge.
         self.assertLessEqual(rec["gain_vs_calibrated_acaps_lower90"], 0)
+        self.assertLessEqual(rec["gain_vs_acaps_lower90"], 0)
         self.assertFalse(rec["super_estimator"])
 
     def test_sharp_experts_still_earn_it(self):
