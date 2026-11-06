@@ -15,3 +15,16 @@ Loads `data/risk-radar-export.csv` into SQLite with the `risks` and `triggers` t
 - `completion_rate` is an integer percent, or NULL when not set.
 - `objective` is the "Quantitative objective to meet 100%" text with the leading "Yes." removed. **Only 35 of 266 triggers have one** (222 are empty, 9 say "No"), so the question generator must fall back to the trigger title/description.
 - Chad: R1043 (3 triggers) and R1066 are Active; R0233 has no status.
+
+## questions.py
+
+Builds the `questions` table: per risk, one agree item `Q-{risk}-AGREE` plus one yes/no forecast per trigger `Q-{risk}-{T####}`, closing 6 months after the round opens.
+
+```bash
+python3 analysis/questions.py --opened 2026-11-06                    # all 28 Active risks → 104 questions
+python3 analysis/questions.py --risk R1043 --opened 2026-11-06 --json analysis/out/questions_R1043.json
+```
+
+- Objectives in the form "100% completion would be reached if X" become "Will X, by 6 May 2027?" (R1043, R1042).
+- Everything else falls back to `Will this trigger fully materialise in {country} by {date}: "{title}"?`, with the objective or description as `resolves_yes_if` (JSON export only; not a DB column).
+- The JSON export matches the shape of `api/mocks/_questions.json` (`question_id, trigger_id, kind, text, closes_at`) plus `risk_id` and `resolves_yes_if`.
