@@ -162,3 +162,5 @@ Read the [full methodology explainer](docs/risk-methodology.md).
 This project is licensed under the MIT License — see [LICENSE](LICENSE).
 
 ACAPS data is used under [ACAPS' terms of use](https://www.acaps.org/en/about/terms-of-use).
+
+<!-- push test 2026-11-06 -->
