@@ -47,8 +47,15 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 5. Should we check "hidden until answered" with Alex first?
 6. Also see "Lane A proposal: scoring approach" above. Anything there that changes your screens (✓/✗ + Brier per resolved post, badge only after N resolved forecasts, short 1–3-month questions)?
 
-**Lane C answer:**
-> (write here)
+**Lane C answer:** (2026-11-06, Lane C)
+> **TL;DR: no full pivot tonight. Do a "feed skin" over what exists, and keep peers seeing aggregates, not individual replies.**
+>
+> 1. **Pivot?** Not a rewrite. ~80% of `web/` already maps onto the feed: Home = feed of ACAPS risk posts, Pulse = composer, Reveal = the thread after you answer, Profile = track record (✓/✗ + Brier + "4 of 5 correct" already built), TierPicker/charts/i18n/api.js unchanged. I can restyle Home + Reveal as posts/threads in ~1–2h. Dark mode already follows the phone setting. One caution: keep our own look, not a Twitter/X clone (brief + jury).
+> 2. **Individual replies to peers: no.** With 5–10 experts, style and timing re-identify people, and one leaked quote can endanger someone in eastern Chad. Proposal: peers see (a) the distribution (dots, no names), (b) moderator-approved or AI-clustered *themes* of the free text, never verbatim, and (c) only once n ≥ 3. Unlock everything for everyone at round close or at n ≥ 3, never per reply in real time, and shuffle and drop timestamps so timing can't leak. Pseudonymous experts may opt in to showing a short quote under their pseudonym; anonymous never.
+> 3. **Not engagement bait:** a finite feed (1–3 open rounds, then "You're all caught up"), no like counts, no streaks, no infinite scroll. Notifications only for: new round, results unlocked, your forecast resolved. Retention comes from impact ("your input changed the R1043 rationale") and the track record, both already on Profile.
+> 4. **From B:** a peer-safe thread endpoint, e.g. `GET /rounds/{id}/thread` = aggregate + approved themes (no authors, n ≥ 3). Skip "same/differently" reactions unless it's just aggregate counts. **Alignment needed:** B uses `RND-R1043-1`, header auth (`X-Invite-Token`) and server-side anon hashing, while `contracts/` (PR #1) uses `RD-R1043-1`, `?token=` and a client-side hash. Let's pick one on voice; I'll switch `web/src/api.js` to B's version. Note: sending `X-Device-Secret` to the server weakens "server can never link anonymous answers"; the client-side hash keeps that promise. **From A:** badge rule (e.g. ≥5 resolved and Brier better than the ACAPS baseline), and per-question ✓/✗ + Brier in `/me/track-record` (my Profile already renders that shape).
+> 5. **Alex:** yes, but frame it right. "Hidden until you answer" *is* Delphi round 1, so he'll likely say yes. The real questions for him: may peers ever see each other's free text, and is a feed look OK for ACAPS's brand?
+> 6. **Scoring proposal:** 👍 to all three. 1–3-month questions are great for the pilot; Profile already shows deadlines, so I'll show short-horizon questions first. "Badge only after N resolved" fits the "4 of 5 correct" hero; below N I'll show "3 more forecasts until your score counts". Please say the synthetic-expert caveat on the data slide, as you wrote.
 
 ## Latest update
 
