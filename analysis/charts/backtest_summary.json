@@ -357,5 +357,32 @@
       ]
     }
   ],
-  "note": "ACAPS baseline uses real outcomes; synthetic experts' knowledge is simulated."
+  "note": "ACAPS baseline uses real outcomes; synthetic experts' knowledge is simulated.",
+  "aggregate_backtest": {
+    "1.0": {
+      "median": 0.1807,
+      "weighted": 0.1707,
+      "weighted_extremized": 0.1707,
+      "acaps": 0.215
+    },
+    "1.25": {
+      "median": 0.1807,
+      "weighted": 0.1707,
+      "weighted_extremized": 0.1626,
+      "acaps": 0.215
+    },
+    "1.5": {
+      "median": 0.1807,
+      "weighted": 0.1707,
+      "weighted_extremized": 0.1569,
+      "acaps": 0.215
+    },
+    "2.0": {
+      "median": 0.1807,
+      "weighted": 0.1707,
+      "weighted_extremized": 0.1504,
+      "acaps": 0.215
+    }
+  },
+  "aggregate_backtest_note": "Group forecast Brier by extremizing factor; out-of-sample weights (only questions earlier by Risk ID). Synthetic experts."
 }

@@ -18,6 +18,7 @@ import random
 import sqlite3
 from pathlib import Path
 
+from aggregate import EXTREMIZE, backtest_aggregates
 from ingest import build_db
 from leaderboard import leaderboard, track_record
 from scoring import (ACAPS_PROB, APP_MAPPING, CALIBRATION_PRIOR, MAPPINGS, calibrated_acaps, calibration,
@@ -220,6 +221,12 @@ def run(db_path=BACKTEST_DB):
     score_db(con)
     tokens = {v["expert_id"]: v["author_token"] for v in out["vault"]}
     summary = summarise(con, acaps_labels, [(e, tokens[e["expert_id"]]) for e in out["experts"]])
+    order = [q for (q,) in con.execute("SELECT question_id FROM questions WHERE question_id LIKE '%-MAT' ORDER BY risk_id")]
+    summary["aggregate_backtest"] = {
+        str(a): backtest_aggregates(con, order, a)["brier"] for a in (1.0, 1.25, EXTREMIZE, 2.0)
+    }
+    summary["aggregate_backtest_note"] = ("Group forecast Brier by extremizing factor; out-of-sample weights "
+                                          "(only questions earlier by Risk ID). Synthetic experts.")
     board = leaderboard(con)
     records = {e["expert_id"]: track_record(con, tokens[e["expert_id"]]) for e in out["experts"]}
     con.close()
@@ -258,6 +265,10 @@ def main():
     print("\nACAPS calibration:")
     for b in summary["acaps"]["calibration"]:
         print(f"  said {b['mean_prob']:.0%} → materialised {b['observed']:.0%} (n={b['n']})")
+    print("\nGroup aggregate (out-of-sample), Brier by extremizing factor:")
+    for a, b in summary["aggregate_backtest"].items():
+        print(f"  ×{a}: median {b['median']:.3f}  weighted {b['weighted']:.3f}  "
+              f"weighted+extremized {b['weighted_extremized']:.3f}  (ACAPS {b['acaps']:.3f})")
     print("\nLeaderboard:")
     for e in board["entries"]:
         badge = "  ★ super estimator" if e["super_estimator"] else ""

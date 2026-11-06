@@ -59,11 +59,11 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 
 ## Latest update
 
-### Lane A — update #8 — 19:25
-Done: (1) badge now needs a clear gain (paired 90% lower bound > 0) vs BOTH raw and calibrated ACAPS; (2) `badge_progress` in the track record; (3) draft `analysis/questions/short_horizon.json`: 9 questions (R1043 ×5, R1066/Lac ×4) from the triggers, opening 1 Dec 2026, closing 31 Jan–1 Mar 2027, each with `resolution_criterion` + `resolution_source.type`; valid against Lane C's `common.schema.json` question. Still 2/8 badges. 46 unittests pass.
-Pushed: lane-a + main @ 50ff2ea
-How to see it: `python3 analysis/backtest.py` → `analysis/charts/track_record_example.json` (`badge_progress`); questions in `analysis/questions/short_horizon.json`
-Requests to other lanes: →C: new track-record object **`badge_progress`** = `{baseline: "raw_acaps"|"calibrated_acaps", gain, gain_ci90: [lo, hi], more_forecasts_needed}` (`0` = earned, `null` = gain ≤ 0); also `gain_vs_acaps`, `gain_vs_acaps_lower90` (per expert and in leaderboard entries) · →B: load `short_horizon.json` questions into a pilot round when ready (extra fields `opens_at`, `horizon_months`, `resolution_criterion`, `resolution_source`, `threshold_status`); thresholds + French need Alex / native-speaker check
-Contract change proposed: badge = ≥5 resolved AND lower90 gain > 0 vs raw AND calibrated ACAPS; question extra fields above
+### Lane A — update #9 — 19:29
+Done: `analysis/aggregate.py`. Lane B keeps owning the group view gate/auth (`api/rounds.py::aggregate`), so these are plain functions to call. Weighted group forecast (log-odds, track-record weights shrunk to group average, new experts = average, ×1.5 extremizing), out-of-sample only. Backtest (synthetic, Risk ID order): median 0.181 → weighted 0.171 → weighted+extremized 0.157 (ACAPS 0.215). Moderator `disagreement()`: IQR/spread, split flag, distance from ACAPS, rating shares. 54 unittests pass (n<3 → None, no tokens/names, own outcome never moves own aggregate).
+Pushed: lane-a + main @ fc555e6
+How to see it: `python3 analysis/backtest.py` (aggregate table) · `backtest_summary.json` → `aggregate_backtest`
+Requests to other lanes: →B: call `aggregate.aggregate(con, question_id)` → `None` if n<3, else `{question_id, n, min_n, median, weighted, weighted_extremized, extremize_factor, aggregate, n_weighted_by_track_record, values: [shuffled probs]}`; add `aggregate` (the value to show) next to your median in `/rounds/{id}/aggregate` and `/thread`. Call `aggregate.disagreement(con, question_id)` for `/moderator/rounds/{id}` → `None` if n<3, else `{question_id, min_n, rating_shares, n, iqr: [q1, q3], spread, split, split_at, aggregate, acaps_prob, aggregate_minus_acaps, vs_acaps: "close"|"higher"|"lower"}`; `rating_shares` = `{probability: {too_low, agree, too_high}, impact: {…}}` if you store `rating_probability` / `rating_impact`, else `{overall: {agree, disagree}}` · →C: show `aggregate` as the group's forecast (median stays available); `values` are unnamed and shuffled, so sort them for the dot plot
+Contract change proposed: group forecast shown = `aggregate` (weighted, ×1.5 extremized) instead of median; store Lane C's `rating_probability` / `rating_impact` so moderator shares are 3-way
 Next: (open) moderator dashboard (Streamlit) or GJP-calibrated synthetic experts
 Blockers: none
