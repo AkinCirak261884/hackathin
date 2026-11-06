@@ -1,10 +1,10 @@
-import React from 'react'
-import { api, DEMO_TOKEN } from '../api.js'
+import React, { useState } from 'react'
+import { api, DEMO_TOKEN, lastSubmission } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, r05, recordSummary } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
-import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars } from '../components/charts.jsx'
+import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter } from '../components/charts.jsx'
 
 export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const { t, tx, date } = useT()
@@ -73,12 +73,63 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
         </article>
       </div>
 
-      {agg.can_revise && (
-        <div className="card revise">
-          <Head title={t('revise')} sub={t('revise_sub')} />
-          <button className="btn ghost" onClick={() => alert('TODO: revise (version 2)')}>{t('revise')}</button>
+      <MyAnswers round={round} agg={agg} />
+    </section>
+  )
+}
+
+// Read-only view of what this expert submitted. Uses the locally kept submission; falls back to the
+// "you" values the aggregate endpoint returns (enough for rating, forecasts and ranking).
+function MyAnswers({ round, agg }) {
+  const { t, tx } = useT()
+  const [open, setOpen] = useState(false)
+  const sub = lastSubmission()
+  const mine = sub?.round_id === round.round_id ? sub : null
+  const byQ = Object.fromEntries((mine?.answers || []).map((x) => [x.question_id, x]))
+  const rating = round.questions.find((q) => q.kind === 'rating')
+  const ranking = round.questions.find((q) => q.kind === 'ranking')
+  const forecasts = round.questions.filter((q) => q.kind === 'forecast')
+  const you = agg.rating.you
+  const r = byQ[rating.question_id] || { rating_probability: you.probability, rating_impact: you.impact }
+  const picks = byQ[ranking.question_id]?.ranking || you.ranking || []
+  const label = (id) => tx(ranking.options.find((o) => o.option_id === id), 'label')
+
+  return (
+    <div className="card check-answers">
+      <Head title={t('check')} sub={t('check_sub')} />
+      <button className="btn ghost" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? t('check_hide') : t('check')}</button>
+      {open && (
+        <div className="recap answers">
+          <div className="recap-row">
+            <span>{tx(rating, 'title')}</span>
+            <b>{t('probability')}: {t(r.rating_probability)} · {t('impact')}: {t(r.rating_impact)}</b>
+          </div>
+          {forecasts.map((q) => {
+            const p = byQ[q.question_id]?.prob ?? agg.forecasts.find((f) => f.question_id === q.question_id)?.you
+            return (
+              <div key={q.question_id} className="recap-row">
+                <span>{tx(q, 'title')}{byQ[q.question_id]?.seeing ? ` · ✓ ${t('a_seeing')}` : ''}</span>
+                {p != null && <div className="recap-prob"><ProbMeter p={p} /><b>{asPct(p)}</b></div>}
+              </div>
+            )
+          })}
+          <div className="recap-row">
+            <span>{tx(ranking, 'title')}</span>
+            <ol className="answer-list">{picks.length ? picks.map((id) => <li key={id}>{label(id)}</li>) : <li>{t('a_none')}</li>}</ol>
+          </div>
+          {mine && (
+            <>
+              <div className="recap-row"><span>{t('a_missing')}</span><b className="answer-text">{mine.missing_text || t('a_none')}</b></div>
+              <div className="recap-row"><span>{t('a_why')}</span><b className="answer-text">{mine.reasoning_text || t('a_none')}</b></div>
+              <div className="recap-row">
+                <span>{t('a_basis')}</span>
+                <div className="chips">{(mine.reasoning_basis || []).length ? mine.reasoning_basis.map((b) => <span key={b} className="chip">{t(`b_${b}`)}</span>) : <b>{t('a_none')}</b>}</div>
+              </div>
+              <div className="recap-row"><span>{t('a_tier')}</span><b>{t(`tier_${mine.tier}`)}</b></div>
+            </>
+          )}
         </div>
       )}
-    </section>
+    </div>
   )
 }

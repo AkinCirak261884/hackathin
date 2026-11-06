@@ -19,5 +19,5 @@ Pushed: lane-c | PR: https://github.com/AkinCirak261884/hackathin/pull/1
 How to see it: cd web && npm install && npm run dev → http://localhost:5173
 Requests to other lanes: →B: store reasoning_text / reasoning_basis (moderator-only, like missing_text). →A: optional: use reasoning_basis in the moderator view
 Contract change proposed: questions.title/title_fr; responses.reasoning_text/reasoning_basis (see contracts/README.md)
-Next: revise flow (version 2) + offline queue
+Next: offline queue; decide with team whether to keep a one-time revise (Delphi round 2)
 Blockers: contract freeze needs A+B OK
