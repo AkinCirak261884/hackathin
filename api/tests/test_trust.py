@@ -49,7 +49,7 @@ def test_moderator_can_issue_new_invite():
 
 def test_rate_limit_per_invite():
     for _ in range(trust.RATE_LIMIT):
-        assert respond().status_code == 201
+        assert respond().status_code in (201, 409)  # 409 = already answered; still counted
     assert respond().status_code == 429
     assert respond(invite="inv_demo_03").status_code == 201  # other invites unaffected
 
@@ -63,11 +63,10 @@ def test_pseudonymous_token_is_pseudonym_id_not_name():
 
 def test_anonymous_token_is_stable_and_unlinkable():
     a = respond(tier="anonymous", secret=SECRET).json()["author_token"]
-    b = respond(invite="inv_demo_05", tier="anonymous", secret=SECRET).json()["author_token"]
+    b = trust.authenticate("inv_demo_05", "anonymous", SECRET)
     assert a == b                       # depends only on the device secret, not on the invite
     assert a.startswith("anon_") and "EXP-TCD" not in a and SECRET not in a
-    other = respond(tier="anonymous", secret=SECRET + "x").json()["author_token"]
-    assert other != a
+    assert trust.anonymous_token(SECRET + "x") != a
 
 
 def test_anonymous_tier_requires_strong_secret():
@@ -98,7 +97,7 @@ NON_MODERATOR = [
     ("get", "/rounds/open?panel=TCD"),
     ("get", f"/rounds/{RID}"),
     ("post", f"/rounds/{RID}/responses"),
-    ("get", f"/rounds/{RID}/aggregate?token=psd_EXP-TCD-01"),
+    ("get", f"/rounds/{RID}/aggregate"),
     ("get", "/me/track-record?token=psd_EXP-TCD-01"),
     ("get", "/public/summaries"),
 ]
@@ -107,10 +106,11 @@ NON_MODERATOR = [
 @pytest.mark.parametrize("method,url", NON_MODERATOR)
 @pytest.mark.parametrize("tier", trust.TIERS)
 def test_no_non_moderator_endpoint_returns_a_vault_identity(method, url, tier):
-    if method == "post":
-        r = respond(tier=tier, secret=SECRET)
-    else:
-        r = client.get(url)
+    r = respond(tier=tier, secret=SECRET)
+    for i in (2, 3):  # enough authors that the aggregate is not suppressed
+        respond(invite=f"inv_demo_0{i}", tier="pseudonymous")
+    if method == "get":
+        r = client.get(url, headers={"X-Invite-Token": "inv_demo_01", "X-Device-Secret": SECRET})
     assert r.status_code in (200, 201), r.text
     payload = json.dumps(r.json()).lower()
     leaked = [x for x in vault_identities() if x in payload]

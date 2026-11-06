@@ -58,6 +58,11 @@ CREATE TABLE IF NOT EXISTS scores (
     author_token TEXT NOT NULL, question_id TEXT NOT NULL REFERENCES questions(question_id),
     brier REAL NOT NULL, PRIMARY KEY (author_token, question_id)
 );
+CREATE TABLE IF NOT EXISTS observed_triggers (
+    round_id TEXT NOT NULL REFERENCES rounds(round_id), author_token TEXT NOT NULL,
+    trigger_id TEXT NOT NULL, version INTEGER NOT NULL CHECK (version IN (1, 2)),
+    PRIMARY KEY (round_id, author_token, trigger_id, version)
+);
 CREATE TABLE IF NOT EXISTS summaries (
     round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
     approved_text TEXT NOT NULL, published_at TEXT NOT NULL
@@ -74,6 +79,13 @@ CREATE TABLE IF NOT EXISTS invites (
     invite_token TEXT PRIMARY KEY, expert_id TEXT NOT NULL,
     country_panel TEXT NOT NULL, created_at TEXT NOT NULL,
     revoked INTEGER NOT NULL DEFAULT 0
+);
+-- "This invite already answered round R (version v)". Deliberately has NO author_token,
+-- so it stops double submissions without linking an invite to an anonymous answer.
+CREATE TABLE IF NOT EXISTS round_participation (
+    round_id TEXT NOT NULL, invite_token TEXT NOT NULL,
+    version INTEGER NOT NULL CHECK (version IN (1, 2)),
+    PRIMARY KEY (round_id, invite_token, version)
 );
 """
 

@@ -17,3 +17,12 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
 - Only `trust.resolve_identity` reads names, and only for the "known" tier (moderator view).
 - Moderator: `POST /moderator/invites {expert_id}` · `POST /moderator/invites/{token}/revoke`.
 - DB paths: `GT_DB`, `GT_VAULT_DB` env vars (default `api/var/`).
+
+## Responses & aggregate (`api/rounds.py`)
+
+- v1 once per invite per round; v2 once, after v1, same tier. Closed round → 409.
+- `GET /rounds/{id}/aggregate` with headers `X-Invite-Token` (+ `X-Device-Secret` for anonymous).
+  403 until you submitted; each question `suppressed` until n ≥ 3 distinct authors (latest version
+  counts); dots sorted; free text never included.
+- Lane A data: if `analysis/synthetic/` exists, the seed uses that panel (invites `inv_tcd_01…`), and
+  `responses_R1043.json` posts cleanly (test `test_lane_a_synthetic_round_posts_cleanly`).

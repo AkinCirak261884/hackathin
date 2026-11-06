@@ -1,12 +1,32 @@
-"""Seed the Chad panel with 8 SYNTHETIC experts, vault entries and demo invites.
+"""Seed R1043 (risk, triggers, questions, round) and the SYNTHETIC Chad panel.
 
-    python -m api.seed          # demo invites: inv_demo_01 ... inv_demo_08
+    python -m api.seed
 
-Names/emails are fake and exist only in vault.db (example.org is reserved for docs).
+Panel source, in order:
+1. Lane A's `analysis/synthetic/{experts,vault}.json` (or $GT_SYNTH_DIR), if present:
+   invites inv_tcd_01 ... so their responses_R1043.json can be POSTed as-is.
+2. Otherwise a built-in panel with invites inv_demo_01 ... inv_demo_08.
+Names/emails are fake and go only into vault.db.
 """
+import json
+import os
+from pathlib import Path
+
 from api import db, trust
 
-PANEL = [
+MOCKS = Path(__file__).parent / "mocks"
+SYNTH_DIR = Path(os.environ.get("GT_SYNTH_DIR", Path(__file__).parent.parent / "analysis" / "synthetic"))
+
+ROUND_ID, RISK_ID = "RND-R1043-1", "R1043"
+RISK = (RISK_ID, "Escalating cross-border insecurity linked to the Sudan conflict increases protection "
+        "risks and humanitarian needs in eastern Chad", "Chad", "High", 4, "High", "Active")
+TRIGGERS = [
+    ("T0618", "Expansion of cross-border attacks and insecurity", 0.4),
+    ("T0619", "Attacks on strategic infrastructure in Chad", 0.1),
+    ("T0620", "Renewed proxy mobilisation and cross-border armed group activity", 0.2),
+]
+
+BUILTIN_PANEL = [
     # expert_id,     pseudonym,  lang, default_tier
     ("EXP-TCD-01", "Kestrel", "fr", "known"),
     ("EXP-TCD-02", "Linden", "en", "pseudonymous"),
@@ -23,21 +43,46 @@ def demo_invite(i: int) -> str:
     return f"inv_demo_{i:02d}"
 
 
-def seed() -> list[str]:
+def load_panel(synth_dir: Path = SYNTH_DIR) -> list[dict]:
+    experts, vault = synth_dir / "experts.json", synth_dir / "vault.json"
+    if experts.exists() and vault.exists():
+        by_id = {v["expert_id"]: v for v in json.loads(vault.read_text(encoding="utf-8"))}
+        return [{**e, "name": by_id[e["expert_id"]]["name"], "email": by_id[e["expert_id"]]["email"],
+                 "invite_token": by_id[e["expert_id"]]["invite_token"]}
+                for e in json.loads(experts.read_text(encoding="utf-8"))]
+    return [{"expert_id": eid, "pseudonym": p, "country_panel": "TCD", "lang": lang, "default_tier": tier,
+             "name": f"Synthetic Expert {i:02d}", "email": f"synthetic.expert{i:02d}@example.org",
+             "invite_token": demo_invite(i)}
+            for i, (eid, p, lang, tier) in enumerate(BUILTIN_PANEL, start=1)]
+
+
+def seed_content(m) -> None:
+    m.execute("INSERT OR IGNORE INTO risks VALUES (?,?,?,?,?,?,?)", RISK)
+    for tid, title, rate in TRIGGERS:
+        m.execute("INSERT OR IGNORE INTO triggers (trigger_id, risk_id, title, completion_rate)"
+                  " VALUES (?,?,?,?)", (tid, RISK_ID, title, rate))
+    for q in json.loads((MOCKS / "_questions.json").read_text(encoding="utf-8")):
+        m.execute("INSERT OR IGNORE INTO questions (question_id, risk_id, trigger_id, text, closes_at)"
+                  " VALUES (?,?,?,?,?)", (q["question_id"], RISK_ID, q["trigger_id"], q["text"], q["closes_at"]))
+    m.execute("INSERT OR IGNORE INTO rounds VALUES (?,?,?,?)", (ROUND_ID, RISK_ID, "blind", "2026-11-06"))
+
+
+def seed(synth_dir: Path = SYNTH_DIR) -> list[str]:
     db.init_db()
+    panel = load_panel(synth_dir)
     with db.main_db() as m, db.vault_db() as v:
-        for i, (eid, pseud, lang, tier) in enumerate(PANEL, start=1):
-            m.execute(
-                "INSERT OR REPLACE INTO experts (expert_id, pseudonym, country_panel, lang, default_tier)"
-                " VALUES (?,?,?,?,?)", (eid, pseud, "TCD", lang, tier))
-            v.execute(
-                "INSERT OR REPLACE INTO identity_vault (expert_id, name, email) VALUES (?,?,?)",
-                (eid, f"Synthetic Expert {i:02d}", f"synthetic.expert{i:02d}@example.org"))
-            v.execute("DELETE FROM invites WHERE invite_token = ?", (demo_invite(i),))
-    for i, (eid, *_rest) in enumerate(PANEL, start=1):
-        trust.create_invite(eid, "TCD", token=demo_invite(i))
-    return [demo_invite(i) for i in range(1, len(PANEL) + 1)]
+        seed_content(m)
+        for e in panel:
+            m.execute("INSERT OR REPLACE INTO experts (expert_id, pseudonym, country_panel, lang, default_tier)"
+                      " VALUES (?,?,?,?,?)",
+                      (e["expert_id"], e["pseudonym"], e["country_panel"], e["lang"], e["default_tier"]))
+            v.execute("INSERT OR REPLACE INTO identity_vault (expert_id, name, email) VALUES (?,?,?)",
+                      (e["expert_id"], e["name"], e["email"]))
+            v.execute("DELETE FROM invites WHERE invite_token = ?", (e["invite_token"],))
+    for e in panel:
+        trust.create_invite(e["expert_id"], e["country_panel"], token=e["invite_token"])
+    return [e["invite_token"] for e in panel]
 
 
 if __name__ == "__main__":
-    print("Seeded TCD panel. Demo invites:", ", ".join(seed()))
+    print("Seeded R1043 + TCD panel. Invites:", ", ".join(seed()))

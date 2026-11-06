@@ -9,12 +9,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal, Optional
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from api import db, seed, trust
+from api import db, rounds, seed, trust
 from api.db import init_db
 
 MOCKS = Path(__file__).parent / "mocks"
@@ -72,6 +72,7 @@ class InviteIn(BaseModel):
 # ---------- expert / public ----------
 
 def _round_or_404(round_id: str) -> dict:
+    rounds.get_round(round_id)  # 404 via TrustError handler
     for r in mock("rounds_open")["rounds"]:
         if r["round_id"] == round_id:
             return r
@@ -99,9 +100,9 @@ def get_round(round_id: str):
         "risk": {"risk_id": "R1043", "country": "Chad", "probability": "High",
                  "impact": 4, "level": "High", "status": "Active"},
         "triggers": [
-            {"trigger_id": "R1043 - T0618", "title": "Expansion of cross-border attacks and insecurity", "completion_rate": 0.4},
-            {"trigger_id": "R1043 - T0619", "title": "Attacks on strategic infrastructure in Chad", "completion_rate": 0.1},
-            {"trigger_id": "R1043 - T0620", "title": "Renewed proxy mobilisation and cross-border armed group activity", "completion_rate": 0.2},
+            {"trigger_id": "T0618", "title": "Expansion of cross-border attacks and insecurity", "completion_rate": 0.4},
+            {"trigger_id": "T0619", "title": "Attacks on strategic infrastructure in Chad", "completion_rate": 0.1},
+            {"trigger_id": "T0620", "title": "Renewed proxy mobilisation and cross-border armed group activity", "completion_rate": 0.2},
         ],
         "questions": mock("_questions"),
     }
@@ -109,20 +110,16 @@ def get_round(round_id: str):
 
 @app.post("/rounds/{round_id}/responses", status_code=201)
 def post_response(round_id: str, body: ResponseIn):
-    _round_or_404(round_id)
-    token = trust.authenticate(body.invite_token, body.tier, body.device_secret)
-    out = mock("response_created")
-    out["author_token"] = token
-    out["version"] = body.version
-    out["stored"] = len(body.answers)
-    out["can_revise"] = body.version == 1
-    return out
+    return rounds.submit(round_id, body.invite_token, body.tier, body.device_secret, body.version,
+                         [a.model_dump() for a in body.answers], body.triggers_observed, body.missing_text)
 
 
 @app.get("/rounds/{round_id}/aggregate")
-def aggregate(round_id: str, token: Optional[str] = None):
-    _round_or_404(round_id)
-    return mock("aggregate")
+def aggregate(round_id: str,
+              x_invite_token: str = Header(..., description="your invite token"),
+              x_device_secret: Optional[str] = Header(None, description="anonymous tier only")):
+    """Secrets go in headers, never in the URL (URLs end up in logs and browser history)."""
+    return rounds.aggregate(round_id, x_invite_token, x_device_secret)
 
 
 @app.get("/me/track-record")
