@@ -59,11 +59,11 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 
 ## Latest update
 
-### Lane A — update #5 — 19:00
-Done: `analysis/leaderboard.py`: per-question track record + leaderboard (≥5 resolved to rank, shrunk Brier k=5, badge = ≥5 resolved AND beats ACAPS on the same questions, "Anonymous expert", opt-out table). ACAPS mapping now band midpoints (5/22/50/78/95%, ACAPS 2019 methodology): Brier 0.2133 vs 0.2128 old edge mapping, app uses midpoint. Backtest writes only `analysis/backtest.db`. 31 unittests pass (badge, shrinkage, no invite/secret/token leaks).
-Pushed: lane-a @ 05782ac | PR: not opened yet (no gh CLI) — https://github.com/AkinCirak261884/hackathin/compare/main...lane-a
-How to see it: `python3 analysis/backtest.py` → `analysis/charts/leaderboard.json`, `track_record_example.json`, `calibration.svg`
-Requests to other lanes: →B: serve `/me/track-record` = `leaderboard.track_record(con, author_token)` and a peer leaderboard = `leaderboard.leaderboard(con, viewer_token)` (import from `analysis/leaderboard.py`, works on your DB as is: psd_/anon_ tokens, `experts`, `questions.outcome`, `risks.probability`); add your `impact` list on top; optional table `leaderboard_opt_out(author_token)` · →C: track record = `{author_token, n_resolved, mean_brier, acaps_baseline_brier, n_beat_acaps, super_estimator, min_resolved, forecasts_until_counted, rank, n_ranked, rank_percentile, history:[{question_id, text, closes_at, outcome, outcome_label, your_prob, brier, acaps_prob, acaps_brier, beat_acaps}]}`; leaderboard = `{min_resolved, entries:[{rank, display_name, n_resolved, shrunk_brier, mean_brier, acaps_brier_same_questions, super_estimator, is_you}], n_not_yet_ranked}`. Examples in `analysis/charts/`. ACAPS High is now 0.78, not 0.7 (your `acaps_baseline`)
-Contract change proposed: ACAPS probability mapping = midpoints 0.05/0.22/0.50/0.78/0.95 (BOARD.md "Scoring" says 10/30/50/70/90)
-Next: short-horizon (1–3 month) questions for the pilot
+### Lane A — update #6 — 19:12
+Done: `lane-a` merged into `main` (leaderboard available to B and C). `track_record()` now also returns `pending` (unresolved final answers, soonest deadline first, Lane C fixture shape; `title_fr`/`text_fr` null). Synthetic archetypes made realistic: only the 2 "sharp" experts know more than ACAPS → 2 of 8 earn the badge (was 6). Found: ACAPS's Very Low/Very High ratings are overconfident (5% → 33% happened, 95% → 88%), so hedging alone "beats" ACAPS. 33 unittests pass.
+Pushed: lane-a + main @ 097b609
+How to see it: `python3 analysis/backtest.py` → `analysis/charts/leaderboard.json`, `track_record_example.json` (now with `pending`)
+Requests to other lanes: →B: `leaderboard.track_record()` now includes `pending`; synthetic answers in `analysis/synthetic/responses_R1043.json` changed values again (format unchanged) · →C: `pending` items = `{question_id, title, title_fr, text, text_fr, your_prob, closes_at, submitted_at}`; resolved items are under `history` (your fixture calls it `resolved`, and `acaps_mean_brier` is `acaps_baseline_brier` here)
+Contract change proposed: (still open) ACAPS mapping midpoints 0.05/0.22/0.50/0.78/0.95 · Lane A supports option (c) for B↔C: B's IDs, token in a header (never `?token=`), anon token computed on the phone, server keeps only its HMAC, no invite→anon link stored or logged
+Next: short-horizon (1–3 month) questions for the pilot (separate session)
 Blockers: none
