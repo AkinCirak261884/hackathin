@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { api, DEMO_TOKEN, lastSubmission } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
-import { asPct, r05, recordSummary } from '../stats.js'
+import { asPct, r05, recordSummary, verdict } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
-import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter } from '../components/charts.jsx'
+import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 
 export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const { t, tx, date } = useT()
@@ -40,6 +40,7 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
         </div>
       )}
       <Head level={1} title={t('reveal')} sub={t('reveal_sub', n)} />
+      {round.practice && round.outcome && <PracticeOutcome round={round} agg={agg} />}
 
       <div className="grid">
         <article className="card chart-card">
@@ -67,10 +68,12 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
           )
         })}
 
-        <article className="card chart-card">
-          <Head title={t('r_ranking')} sub={t('r_ranking_sub')} />
-          <RankingBars ranking={agg.ranking} options={ranking.options} yours={agg.rating.you.ranking || []} />
-        </article>
+        {ranking && (
+          <article className="card chart-card">
+            <Head title={t('r_ranking')} sub={t('r_ranking_sub')} />
+            <RankingBars ranking={agg.ranking} options={ranking.options} yours={agg.rating.you.ranking || []} />
+          </article>
+        )}
       </div>
 
       <Comments comments={agg.comments || []} round={round} />
@@ -84,16 +87,15 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
 function MyAnswers({ round, agg }) {
   const { t, tx } = useT()
   const [open, setOpen] = useState(false)
-  const sub = lastSubmission()
-  const mine = sub?.round_id === round.round_id ? sub : null
+  const mine = lastSubmission(round.round_id)
   const byQ = Object.fromEntries((mine?.answers || []).map((x) => [x.question_id, x]))
   const rating = round.questions.find((q) => q.kind === 'rating')
   const ranking = round.questions.find((q) => q.kind === 'ranking')
   const forecasts = round.questions.filter((q) => q.kind === 'forecast')
   const you = agg.rating.you
   const r = byQ[rating.question_id] || { rating_probability: you.probability, rating_impact: you.impact }
-  const picks = byQ[ranking.question_id]?.ranking || you.ranking || []
-  const label = (id) => tx(ranking.options.find((o) => o.option_id === id), 'label')
+  const picks = (ranking && byQ[ranking.question_id]?.ranking) || you.ranking || []
+  const label = (id) => tx(ranking?.options.find((o) => o.option_id === id), 'label')
 
   return (
     <div className="card check-answers">
@@ -114,10 +116,12 @@ function MyAnswers({ round, agg }) {
               </div>
             )
           })}
-          <div className="recap-row">
-            <span>{tx(ranking, 'title')}</span>
-            <ol className="answer-list">{picks.length ? picks.map((id) => <li key={id}>{label(id)}</li>) : <li>{t('a_none')}</li>}</ol>
-          </div>
+          {ranking && (
+            <div className="recap-row">
+              <span>{tx(ranking, 'title')}</span>
+              <ol className="answer-list">{picks.length ? picks.map((id) => <li key={id}>{label(id)}</li>) : <li>{t('a_none')}</li>}</ol>
+            </div>
+          )}
           {mine && (
             <>
               <div className="recap-row"><span>{t('a_missing')}</span><b className="answer-text">{mine.missing_text || t('a_none')}</b></div>
@@ -180,5 +184,31 @@ function Comments({ comments, round }) {
         })}
       </div>
     </section>
+  )
+}
+
+// Practice round: after answering, show what actually happened and how your forecast scored vs ACAPS.
+function PracticeOutcome({ round, agg }) {
+  const { t } = useT()
+  const o = round.outcome
+  const f = agg.forecasts[0]
+  const out = o.materialised ? 1 : 0
+  const you = f?.you
+  const b = you != null ? (you - out) ** 2 : null
+  const ab = (o.acaps_prob - out) ** 2
+  return (
+    <article className={`card outcome ${o.materialised ? 'yes' : 'no'}`}>
+      <div className="eyebrow">{t('practice_tag')} · {round.risk.country}</div>
+      <h2 className="q-title">{t('what_happened')}: {o.materialised ? t('happened') : t('not_happened')}</h2>
+      <p className="q-sub">{o.summary}</p>
+      {you != null && (
+        <div className="outcome-score">
+          <VerdictBadge verdict={verdict(you, out)} />
+          <span>{t('you_said', asPct(you))} · {t('acaps_said', asPct(o.acaps_prob))}</span>
+          <span className={`beat ${b < ab ? 'yes' : 'no'}`}>{b < ab ? `▲ ${t('beat_acaps')}` : t('acaps_closer')}</span>
+        </div>
+      )}
+      <p className="muted small">{t('practice_scored')}</p>
+    </article>
   )
 }

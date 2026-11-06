@@ -2,11 +2,25 @@
   {
     "round_id": "RD-R1043-1",
     "risk_id": "R1043",
+    "country": "Chad",
     "title": "Escalating cross-border insecurity linked to the Sudan conflict increases protection risks and humanitarian needs in eastern Chad",
     "stage": "blind",
     "closes_at": "2026-11-13T18:00:00Z",
     "n_questions": 5,
     "est_minutes": 3,
-    "answered": false
+    "answered": false,
+    "practice": false
+  },
+  {
+    "round_id": "RD-R0993-P",
+    "risk_id": "R0993",
+    "country": "Ukraine",
+    "title": "Resurgence of Russian attacks on Ukraine's energy infrastructure affect essential needs, socioeconomic conditions, and humanitarian operations after the end of the partial ceasefire in late April 2025",
+    "stage": "closed",
+    "closes_at": null,
+    "n_questions": 2,
+    "est_minutes": 2,
+    "answered": false,
+    "practice": true
   }
 ]

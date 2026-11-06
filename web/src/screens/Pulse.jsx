@@ -46,7 +46,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
   const forecasts = questions.filter((q) => q.kind === 'forecast')
   const ranking = questions.find((q) => q.kind === 'ranking')
   const trig = Object.fromEntries(risk.triggers.map((x) => [x.trigger_id, x]))
-  const optLabel = (id) => tx(ranking.options.find((o) => o.option_id === id), 'label')
+  const optLabel = (id) => tx(ranking?.options.find((o) => o.option_id === id), 'label')
 
   async function submit() {
     setBusy(true)
@@ -60,7 +60,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       answers: [
         { question_id: rating.question_id, rating_probability: a.rating_probability || 'agree', rating_impact: a.rating_impact || 'agree' },
         ...forecasts.map((q) => ({ question_id: q.question_id, prob: a.prob[q.question_id] ?? 0.5, seeing: !!a.seeing[q.trigger_id] })),
-        { question_id: ranking.question_id, ranking: a.ranking, ranking_other: null },
+        ...(ranking ? [{ question_id: ranking.question_id, ranking: a.ranking, ranking_other: null }] : []),
       ],
     }
     if (a.tier === 'anonymous') body.anon_token = await anonToken()
@@ -138,7 +138,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
         )
       }),
     },
-    {
+    ranking && {
       key: 'ranking', title: t('s_ranking'), sub: t('s_ranking_sub'),
       body: (
         <>
@@ -170,7 +170,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
             <div className="recap-row">
               <span>{t('s_rating')}</span>
               <b>{t('probability')}: {t(a.rating_probability || 'agree')} · {t('impact')}: {t(a.rating_impact || 'agree')}</b>
-              <button type="button" className="link" onClick={() => setStep(0)}>{t('edit')}</button>
+              <button type="button" className="link" onClick={() => goTo('rating')}>{t('edit')}</button>
             </div>
             {forecasts.map((q) => {
               const p = a.prob[q.question_id] ?? 0.5
@@ -178,15 +178,17 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
                 <div key={q.question_id} className="recap-row">
                   <span>{tx(q, 'title')}</span>
                   <div className="recap-prob"><ProbMeter p={p} /><b>{asPct(p)}</b></div>
-                  <button type="button" className="link" onClick={() => setStep(2)}>{t('edit')}</button>
+                  <button type="button" className="link" onClick={() => goTo('forecast')}>{t('edit')}</button>
                 </div>
               )
             })}
-            <div className="recap-row">
-              <span>{t('s_ranking')}</span>
-              <b>{a.ranking.length ? a.ranking.map((id, i) => `${i + 1}. ${optLabel(id)}`).join('  ') : '—'}</b>
-              <button type="button" className="link" onClick={() => setStep(3)}>{t('edit')}</button>
-            </div>
+            {ranking && (
+              <div className="recap-row">
+                <span>{t('s_ranking')}</span>
+                <b>{a.ranking.length ? a.ranking.map((id, i) => `${i + 1}. ${optLabel(id)}`).join('  ') : '—'}</b>
+                <button type="button" className="link" onClick={() => goTo('ranking')}>{t('edit')}</button>
+              </div>
+            )}
           </div>
           <label className="field-label" htmlFor="why">{t('why_label')}</label>
           <textarea id="why" rows="5" maxLength="1000" placeholder={t('why_ph')} value={a.why} onChange={(e) => set({ why: e.target.value })} />
@@ -208,8 +210,9 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       key: 'tier', title: t('s_tier'), sub: t('s_tier_sub'),
       body: <TierPicker value={a.tier} onChange={(tier) => set({ tier })} />,
     },
-  ]
+  ].filter(Boolean)
 
+  const goTo = (key) => setStep(steps.findIndex((x) => x.key === key))
   const s = steps[step]
   const last = step === steps.length - 1
   const go = (d) => { setStep(step + d); window.scrollTo({ top: 0, behavior: 'smooth' }) }
@@ -219,6 +222,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       <aside className="desktop-only pulse-aside card"><RiskSummary risk={risk} /></aside>
       <section className="pulse-main">
         <div className="progress" aria-hidden="true"><div style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
+        {round.practice && <p className="practice-note">🕘 {t('practice_note', date(round.as_of))}</p>}
         <Head level={1} eyebrow={t('step', step + 1, steps.length)} title={s.title} sub={s.sub} />
         <div className="step-body" key={s.key}>{s.body}</div>
         <div className="actionbar">

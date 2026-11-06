@@ -1,0 +1,72 @@
+{
+  "round_id": "RD-R0993-P",
+  "panel": "TCD",
+  "stage": "closed",
+  "practice": true,
+  "as_of": "2025-04-17",
+  "opened_at": "2025-04-17T00:00:00Z",
+  "closes_at": "2025-04-30T23:59:59Z",
+  "risk": {
+    "risk_id": "R0993",
+    "title": "Resurgence of Russian attacks on Ukraine's energy infrastructure affect essential needs, socioeconomic conditions, and humanitarian operations after the end of the partial ceasefire in late April 2025",
+    "country": "Ukraine",
+    "iso": "UKR",
+    "probability": "Medium",
+    "impact": 4,
+    "level": "Medium",
+    "status": "Active (April 2025)",
+    "trend": "Stable",
+    "rationale_short": "On 25 March 2025, the new US administration – under President Donald Trump – reached an agreement with Ukraine and Russia on a temporary 30-day pause in attacks on energy infrastructure. Ukraine agreed with the US on a list of energy facilities that Russia should stop attacking, although Russia took some oil and gas production facilities off the list and has continued attacking them.",
+    "expected_exposure": ">500,000",
+    "priority_needs": [
+      "Livelihoods",
+      "Health",
+      "Protection",
+      "Education"
+    ],
+    "triggers": [
+      {
+        "trigger_id": "T0482",
+        "risk_id": "R0993",
+        "title": "Ceasefire violation signals",
+        "description": "Russia will likely abuse any loopholes in its ceasefire agreement with the US. The US will likely avoid acknowledging Russian violations in order to push a full ceasefire, the negotiations of which are ongoing, and which Russia will likely continue to delay, and the Russian forces use the end of the partial ceasefire in late April to wage a country-wide combined missile and drone attack against the energy infrastructure.",
+        "completion_rate": 0.2,
+        "objective": "No"
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_id": "Q-R0993-RATING",
+      "risk_id": "R0993",
+      "trigger_id": null,
+      "kind": "rating",
+      "title": "ACAPS rating",
+      "title_fr": "L'évaluation d'ACAPS",
+      "text": "In April 2025 ACAPS rated this risk Medium probability and impact 4/5. Do you agree?",
+      "text_fr": "En avril 2025, ACAPS évaluait ce risque à une probabilité moyenne et un impact de 4/5. Êtes-vous d'accord ?",
+      "closes_at": "2025-04-30T23:59:59Z",
+      "acaps_baseline": 0.5,
+      "outcome": null
+    },
+    {
+      "question_id": "Q-R0993-T0482",
+      "risk_id": "R0993",
+      "trigger_id": "T0482",
+      "kind": "forecast",
+      "title": "Country-wide strike on the grid after the pause",
+      "title_fr": "Frappe massive sur le réseau après la trêve",
+      "text": "Will Russian forces launch a country-wide combined missile and drone attack on Ukraine's energy infrastructure after the partial ceasefire ends in late April 2025, before 31 October 2025?",
+      "text_fr": "Les forces russes lanceront-elles une attaque combinée de missiles et de drones sur les infrastructures énergétiques de toute l'Ukraine après la fin de la trêve partielle fin avril 2025, avant le 31 octobre 2025 ?",
+      "closes_at": "2025-10-31T23:59:59Z",
+      "acaps_baseline": 0.5,
+      "outcome": true
+    }
+  ],
+  "outcome": {
+    "materialised": true,
+    "what": "Hazard",
+    "summary": "The risk of large-scale civilian harm in Ukraine is steadily materialising as Russian forces intensify attacks on densely populated areas and critical infrastructure alongside US-led peace negotiations. Civilians have born the brunt of these hostilities, with repeated missile and drone strikes since April 2025 causing mass casualties, widespread destruction, and compounding humanitarian vulnerabilities.",
+    "acaps_prob": 0.5
+  }
+}

@@ -8,6 +8,7 @@ Mock responses for every endpoint in `../contracts/README.md`, so every lane can
 |---|---|
 | `rounds_open_TCD.json` | `GET /rounds/open?panel=TCD` |
 | `round_RD-R1043-1.json` | `GET /rounds/RD-R1043-1`: real R1043 risk and triggers T0618–T0620, 1 rating, 3 forecasts, 1 top-3 ranking |
+| `round_RD-R0993-P.json` / `aggregate_RD-R0993-P.json` | **practice round** on real resolved risk R0993 (Ukraine energy attacks, materialised): rating + 1 forecast as of April 2025, with the real outcome |
 | `post_response_request.json` / `post_response_201.json` | example POST body (Kestrel, version 1) and reply |
 | `aggregate_RD-R1043-1.json` | group view as seen by Kestrel after submitting (n=7), incl. 5 peer comments with records |
 | `aggregate_suppressed.json` | same endpoint when n<3 |

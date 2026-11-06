@@ -2,16 +2,21 @@
 import roundsOpen from '@fixtures/rounds_open_TCD.json'
 import round from '@fixtures/round_RD-R1043-1.json'
 import aggregate from '@fixtures/aggregate_RD-R1043-1.json'
+import practiceRound from '@fixtures/round_RD-R0993-P.json'
+import practiceAggregate from '@fixtures/aggregate_RD-R0993-P.json'
 import postReply from '@fixtures/post_response_201.json'
 import trackRecord from '@fixtures/me_track_record.json'
 import trackRecordNew from '@fixtures/me_track_record_new.json'
 import publicSummaries from '@fixtures/public_summaries.json'
-import { pct, r05 } from './stats.js'
+import { pct, r05, recordSummary } from './stats.js'
 
 const BASE = import.meta.env.VITE_API_URL
 export const MOCK = !BASE
 
 const clone = (v) => JSON.parse(JSON.stringify(v))
+const ROUNDS = { [round.round_id]: round, [practiceRound.round_id]: practiceRound }
+const AGGS = { [aggregate.round_id]: aggregate, [practiceAggregate.round_id]: practiceAggregate }
+const MAIN_ROUND = round.round_id
 const delay = (v) => new Promise((r) => setTimeout(() => r(clone(v)), 120))
 
 async function http(path, opts) {
@@ -20,17 +25,23 @@ async function http(path, opts) {
   return res.json()
 }
 
-// ---- mock-only: remember the demo user's last submission so reveal + profile reflect it
-const KEY = 'gt_submission'
-export function lastSubmission() {
-  try { return JSON.parse(localStorage.getItem(KEY)) } catch { return null }
+// ---- mock-only: remember the demo user's submissions, one per round, so reveal + profile reflect them
+const KEY = 'gt_submissions'
+function allSubmissions() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || {} } catch { return {} }
 }
+export function lastSubmission(roundId = MAIN_ROUND) {
+  return allSubmissions()[roundId] || null
+}
+export const hasAnySubmission = () => Object.keys(allSubmissions()).length > 0
 // TEMPORARY demo helper: forget this browser's answers so the survey can be taken again
 export function resetDemoAnswers() {
-  try { ['gt_submission', 'gt_forecast_updates'].forEach((k) => localStorage.removeItem(k)) } catch {}
+  try { ['gt_submissions', 'gt_submission', 'gt_forecast_updates'].forEach((k) => localStorage.removeItem(k)) } catch {}
 }
 function saveSubmission(roundId, body) {
-  try { localStorage.setItem(KEY, JSON.stringify({ round_id: roundId, submitted_at: new Date().toISOString(), ...body })) } catch {}
+  const all = allSubmissions()
+  all[roundId] = { round_id: roundId, submitted_at: new Date().toISOString(), ...body }
+  try { localStorage.setItem(KEY, JSON.stringify(all)) } catch {}
 }
 
 // The demo user is Kestrel (E01). Swap Kestrel's fixture answers for what the user actually entered.
@@ -55,7 +66,7 @@ function personalise(agg, sub) {
     }
   }
   const rank = Object.values(byQ).find((x) => x.ranking)
-  if (rank) {
+  if (rank && a.ranking.length) {
     const pts = Object.fromEntries(a.ranking.map((r) => [r.option_id, r]))
     a.rating.you.ranking.forEach((id, i) => { pts[id].points -= 3 - i; if (i === 0) pts[id].first_choice -= 1 })
     rank.ranking.forEach((id, i) => { pts[id].points += 3 - i; if (i === 0) pts[id].first_choice += 1 })
@@ -63,14 +74,15 @@ function personalise(agg, sub) {
     a.ranking.sort((x, y) => y.points - x.points)
   }
   // your own comment: swap Kestrel's fixture comment for what you wrote (or drop it if you wrote nothing)
-  const fixtureMe = a.comments?.find((c) => c.is_you)
+  // your record next to your comment = the same live record as the profile (includes practice results)
+  const live = recordSummary(personalTrackRecord(trackRecord, lastSubmission()).history)
   a.comments = (a.comments || []).filter((c) => !c.is_you)
   if (sub.reasoning_text) {
     const anon = sub.tier === 'anonymous'
     a.comments.unshift({
       comment_id: 'CM-YOU', display_name: anon ? 'Anonymous expert' : DEMO_PSEUDONYM, tier: sub.tier,
       text: sub.reasoning_text, basis: sub.reasoning_basis, is_you: true,
-      record: anon ? null : fixtureMe?.record ?? null,
+      record: anon ? null : { correct: live.correct, resolved: live.total },
       forecasts: anon ? null : Object.fromEntries(sub.answers.filter((x) => x.prob != null).map((x) => [x.question_id, x.prob])),
     })
   }
@@ -78,22 +90,44 @@ function personalise(agg, sub) {
 }
 
 function personalTrackRecord(tr, sub) {
-  if (!sub) return tr
+  const practice = lastSubmission(practiceRound.round_id)
+  if (!sub && !practice) return tr
   const t = clone(tr)
-  const byQ = Object.fromEntries(sub.answers.map((x) => [x.question_id, x]))
-  t.pending = t.pending.map((p) => ({ ...p, your_prob: byQ[p.question_id]?.prob ?? p.your_prob, submitted_at: sub.submitted_at }))
+  if (sub) {
+    const byQ = Object.fromEntries(sub.answers.map((x) => [x.question_id, x]))
+    t.pending = t.pending.map((p) => ({ ...p, your_prob: byQ[p.question_id]?.prob ?? p.your_prob, submitted_at: sub.submitted_at }))
+  }
+  // practice round answered: score it like any resolved forecast and add it to the record
+  if (practice) {
+    for (const q of practiceRound.questions.filter((x) => x.kind === 'forecast')) {
+      const p = practice.answers.find((x) => x.question_id === q.question_id)?.prob
+      if (p == null) continue
+      const o = q.outcome ? 1 : 0
+      const b = +((p - o) ** 2).toFixed(4), ab = +((q.acaps_baseline - o) ** 2).toFixed(4)
+      t.history.unshift({ question_id: q.question_id, risk_id: q.risk_id, text: `${q.text} (Ukraine, practice)`, closes_at: q.closes_at,
+        outcome: o, outcome_label: o ? 'happened' : "didn't happen", your_prob: p, brier: b,
+        acaps_prob: q.acaps_baseline, acaps_brier: ab, beat_acaps: b < ab, practice: true })
+    }
+    const h = t.history, n = h.length
+    t.n_resolved = n
+    t.mean_brier = +(h.reduce((s, x) => s + x.brier, 0) / n).toFixed(4)
+    t.acaps_baseline_brier = t.acaps_brier_same_questions = +(h.reduce((s, x) => s + x.acaps_brier, 0) / n).toFixed(4)
+    t.n_beat_acaps = h.filter((x) => x.beat_acaps).length
+    t.super_estimator = n >= t.min_resolved && t.mean_brier < t.acaps_baseline_brier
+    t.forecasts_until_counted = Math.max(0, t.min_resolved - n)
+  }
   return t
 }
 
 export const api = {
   openRounds: (panel = 'TCD') =>
-    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: lastSubmission()?.round_id === r.round_id }))) : http(`/rounds/open?panel=${panel}`),
-  round: (id) => (MOCK ? delay(round) : http(`/rounds/${id}`)),
+    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : http(`/rounds/open?panel=${panel}`),
+  round: (id) => (MOCK ? delay(ROUNDS[id] || round) : http(`/rounds/${id}`)),
   submit: (id, body) =>
     MOCK ? (saveSubmission(id, body), delay({ ...postReply, version: body.version }))
       : http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) }),
   aggregate: (id, token) =>
-    MOCK ? delay(personalise(aggregate, lastSubmission())) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
+    MOCK ? delay(personalise(AGGS[id] || aggregate, lastSubmission(id))) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
   // mock: add ?new=1 to the URL hash to see a new expert who is not ranked yet
   trackRecord: (token) =>
     MOCK ? delay(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission()))

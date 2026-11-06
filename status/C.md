@@ -13,11 +13,11 @@ Folders: `web/`, `pitch/`. Don't edit `contracts/`, `api/`, `analysis/`, `modera
 
 ## Latest update
 
-### Lane C — update #4 — 19:37
-Done: Peer comments on the results page ("why I think this"), each with the commenter's record ("7 of 8 correct · 88%") and their guesses; anonymous comments show no record/guesses. Leaderboard + rank removed from the app (team decision). Step 6 privacy note updated. Temporary "Reset my answers (demo)" button on Home.
+### Lane C — update #5 — 19:49
+Done: Ukraine practice round in check-ins: real resolved risk R0993 (energy attacks after the April 2025 pause) replayed as of 17 Apr 2025: answer → group view + "What actually happened" + scored vs ACAPS → added to your record. Answered check-ins now show a grey "✓ Answered" button. App handles rounds without the top-3 question.
 Pushed: lane-c | PR: https://github.com/AkinCirak261884/hackathin/pull/1
-How to see it: cd web && npm run dev → answer the R1043 check-in → results page, "Comments from the panel"
-Requests to other lanes: →B: add `comments[]` to /aggregate (contracts/schemas/aggregate.schema.json, invariant 1b): reasoning_text to peers only after own submit and n≥3, pseudonym or "Anonymous expert", no record/forecasts for anonymous. →A: per-expert correct/resolved count for the comment record (or I compute it from history[])
-Contract change proposed: aggregate.comments + invariant 1b; /leaderboard removed (contracts/README.md)
+How to see it: cd web && npm run dev → Check-ins → "Practice · resolved risk" card
+Requests to other lanes: →B: rounds can be `practice: true` with `as_of` + `outcome` (contracts/schemas/round.schema.json). →A: practice forecasts are scored like resolved ones (Brier vs ACAPS midpoint)
+Contract change proposed: round.practice / as_of / outcome; open-rounds.country / practice (contracts/README.md)
 Next: switch web/src/api.js to B's real API once IDs/auth are agreed
 Blockers: contract freeze needs A+B OK

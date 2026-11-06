@@ -161,6 +161,67 @@ LEADERBOARD_OTHERS = [("E04", 9, 0.112, 0.221), ("E05", 11, 0.171, 0.205), ("E03
                       ("E08", 2, 0.180, 0.200)]
 
 
+# ---------------------------------------------------------------- practice round: R0993 (Ukraine, resolved)
+# A real resolved ACAPS risk replayed as it stood in April 2025: answer first, then see what actually happened.
+PRACTICE_ID = "RD-R0993-P"
+PRACTICE_ANSWERS = {  # eid: (prob for T0482 question, rating_probability, rating_impact)
+    "E01": (0.60, "agree", "agree"), "E02": (0.50, "agree", "agree"), "E03": (0.85, "too_low", "agree"),
+    "E04": (0.45, "agree", "too_high"), "E05": (0.65, "too_low", "agree"), "E06": (0.70, "agree", "agree"),
+    "E07": (0.80, "too_low", "too_low"),
+}
+PRACTICE_COMMENTS = {
+    "E03": ("Russia kept hitting gas production sites during the pause; the pattern pointed to a big strike once it ended.", ["media_osint"]),
+    "E05": ("In past years strikes on the grid clustered before the heating season.", ["experience", "reports_data"]),
+    "E07": ("Les coupures ont repris dès la fin avril dans notre ville.", ["field_observation"]),
+}
+
+
+def practice_round_r0993(rows):
+    r = rows["R0993"]
+    trig = parse_triggers("R0993", r["Triggers"])[0]
+    o = r["Status"] == "Materialised"
+    q_rating = {"question_id": "Q-R0993-RATING", "risk_id": "R0993", "trigger_id": None, "kind": "rating",
+                "title": "ACAPS rating", "title_fr": "L'évaluation d'ACAPS",
+                "text": f"In April 2025 ACAPS rated this risk {r['Probability']} probability and impact {r['Impact']}/5. Do you agree?",
+                "text_fr": f"En avril 2025, ACAPS évaluait ce risque à une probabilité moyenne et un impact de {r['Impact']}/5. Êtes-vous d'accord ?",
+                "closes_at": "2025-04-30T23:59:59Z", "acaps_baseline": PROB_MAP[r["Probability"]], "outcome": None}
+    q_fc = {"question_id": f"Q-R0993-{trig['trigger_id']}", "risk_id": "R0993", "trigger_id": trig["trigger_id"], "kind": "forecast",
+            "title": "Country-wide strike on the grid after the pause", "title_fr": "Frappe massive sur le réseau après la trêve",
+            "text": "Will Russian forces launch a country-wide combined missile and drone attack on Ukraine's energy infrastructure after the partial ceasefire ends in late April 2025, before 31 October 2025?",
+            "text_fr": "Les forces russes lanceront-elles une attaque combinée de missiles et de drones sur les infrastructures énergétiques de toute l'Ukraine après la fin de la trêve partielle fin avril 2025, avant le 31 octobre 2025 ?",
+            "closes_at": "2025-10-31T23:59:59Z", "acaps_baseline": PROB_MAP[r["Probability"]], "outcome": o}
+    risk = {"risk_id": "R0993", "title": r["Risk Title"], "country": r["Country"], "iso": r["ISO"],
+            "probability": r["Probability"], "impact": int(r["Impact"]), "level": r["Risk Level"], "status": "Active (April 2025)",
+            "trend": r["Risk trend"] or "Stable", "rationale_short": first_sentences(r["Rationale"], 2),
+            "expected_exposure": r["Expected exposure"],
+            "priority_needs": [x.strip() for x in r["Expected priority needs"].split(",")], "triggers": [trig]}
+    outcome = {"materialised": o, "what": r["What materialised?"], "summary": first_sentences(r["Hazard materialisation"], 2),
+               "acaps_prob": PROB_MAP[r["Probability"]]}
+    rnd = {"round_id": PRACTICE_ID, "panel": "TCD", "stage": "closed", "practice": True, "as_of": "2025-04-17",
+           "opened_at": "2025-04-17T00:00:00Z", "closes_at": "2025-04-30T23:59:59Z", "risk": risk,
+           "questions": [q_rating, q_fc], "outcome": outcome}
+    write(f"round_{PRACTICE_ID}.json", rnd)
+    vals = [a[0] for a in PRACTICE_ANSWERS.values()]
+    counts = lambda i: {k: sum(a[i] == k for a in PRACTICE_ANSWERS.values()) for k in ["too_low", "agree", "too_high"]}
+    me = PRACTICE_ANSWERS["E01"]
+    exp = {e[0]: e for e in EXPERTS}
+    comments = []
+    for i, (eid, (why, basis)) in enumerate(PRACTICE_COMMENTS.items()):
+        anon = exp[eid][4] == "anonymous"
+        comments.append({"comment_id": f"CM-P{i + 1:02d}", "display_name": "Anonymous expert" if anon else exp[eid][1],
+                         "tier": exp[eid][4], "text": why, "basis": basis, "is_you": False,
+                         "record": None if anon else {"correct": PEER_RECORDS.get(eid, (5, 8))[0], "resolved": PEER_RECORDS.get(eid, (5, 8))[1]},
+                         "forecasts": None if anon else {q_fc["question_id"]: PRACTICE_ANSWERS[eid][0]}})
+    write(f"aggregate_{PRACTICE_ID}.json", {
+        "round_id": PRACTICE_ID, "n_responses": len(vals), "suppressed": False, "reason": None,
+        "rating": {"probability": counts(1), "impact": counts(2), "you": {"probability": me[1], "impact": me[2], "ranking": []}},
+        "forecasts": [{"question_id": q_fc["question_id"], "n": len(vals), "median": pct(vals, 0.5), "p25": pct(vals, 0.25),
+                       "p75": pct(vals, 0.75), "values": sorted(r05(v) for v in vals), "acaps_baseline": PROB_MAP[r["Probability"]],
+                       "seeing_count": 4, "you": me[0]}],
+        "ranking": [], "can_revise": False, "comments": comments})
+    return rnd
+
+
 def main():
     rows = load_rows()
     r = rows["R1043"]
@@ -205,9 +266,14 @@ def main():
     round_obj = {"round_id": ROUND_ID, "panel": "TCD", "stage": "blind", "opened_at": OPENED_AT,
                  "closes_at": ROUND_CLOSES_AT, "risk": risk, "questions": questions}
     write(f"round_{ROUND_ID}.json", round_obj)
-    write("rounds_open_TCD.json", [{
-        "round_id": ROUND_ID, "risk_id": "R1043", "title": risk["title"], "stage": "blind",
-        "closes_at": ROUND_CLOSES_AT, "n_questions": len(questions), "est_minutes": 3, "answered": False}])
+    practice = practice_round_r0993(rows)
+    write("rounds_open_TCD.json", [
+        {"round_id": ROUND_ID, "risk_id": "R1043", "country": "Chad", "title": risk["title"], "stage": "blind",
+         "closes_at": ROUND_CLOSES_AT, "n_questions": len(questions), "est_minutes": 3, "answered": False, "practice": False},
+        {"round_id": practice["round_id"], "risk_id": "R0993", "country": "Ukraine", "title": practice["risk"]["title"],
+         "stage": "closed", "closes_at": None, "n_questions": len(practice["questions"]), "est_minutes": 2,
+         "answered": False, "practice": True},
+    ])
 
     # experts + vault
     experts, vault, token_of = [], [], {}
