@@ -7,6 +7,16 @@ Each author's *final* answer counts: version 2 if they revised after the reveal,
 
 import statistics
 
+# ACAPS probability label -> number. ACAPS's 2019 risk methodology uses Medow & Lucey's unequal
+# ranges: Very low <10%, Low 10-33%, Moderate 34-66%, High 67-90%, Very high >90%.
+# The export calls "Moderate" "Medium".
+ACAPS_PROB_MIDPOINT = {"Very Low": 0.05, "Low": 0.22, "Medium": 0.50, "High": 0.78, "Very High": 0.95}
+# Earlier, evenly spaced mapping from BOARD.md, kept for comparison.
+ACAPS_PROB_EDGE = {"Very Low": 0.10, "Low": 0.30, "Medium": 0.50, "High": 0.70, "Very High": 0.90}
+MAPPINGS = {"midpoint": ACAPS_PROB_MIDPOINT, "edge": ACAPS_PROB_EDGE}
+APP_MAPPING = "midpoint"  # what the app, leaderboard and badge use
+ACAPS_PROB = MAPPINGS[APP_MAPPING]
+
 
 def brier(prob, outcome):
     return (prob - outcome) ** 2

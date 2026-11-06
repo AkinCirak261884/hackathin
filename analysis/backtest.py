@@ -8,7 +8,7 @@ The ACAPS baseline uses real outcomes. The experts' "knowledge" is simulated (se
 so their scores demonstrate the pipeline; they are not evidence that experts beat ACAPS.
 
 Usage:
-    python3 analysis/backtest.py      # writes analysis/charts/calibration.svg + backtest_summary.json
+    python3 analysis/backtest.py      # rebuilds analysis/backtest.db, writes analysis/charts/*
 """
 
 import argparse
@@ -18,14 +18,16 @@ import random
 import sqlite3
 from pathlib import Path
 
-from ingest import DEFAULT_DB, build_db
-from scoring import calibration, mean_brier, score_db
-from synthetic import ACAPS_PROB, EXPERTS, ROUND_ID, author_token, forecast, logit, save, sigmoid, simulate
+from ingest import build_db
+from leaderboard import leaderboard, track_record
+from scoring import ACAPS_PROB, APP_MAPPING, MAPPINGS, calibration, mean_brier, score_db
+from synthetic import EXPERTS, forecast, save, sigmoid, simulate
 
 SEED = 1043
 PARTICIPATION = 0.75
 SIGNAL = 0.8  # how strongly the simulated "ground truth" points to the real outcome (logit units)
 CHARTS = Path(__file__).resolve().parent / "charts"
+BACKTEST_DB = Path(__file__).resolve().parent / "backtest.db"  # never the API's DB
 OPENED = "2026-05-06"  # nominal; backtest rounds are already closed
 
 
@@ -42,11 +44,11 @@ def add_backtest(con, vault, seed=SEED):
     rng = random.Random(seed)
     tokens = {v["expert_id"]: v["author_token"] for v in vault}
     risks = resolved_risks(con)
-    acaps_pairs = []
+    acaps_pairs = []  # (label, outcome)
     for risk_id, title, probability, outcome in risks:
         qid, rid = f"Q-{risk_id}-MAT", f"RND-{risk_id}-BT"
         acaps_p = ACAPS_PROB[probability]
-        acaps_pairs.append((acaps_p, outcome))
+        acaps_pairs.append((probability, outcome))
         con.execute("INSERT OR REPLACE INTO rounds VALUES (?, ?, 'closed', ?)", (rid, risk_id, OPENED))
         con.execute(
             "INSERT OR REPLACE INTO questions (question_id, risk_id, trigger_id, text, closes_at, outcome)"
@@ -67,7 +69,8 @@ def add_backtest(con, vault, seed=SEED):
     return acaps_pairs, risks
 
 
-def summarise(con, acaps_pairs, experts):
+def summarise(con, acaps_labels, experts):
+    acaps_pairs = [(ACAPS_PROB[label], y) for label, y in acaps_labels]
     base_rate = sum(y for _, y in acaps_pairs) / len(acaps_pairs)
     by_token = {}
     for token, _qid, p, y in con.execute("""
@@ -82,14 +85,21 @@ def summarise(con, acaps_pairs, experts):
     for e, token in experts:
         pairs = by_token.get(token, [])
         rows.append({
-            "pseudonym": e["pseudonym"], "archetype": e["archetype"], "author_token": token,
+            # Anonymous-tier experts never appear with a pseudonym, and no tokens leave this file.
+            "display_name": "Anonymous expert" if token.startswith("anon_") else e["pseudonym"],
+            "archetype": e["archetype"], "anonymous": token.startswith("anon_"),
             "n": len(pairs), "brier": round(mean_brier(pairs), 4), "calibration": calibration(pairs),
         })
     rows.sort(key=lambda r: r["brier"])
     return {
         "n_resolved": len(acaps_pairs),
         "base_rate": round(base_rate, 3),
+        "acaps_mapping_used": APP_MAPPING,
         "acaps": {"brier": round(mean_brier(acaps_pairs), 4), "calibration": calibration(acaps_pairs)},
+        "acaps_brier_by_mapping": {
+            name: {"brier": round(mean_brier([(m[label], y) for label, y in acaps_labels]), 4), "probabilities": m}
+            for name, m in MAPPINGS.items()
+        },
         "climatology_brier": round(mean_brier([(base_rate, y) for _, y in acaps_pairs]), 4),
         "experts": rows,
         "note": "ACAPS baseline uses real outcomes; synthetic experts' knowledge is simulated.",
@@ -119,8 +129,8 @@ def calibration_svg(summary):
     best, worst = summary["experts"][0], summary["experts"][-1]
     series = [
         ("s1", "ACAPS rating", f"Brier {summary['acaps']['brier']:.3f}", summary["acaps"]["calibration"]),
-        ("s2", f"{best['pseudonym']} (best synthetic)", f"Brier {best['brier']:.3f}", best["calibration"]),
-        ("s3", f"{worst['pseudonym']} (worst synthetic)", f"Brier {worst['brier']:.3f}", worst["calibration"]),
+        ("s2", f"{best['display_name']} (best synthetic)", f"Brier {best['brier']:.3f}", best["calibration"]),
+        ("s3", f"{worst['display_name']} (worst synthetic)", f"Brier {worst['brier']:.3f}", worst["calibration"]),
     ]
     out = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" '
@@ -173,8 +183,8 @@ def calibration_svg(summary):
                        f'r="{_radius(b["n"]):.1f}" fill="var(--{key})" stroke="var(--surface)" stroke-width="2"/></g>')
         # Direct label at the line end, nudged apart so labels never overlap.
         end_y = _y(pts[-1]["observed"])
-        while any(abs(end_y - y) < 30 for y in label_ys):
-            end_y += 30
+        while any(abs(end_y - y) < 38 for y in label_ys):
+            end_y += 38
         label_ys.append(end_y)
         out.append(f'<text class="lab" x="{X1 + 14}" y="{end_y - 2:.1f}">{name.split(" (")[0]}</text>')
         out.append(f'<text class="val" x="{X1 + 14}" y="{end_y + 13:.1f}">{score}</text>')
@@ -184,38 +194,54 @@ def calibration_svg(summary):
     return "\n".join(out) + "\n"
 
 
-def run(db_path=DEFAULT_DB):
+def run(db_path=BACKTEST_DB):
+    """Rebuild db_path with the backtest. Returns (summary, leaderboard, {expert_id: track record})."""
     con = build_db(db_path)  # fresh DB: backtest rows must not mix with real responses
     con.row_factory = None
     out = simulate(con)
     save(con, out)
-    acaps_pairs, _ = add_backtest(con, out["vault"])
+    acaps_labels, _ = add_backtest(con, out["vault"])
     score_db(con)
     tokens = {v["expert_id"]: v["author_token"] for v in out["vault"]}
-    summary = summarise(con, acaps_pairs, [(e, tokens[e["expert_id"]]) for e in out["experts"]])
+    summary = summarise(con, acaps_labels, [(e, tokens[e["expert_id"]]) for e in out["experts"]])
+    board = leaderboard(con)
+    records = {e["expert_id"]: track_record(con, tokens[e["expert_id"]]) for e in out["experts"]}
     con.close()
-    return summary
+    return summary, board, records
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--db", default=DEFAULT_DB)
+    parser.add_argument("--db", default=BACKTEST_DB)
     args = parser.parse_args()
+    if Path(args.db).resolve().parent.name == "var":
+        parser.error("refusing to rebuild the API's database; use analysis/backtest.db")
 
-    summary = run(args.db)
+    summary, board, records = run(args.db)
     CHARTS.mkdir(exist_ok=True)
     (CHARTS / "calibration.svg").write_text(calibration_svg(summary))
     (CHARTS / "backtest_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (CHARTS / "leaderboard.json").write_text(json.dumps(board, indent=2, ensure_ascii=False) + "\n")
+    # One pseudonymous and one anonymous example, as Lane B would serve them to their owner.
+    example = {"pseudonymous": records["EXP-TCD-01"], "anonymous": records["EXP-TCD-06"]}
+    (CHARTS / "track_record_example.json").write_text(json.dumps(example, indent=2, ensure_ascii=False) + "\n")
 
     print(f"{summary['n_resolved']} resolved risks, base rate {summary['base_rate']:.0%}")
-    print(f"  {'ACAPS rating':28} Brier {summary['acaps']['brier']:.3f}")
+    for name, m in summary["acaps_brier_by_mapping"].items():
+        used = " (used)" if name == summary["acaps_mapping_used"] else ""
+        print(f"  {'ACAPS rating, ' + name + used:28} Brier {m['brier']:.3f}")
     print(f"  {'Always base rate':28} Brier {summary['climatology_brier']:.3f}")
     for r in summary["experts"]:
-        print(f"  {r['pseudonym'] + ' (' + r['archetype'] + ')':28} Brier {r['brier']:.3f}  n={r['n']}")
+        print(f"  {r['display_name'] + ' (' + r['archetype'] + ')':28} Brier {r['brier']:.3f}  n={r['n']}")
     print("\nACAPS calibration:")
     for b in summary["acaps"]["calibration"]:
         print(f"  said {b['mean_prob']:.0%} → materialised {b['observed']:.0%} (n={b['n']})")
-    print(f"\nWrote {CHARTS / 'calibration.svg'} and backtest_summary.json")
+    print("\nLeaderboard:")
+    for e in board["entries"]:
+        badge = "  ★ super estimator" if e["super_estimator"] else ""
+        print(f"  {e['rank']}. {e['display_name']:18} shrunk {e['shrunk_brier']:.3f} raw {e['mean_brier']:.3f} "
+              f"vs ACAPS {e['acaps_brier_same_questions']:.3f} (n={e['n_resolved']}){badge}")
+    print(f"\nWrote calibration.svg, backtest_summary.json, leaderboard.json, track_record_example.json to {CHARTS}")
 
 
 if __name__ == "__main__":

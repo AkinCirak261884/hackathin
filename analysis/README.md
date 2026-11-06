@@ -48,26 +48,58 @@ python3 analysis/synthetic.py --out analysis/synthetic
 ## scoring.py + backtest.py
 
 ```bash
-python3 analysis/backtest.py   # rebuilds the DB, writes analysis/charts/calibration.svg + backtest_summary.json
+python3 analysis/backtest.py   # rebuilds analysis/backtest.db (git-ignored), writes analysis/charts/*
 ```
 
 - `scoring.py`: Brier score `(p − outcome)²`, using each author's **final** answer (v2 if revised). `score_db()` fills the `scores` table; `calibration()` bins forecasts into 5 equal bins.
 - `backtest.py`: for the 99 resolved risks that have a probability rating (104 resolved, 5 unrated), adds a closed round `RND-{risk}-BT` with one question `Q-{risk}-MAT` ("Will this risk materialise?", real outcome) and simulated answers from the 8 synthetic experts (~75% participation).
-- **It rebuilds the DB from scratch.** Don't point it at `api/var/groundtruth.db` once real responses exist.
+- **It only ever writes `analysis/backtest.db`** and refuses a path inside `api/var/`.
+- Outputs in `analysis/charts/`: `calibration.svg`, `backtest_summary.json`, `leaderboard.json`, `track_record_example.json`. None of them contain invite codes, device secrets or author tokens, except the track-record example, which contains only its owner's own token, as `/me/track-record` would.
+
+### ACAPS probability → number
+
+ACAPS's 2019 risk methodology ([technical brief, p. 11](https://www.acaps.org/fileadmin/Dataset/Methodology_files/acaps_technical_brief_introduction_to_risk_analysis_methodology_may_2019.pdf)) puts probability on a five-point scale using "Medow and Lucey's unequal ranges": Very low < 10%, Low 10–33%, Moderate 34–66%, High 67–90%, Very high > 90%. (The table itself is a graphic in the PDF; the bands are Medow & Lucey's published ranges. The export says "Medium" for Moderate.)
+
+| Label | **Midpoint (app uses this)** | Edge (old, from BOARD.md) |
+|---|---|---|
+| Very Low | 5% | 10% |
+| Low | 22% | 30% |
+| Medium | 50% | 50% |
+| High | 78% | 70% |
+| Very High | 95% | 90% |
+| **ACAPS Brier, 99 resolved risks** | **0.2133** | 0.2128 |
+
+`scoring.APP_MAPPING = "midpoint"` drives the app's ACAPS baseline, the leaderboard, the badge and the synthetic experts' anchor. Both give almost the same Brier score: midpoint fits High-rated risks better (says 78%, 83% materialised) and Low-rated ones worse (says 22%, 43% materialised).
 
 ### Results (seeded, reproducible)
 
 | Forecaster | Brier ↓ |
 |---|---|
-| Sparrow / Birch (sharp) | 0.144 / 0.149 |
-| Kestrel (well calibrated) | 0.150 |
-| Alder (noisy) | 0.181 |
-| Osprey (alarmist) | 0.199 |
-| Linden (anchored on ACAPS) | 0.212 |
+| Anonymous expert / Birch (sharp) | 0.143 / 0.149 |
+| Kestrel (well calibrated) | 0.149 |
+| Alder (noisy) | 0.178 |
+| Osprey (alarmist) | 0.198 |
 | **ACAPS rating (real outcomes)** | **0.213** |
-| Wren (hedger) / Heron (complacent) | 0.231 / 0.234 |
+| Linden (anchored on ACAPS) | 0.218 |
+| Heron (complacent) / Wren (hedger) | 0.226 / 0.231 |
 | Always the 61% base rate | 0.239 |
 
-**Real finding:** ACAPS's own ratings beat the base rate, and are well calibrated in the middle: risks rated Medium (50%) materialised 48% of the time, High (70%) 83%, Very High (90%) 88%. Low-rated risks materialised more often than rated (30% → 43%, n=14).
+**Real finding:** ACAPS's own ratings beat the base rate and are well calibrated in the middle: risks rated Medium materialised 48% of the time, High 83%, Very High 88%. Low-rated risks materialised more often than rated (43%, n=14).
 
 **Not a finding:** the experts' scores. Their "knowledge" is simulated, so the table only shows the pipeline can tell a sharp forecaster from a biased one. Say this on the slide.
+
+## leaderboard.py
+
+Per-question track record and the super-estimator leaderboard. Works on any DB with the BOARD.md tables (Lane B's or `analysis/backtest.db`).
+
+```python
+from leaderboard import track_record, leaderboard
+track_record(con, author_token)          # → GET /me/track-record (served only to its owner)
+leaderboard(con, viewer_token=None)      # → peer-visible board: display names, no tokens
+```
+
+- **Ranked only after 5 resolved forecasts** (`MIN_RESOLVED`); below that, `forecasts_until_counted` says how many more are needed.
+- **Rank by shrunk mean Brier:** `(n·mean + 5·group_mean) / (n + 5)` (`SHRINK_K = 5`), so a few lucky calls can't top the board.
+- **Super estimator** = ≥ 5 resolved forecasts **and** mean Brier lower than ACAPS's mean Brier on exactly the same questions (paired). ACAPS's forecast for a question is its rating of that question's risk.
+- **Names:** `psd_*` tokens show the pseudonym from `experts`; `anon_*` tokens show "Anonymous expert". Tokens listed in an optional `leaderboard_opt_out(author_token)` table are left off the board but still get their own track record.
+- **Backtest caveat:** 6 of 8 synthetic experts earn the badge, because simulated knowledge makes them better than ACAPS. With real experts expect far fewer.

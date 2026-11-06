@@ -35,13 +35,14 @@ class BrierTest(unittest.TestCase):
         scores = dict(con.execute("SELECT author_token, brier FROM scores"))
         self.assertAlmostEqual(scores["a"], 0.04)
         self.assertAlmostEqual(scores["b"], 0.25)
+        con.close()
 
 
 class BacktestTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
-        cls.summary = run(Path(cls.tmp.name) / "bt.db")
+        cls.summary, _, _ = run(Path(cls.tmp.name) / "bt.db")
 
     @classmethod
     def tearDownClass(cls):
@@ -52,6 +53,10 @@ class BacktestTest(unittest.TestCase):
         self.assertEqual(s["n_resolved"], 99)  # 104 resolved, 5 without a probability rating
         self.assertAlmostEqual(s["base_rate"], 0.606, places=3)
         self.assertLess(s["acaps"]["brier"], s["climatology_brier"])  # ACAPS beats always-base-rate
+        self.assertEqual(s["acaps_mapping_used"], "midpoint")
+        by_mapping = s["acaps_brier_by_mapping"]
+        self.assertEqual(by_mapping["midpoint"]["brier"], s["acaps"]["brier"])
+        self.assertAlmostEqual(by_mapping["edge"]["brier"], 0.2128, places=4)
 
     def test_archetypes_rank_sensibly(self):
         ranked = [r["archetype"] for r in self.summary["experts"]]

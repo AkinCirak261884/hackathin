@@ -27,6 +27,7 @@ from pathlib import Path
 
 from ingest import DEFAULT_DB, build_db
 from questions import generate_questions, save_questions
+from scoring import ACAPS_PROB
 
 SEED = 8
 PANEL = "TCD"
@@ -34,8 +35,6 @@ RISK_ID = "R1043"
 ROUND_ID = f"RND-{RISK_ID}-1"
 OPENED = date(2026, 11, 6)
 
-# ACAPS probability labels as numbers (BOARD.md "Scoring").
-ACAPS_PROB = {"Very Low": 0.1, "Low": 0.3, "Medium": 0.5, "High": 0.7, "Very High": 0.9}
 
 # anchor: pull towards ACAPS · skill: how much of the truth they see · bias: logit shift
 # noise: logit std dev · stubborn: 1 = never revises after the reveal, 0 = jumps to the median

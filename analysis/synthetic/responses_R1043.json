@@ -10,15 +10,15 @@
       },
       {
         "question_id": "Q-R1043-T0618",
-        "prob": 0.7
+        "prob": 0.75
       },
       {
         "question_id": "Q-R1043-T0619",
-        "prob": 0.4
+        "prob": 0.45
       },
       {
         "question_id": "Q-R1043-T0620",
-        "prob": 0.5
+        "prob": 0.55
       }
     ],
     "triggers_observed": [
@@ -38,15 +38,15 @@
       },
       {
         "question_id": "Q-R1043-T0618",
-        "prob": 0.75
+        "prob": 0.8
       },
       {
         "question_id": "Q-R1043-T0619",
-        "prob": 0.65
+        "prob": 0.75
       },
       {
         "question_id": "Q-R1043-T0620",
-        "prob": 0.65
+        "prob": 0.75
       }
     ],
     "triggers_observed": [
@@ -64,7 +64,7 @@
     "answers": [
       {
         "question_id": "Q-R1043-AGREE",
-        "agree": false
+        "agree": true
       },
       {
         "question_id": "Q-R1043-T0618",
@@ -126,7 +126,7 @@
       },
       {
         "question_id": "Q-R1043-T0618",
-        "prob": 0.45
+        "prob": 0.5
       },
       {
         "question_id": "Q-R1043-T0619",
@@ -177,7 +177,7 @@
     "answers": [
       {
         "question_id": "Q-R1043-AGREE",
-        "agree": true
+        "agree": false
       },
       {
         "question_id": "Q-R1043-T0618",
@@ -225,6 +225,34 @@
     "_author_token": "psd_EXP-TCD-08"
   },
   {
+    "invite_token": "inv_demo_01",
+    "tier": "known",
+    "version": 2,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.75
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.45
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.5
+      }
+    ],
+    "triggers_observed": [
+      "T0618"
+    ],
+    "missing_text": null,
+    "_author_token": "psd_EXP-TCD-01"
+  },
+  {
     "invite_token": "inv_demo_02",
     "tier": "pseudonymous",
     "version": 2,
@@ -235,7 +263,7 @@
       },
       {
         "question_id": "Q-R1043-T0618",
-        "prob": 0.7
+        "prob": 0.75
       },
       {
         "question_id": "Q-R1043-T0619",
@@ -243,7 +271,7 @@
       },
       {
         "question_id": "Q-R1043-T0620",
-        "prob": 0.5
+        "prob": 0.55
       }
     ],
     "triggers_observed": [
@@ -261,7 +289,7 @@
     "answers": [
       {
         "question_id": "Q-R1043-AGREE",
-        "agree": false
+        "agree": true
       },
       {
         "question_id": "Q-R1043-T0618",
@@ -285,6 +313,34 @@
     "_author_token": "psd_EXP-TCD-03"
   },
   {
+    "invite_token": "inv_demo_04",
+    "tier": "known",
+    "version": 2,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.75
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.35
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.4
+      }
+    ],
+    "triggers_observed": [
+      "T0618"
+    ],
+    "missing_text": null,
+    "_author_token": "psd_EXP-TCD-04"
+  },
+  {
     "invite_token": "inv_demo_05",
     "tier": "pseudonymous",
     "version": 2,
@@ -295,7 +351,7 @@
       },
       {
         "question_id": "Q-R1043-T0618",
-        "prob": 0.55
+        "prob": 0.6
       },
       {
         "question_id": "Q-R1043-T0619",
@@ -317,11 +373,11 @@
     "answers": [
       {
         "question_id": "Q-R1043-AGREE",
-        "agree": true
+        "agree": false
       },
       {
         "question_id": "Q-R1043-T0618",
-        "prob": 0.5
+        "prob": 0.55
       },
       {
         "question_id": "Q-R1043-T0619",
