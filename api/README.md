@@ -26,3 +26,16 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
   counts); dots sorted; free text never included.
 - Lane A data: if `analysis/synthetic/` exists, the seed uses that panel (invites `inv_tcd_01…`), and
   `responses_R1043.json` posts cleanly (test `test_lane_a_synthetic_round_posts_cleanly`).
+
+## Track record, leaderboard, thread (requests from A and C)
+
+- `GET /me/track-record` — headers `X-Invite-Token` (+ `X-Device-Secret` for your anonymous record;
+  the two records are never merged). Computed by `analysis/leaderboard.py` (Lane A). Fields:
+  `history` = resolved, `pending` = open; ACAPS comparison `acaps_brier_same_questions`
+  (`acaps_baseline_brier` alias, to be removed).
+- `GET /leaderboard?panel=TCD` — display names only, no tokens; headers optional (marks `is_you`).
+  `POST /me/leaderboard-opt-out`.
+- `GET /rounds/{id}/thread` — peer view: aggregate + reasoning-basis shares + approved themes.
+  Same 403 / n ≥ 3 gate. Never individual replies or verbatim text.
+- `reasoning_text` / `reasoning_basis` stored on responses, visible only in `GET /moderator/rounds/{id}` → `free_text`.
+- No `?token=` anywhere: tokens and secrets go in headers. Uvicorn's access log (client IPs) is disabled at startup.

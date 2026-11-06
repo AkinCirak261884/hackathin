@@ -14,6 +14,7 @@ from typing import Optional
 from api import db, trust
 
 MIN_N = 3
+REASONING_BASES = ("field_observation", "local_contacts", "media_osint", "reports_data", "experience")
 
 
 class RoundError(trust.TrustError):
@@ -38,13 +39,18 @@ def _short_trigger(tid: str) -> str:
 
 
 def submit(round_id: str, invite_token: str, tier: str, device_secret: Optional[str], version: int,
-           answers: list[dict], triggers_observed: list[str], missing_text: Optional[str]) -> dict:
+           answers: list[dict], triggers_observed: list[str], missing_text: Optional[str],
+           reasoning_text: Optional[str] = None, reasoning_basis: Optional[list[str]] = None) -> dict:
     rnd = get_round(round_id)
     if rnd["stage"] == "closed":
         raise RoundError(409, "round is closed")
     token = trust.authenticate(invite_token, tier, device_secret)
     if not answers:
         raise RoundError(422, "no answers")
+    bad_basis = sorted(set(reasoning_basis or []) - set(REASONING_BASES))
+    if bad_basis:
+        raise RoundError(422, f"unknown reasoning_basis: {bad_basis}")
+    basis = ",".join(sorted(set(reasoning_basis or []))) or None
 
     with db.main_db() as m, db.vault_db() as v:
         questions = _round_questions(m, rnd["risk_id"])
@@ -81,9 +87,10 @@ def submit(round_id: str, invite_token: str, tier: str, device_secret: Optional[
             agree = a.get("agree")
             m.execute(
                 "INSERT INTO contributions (round_id, question_id, author_token, tier, prob, agree,"
-                " missing_text, version, created_at) VALUES (?,?,?,?,?,?,?,?,?)",
-                (round_id, a["question_id"], token, tier, a.get("prob"),
-                 None if agree is None else int(agree), missing_text if i == 0 else None, version, now))
+                " missing_text, reasoning_text, reasoning_basis, version, created_at)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (round_id, a["question_id"], token, tier, a.get("prob"), None if agree is None else int(agree),
+                 *((missing_text, reasoning_text, basis) if i == 0 else (None, None, None)), version, now))
         m.executemany("INSERT INTO observed_triggers VALUES (?,?,?,?)",
                       [(round_id, token, t, version) for t in observed])
         v.execute("INSERT INTO round_participation VALUES (?,?,?)", (round_id, invite_token, version))
@@ -152,3 +159,41 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
             "suppressed": all(q["suppressed"] for q in out_q),
             "questions": out_q, "triggers_observed": triggers,
             "your_answers": your, "can_revise": not revised and rnd["stage"] != "closed"}
+
+
+def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
+    """Peer view of a round (Lane C's feed thread): the aggregate, reasoning-basis shares and
+    moderator-approved themes. Never individual replies, authors, timestamps or verbatim free text."""
+    agg = aggregate(round_id, invite_token, device_secret)  # same gate: 403 before own v1, n >= 3
+    with db.main_db() as m:
+        firsts = m.execute(
+            "SELECT c.reasoning_basis FROM contributions c JOIN ("
+            "  SELECT author_token, MAX(version) v FROM contributions WHERE round_id = ?"
+            "  GROUP BY author_token) l ON c.author_token = l.author_token AND c.version = l.v"
+            " WHERE c.round_id = ? AND c.reasoning_basis IS NOT NULL", (round_id, round_id)).fetchall()
+        n_authors = m.execute("SELECT COUNT(DISTINCT author_token) FROM contributions WHERE round_id = ?",
+                              (round_id,)).fetchone()[0]
+        approved = m.execute("SELECT approved_text, published_at FROM summaries WHERE round_id = ?",
+                             (round_id,)).fetchone()
+    counts: dict[str, int] = {}
+    for r in firsts:
+        for b in r["reasoning_basis"].split(","):
+            counts[b] = counts.get(b, 0) + 1
+    basis = ([{"basis": b, "share": round(n / n_authors, 2)} for b, n in sorted(counts.items())]
+             if n_authors >= MIN_N else [])
+    themes = [{"text": approved["approved_text"], "approved_at": approved["published_at"]}] if approved else []
+    return {**agg, "reasoning_basis": basis, "themes": themes}
+
+
+def moderator_free_text(round_id: str) -> list[dict]:
+    """Moderator-only: free text linked to response ids (not to authors)."""
+    get_round(round_id)
+    with db.main_db() as m:
+        rows = m.execute(
+            "SELECT id, version, tier, missing_text, reasoning_text, reasoning_basis FROM contributions"
+            " WHERE round_id = ? AND (missing_text IS NOT NULL OR reasoning_text IS NOT NULL"
+            " OR reasoning_basis IS NOT NULL) ORDER BY id", (round_id,)).fetchall()
+    return [{"response_id": r["id"], "version": r["version"], "tier": r["tier"],
+             "missing_text": r["missing_text"], "reasoning_text": r["reasoning_text"],
+             "reasoning_basis": r["reasoning_basis"].split(",") if r["reasoning_basis"] else []}
+            for r in rows]

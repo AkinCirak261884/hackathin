@@ -5,6 +5,7 @@ from api/mocks/ so Lane C can build against the real URLs today.
 Run:  uvicorn api.main:app --reload     (from the repo root)
 """
 import json
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal, Optional
@@ -14,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from api import db, rounds, seed, trust
+from api import db, records, rounds, seed, trust
 from api.db import init_db
 
 MOCKS = Path(__file__).parent / "mocks"
@@ -26,10 +27,11 @@ def mock(name: str) -> dict:
 
 @asynccontextmanager
 async def lifespan(_app):
+    # No IP logging (BOARD.md): uvicorn's access log prints client IP:port, so switch it off here
+    # rather than trusting everyone to pass --no-access-log.
+    logging.getLogger("uvicorn.access").disabled = True
     init_db()
-    with db.main_db() as m:
-        if m.execute("SELECT COUNT(*) FROM experts").fetchone()[0] == 0:
-            seed.seed()  # demo invites inv_demo_01..08 work out of the box
+    seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
     yield
 
 
@@ -57,7 +59,9 @@ class ResponseIn(BaseModel):
     version: Literal[1, 2] = 1
     answers: list[Answer]
     triggers_observed: list[str] = []
-    missing_text: Optional[str] = None
+    missing_text: Optional[str] = Field(None, max_length=2000)
+    reasoning_text: Optional[str] = Field(None, max_length=2000)   # moderator-only
+    reasoning_basis: list[str] = []   # field_observation | local_contacts | media_osint | reports_data | experience
 
 
 class PublishIn(BaseModel):
@@ -111,7 +115,8 @@ def get_round(round_id: str):
 @app.post("/rounds/{round_id}/responses", status_code=201)
 def post_response(round_id: str, body: ResponseIn):
     return rounds.submit(round_id, body.invite_token, body.tier, body.device_secret, body.version,
-                         [a.model_dump() for a in body.answers], body.triggers_observed, body.missing_text)
+                         [a.model_dump() for a in body.answers], body.triggers_observed, body.missing_text,
+                         body.reasoning_text, body.reasoning_basis)
 
 
 @app.get("/rounds/{round_id}/aggregate")
@@ -122,9 +127,29 @@ def aggregate(round_id: str,
     return rounds.aggregate(round_id, x_invite_token, x_device_secret)
 
 
+@app.get("/rounds/{round_id}/thread")
+def round_thread(round_id: str,
+                 x_invite_token: str = Header(...), x_device_secret: Optional[str] = Header(None)):
+    """Peer-safe thread: aggregate + reasoning-basis shares + approved themes. No authors."""
+    return rounds.thread(round_id, x_invite_token, x_device_secret)
+
+
 @app.get("/me/track-record")
-def track_record(token: str):
-    return mock("track_record")
+def track_record(x_invite_token: str = Header(...), x_device_secret: Optional[str] = Header(None)):
+    """Your own record only. Send X-Device-Secret for your anonymous-tier record."""
+    return records.track_record(x_invite_token, x_device_secret)
+
+
+@app.get("/leaderboard")
+def leaderboard(panel: str = "TCD", x_invite_token: Optional[str] = Header(None),
+                x_device_secret: Optional[str] = Header(None)):
+    """Peer leaderboard: display names only, no tokens. Headers optional (marks is_you)."""
+    return records.leaderboard(panel, x_invite_token, x_device_secret)
+
+
+@app.post("/me/leaderboard-opt-out")
+def leaderboard_opt_out(x_invite_token: str = Header(...), x_device_secret: Optional[str] = Header(None)):
+    return records.opt_out(x_invite_token, x_device_secret)
 
 
 @app.get("/public/summaries")
@@ -140,6 +165,7 @@ def moderator_round(round_id: str):
     out = mock("moderator_round")
     for c in out["contributors"]:
         c["identity"] = trust.resolve_identity(c["author_token"], c["tier"])
+    out["free_text"] = rounds.moderator_free_text(round_id)  # real data; clusters still mock
     return out
 
 

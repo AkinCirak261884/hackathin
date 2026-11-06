@@ -49,7 +49,9 @@ CREATE TABLE IF NOT EXISTS contributions (
     tier TEXT NOT NULL CHECK (tier IN ('known', 'pseudonymous', 'anonymous')),
     prob REAL CHECK (prob BETWEEN 0 AND 1),
     agree INTEGER CHECK (agree IN (0, 1)),
-    missing_text TEXT,
+    missing_text TEXT,                      -- moderator-only, never published verbatim
+    reasoning_text TEXT,                    -- moderator-only, like missing_text
+    reasoning_basis TEXT,
     version INTEGER NOT NULL CHECK (version IN (1, 2)),
     created_at TEXT NOT NULL,
     UNIQUE (round_id, question_id, author_token, version)
@@ -63,6 +65,7 @@ CREATE TABLE IF NOT EXISTS observed_triggers (
     trigger_id TEXT NOT NULL, version INTEGER NOT NULL CHECK (version IN (1, 2)),
     PRIMARY KEY (round_id, author_token, trigger_id, version)
 );
+CREATE TABLE IF NOT EXISTS leaderboard_opt_out (author_token TEXT PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS summaries (
     round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
     approved_text TEXT NOT NULL, published_at TEXT NOT NULL
@@ -107,9 +110,16 @@ def vault_db() -> sqlite3.Connection:
     return connect(VAULT_DB)
 
 
+# Columns added after the first schema; ALTERed into existing DBs on startup.
+MIGRATIONS = [("contributions", "reasoning_text", "TEXT"), ("contributions", "reasoning_basis", "TEXT")]
+
+
 def init_db(main_path: Path | None = None, vault_path: Path | None = None) -> None:
     with connect(main_path or MAIN_DB) as c:
         c.executescript(MAIN_SCHEMA)
+        for table, col, typ in MIGRATIONS:
+            if col not in {r[1] for r in c.execute(f"PRAGMA table_info({table})")}:
+                c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
     with connect(vault_path or VAULT_DB) as c:
         c.executescript(VAULT_SCHEMA)
 

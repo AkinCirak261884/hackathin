@@ -17,7 +17,7 @@ EXPERT_AND_PUBLIC = [
     ("get", "/rounds/open?panel=TCD", None),
     ("get", f"/rounds/{RID}", None),
     ("post", f"/rounds/{RID}/responses", ANSWER),
-    ("get", "/me/track-record?token=psd_EXP-TCD-02", None),
+    ("get", "/leaderboard?panel=TCD", None),
     ("get", "/public/summaries", None),
 ]
 MODERATOR = [

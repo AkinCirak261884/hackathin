@@ -12,7 +12,7 @@ import json
 import os
 from pathlib import Path
 
-from api import db, trust
+from api import db
 
 MOCKS = Path(__file__).parent / "mocks"
 SYNTH_DIR = Path(os.environ.get("GT_SYNTH_DIR", Path(__file__).parent.parent / "analysis" / "synthetic"))
@@ -78,9 +78,9 @@ def seed(synth_dir: Path = SYNTH_DIR) -> list[str]:
                       (e["expert_id"], e["pseudonym"], e["country_panel"], e["lang"], e["default_tier"]))
             v.execute("INSERT OR REPLACE INTO identity_vault (expert_id, name, email) VALUES (?,?,?)",
                       (e["expert_id"], e["name"], e["email"]))
-            v.execute("DELETE FROM invites WHERE invite_token = ?", (e["invite_token"],))
-    for e in panel:
-        trust.create_invite(e["expert_id"], e["country_panel"], token=e["invite_token"])
+            # INSERT OR IGNORE: re-seeding never re-activates a revoked invite
+            v.execute("INSERT OR IGNORE INTO invites (invite_token, expert_id, country_panel, created_at)"
+                      " VALUES (?,?,?,datetime('now'))", (e["invite_token"], e["expert_id"], e["country_panel"]))
     return [e["invite_token"] for e in panel]
 
 

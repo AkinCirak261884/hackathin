@@ -98,7 +98,10 @@ NON_MODERATOR = [
     ("get", f"/rounds/{RID}"),
     ("post", f"/rounds/{RID}/responses"),
     ("get", f"/rounds/{RID}/aggregate"),
-    ("get", "/me/track-record?token=psd_EXP-TCD-01"),
+    ("get", "/me/track-record"),
+    ("get", f"/rounds/{RID}/thread"),
+    ("get", "/leaderboard?panel=TCD"),
+    ("post", "/me/leaderboard-opt-out"),
     ("get", "/public/summaries"),
 ]
 
@@ -109,8 +112,13 @@ def test_no_non_moderator_endpoint_returns_a_vault_identity(method, url, tier):
     r = respond(tier=tier, secret=SECRET)
     for i in (2, 3):  # enough authors that the aggregate is not suppressed
         respond(invite=f"inv_demo_0{i}", tier="pseudonymous")
+    headers = {"X-Invite-Token": "inv_demo_01"}
+    if tier == "anonymous":
+        headers["X-Device-Secret"] = SECRET
     if method == "get":
-        r = client.get(url, headers={"X-Invite-Token": "inv_demo_01", "X-Device-Secret": SECRET})
+        r = client.get(url, headers=headers)
+    elif not url.endswith("/responses"):
+        r = client.post(url, headers=headers)
     assert r.status_code in (200, 201), r.text
     payload = json.dumps(r.json()).lower()
     leaked = [x for x in vault_identities() if x in payload]
@@ -123,3 +131,15 @@ def test_every_route_is_covered_by_leak_test():
     routes = {r.path for r in app.routes if hasattr(r, "methods")}
     expert_routes = {p for p in routes if not p.startswith(("/moderator", "/docs", "/redoc", "/openapi"))}
     assert expert_routes - {"/health"} <= covered, expert_routes - covered
+
+
+def test_reseed_keeps_revoked_invite_revoked(tmp_path):
+    client.post("/moderator/invites/inv_demo_04/revoke")
+    seed.seed(tmp_path / "no-synth")
+    assert respond(invite="inv_demo_04").status_code == 401
+
+
+def test_startup_disables_ip_access_log():
+    import logging
+    with TestClient(app):
+        assert logging.getLogger("uvicorn.access").disabled
