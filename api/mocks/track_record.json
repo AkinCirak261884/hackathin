@@ -1,0 +1,11 @@
+{"author_token": "tok_demo_pseud_07", "n_resolved": 3, "mean_brier": 0.14,
+ "acaps_baseline_brier": 0.21, "rank_percentile": 0.8,
+ "history": [
+  {"question_id": "Q-R0993-T0001", "your_prob": 0.7, "outcome": 1, "brier": 0.09,
+   "text": "Example resolved question (synthetic)"},
+  {"question_id": "Q-R0990-T0002", "your_prob": 0.3, "outcome": 0, "brier": 0.09,
+   "text": "Example resolved question (synthetic)"},
+  {"question_id": "Q-R0353-T0003", "your_prob": 0.5, "outcome": 0, "brier": 0.25,
+   "text": "Example resolved question (synthetic)"}
+ ],
+ "impact": ["Your 'what's missing' input was cited in the R1043 rationale update."]}

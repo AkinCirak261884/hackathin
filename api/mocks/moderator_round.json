@@ -1,0 +1,16 @@
+{"round_id": "RND-R1043-1", "risk_id": "R1043", "stage": "reveal", "n_responses": 6,
+ "acaps_rating": {"probability": "High", "impact": 4, "level": "High"},
+ "agree_share": 0.67,
+ "revision_shifts": [{"question_id": "Q-R1043-T0618", "mean_abs_shift": 0.06, "n_revised": 3}],
+ "contributors": [
+  {"author_token": "tok_demo_known_01", "tier": "known", "identity": {"name": "Synthetic Expert 01"}},
+  {"author_token": "tok_demo_pseud_07", "tier": "pseudonymous", "identity": null},
+  {"author_token": "anon_3f9a…", "tier": "anonymous", "identity": null}
+ ],
+ "missing_clusters": [
+  {"label": "Seasonal access constraints", "n": 3, "response_ids": [12, 17, 21],
+   "summary": "Rainy-season road closures reduce humanitarian access more than the rationale suggests."},
+  {"label": "Refugee camp congestion", "n": 2, "response_ids": [14, 19],
+   "summary": "Overcrowding in Adré-area sites is a driver not mentioned."}
+ ],
+ "synthesis_source": "mock"}
