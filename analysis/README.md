@@ -125,3 +125,12 @@ leaderboard(con, viewer_token=None)      # → peer-visible board: display names
 - **Fields:** per question `calibrated_acaps_prob`, `calibrated_acaps_brier`, `beat_calibrated_acaps` (badge baseline) next to raw `acaps_prob`, `acaps_brier`, `beat_acaps` (secondary). Per expert `calibrated_acaps_baseline_brier`, `gain_vs_calibrated_acaps`, `gain_vs_calibrated_acaps_lower90`, `n_beat_calibrated_acaps`, next to raw `acaps_baseline_brier`, `n_beat_acaps`.
 - **Names:** `psd_*` tokens show the pseudonym from `experts`; `anon_*` tokens show "Anonymous expert". Tokens listed in an optional `leaderboard_opt_out(author_token)` table are left off the board but still get their own track record.
 - **Backtest:** 2 of 8 synthetic experts earn the badge (the two "sharp" ones, the only ones given information beyond ACAPS).
+
+## questions/short_horizon.json (draft)
+
+Short-horizon pilot questions, so a track record builds during the ~2-month December pilot instead of waiting for the 6-month questions. Round opens **1 Dec 2026**; questions close **31 Jan, 28 Feb or 1 Mar 2027**.
+
+- **9 questions** from the triggers of the active Chad risks: **R1043** (5: strikes in the east, attacks across ≥ 3 localities, humanitarian suspensions, attack on strategic infrastructure, official Chadian accusation/response) and **R1066** (4, Chad's Lac province: ≥ 3 Boko Haram/ISWAP attacks, a ≥ 10-fatality attack on the military, new operation/emergency measures, new displacement). R0233 has no status, so it's skipped.
+- Each has a yes/no `resolution_criterion` and a `resolution_source.type`: `conflict_event_data` (ACLED), `displacement_and_humanitarian_reports` (UNHCR / IOM DTM / OCHA), `humanitarian_access_reports`, `official_statement`, or `conflict_event_data_or_credible_reports`.
+- Valid against `contracts/schemas/common.schema.json#/$defs/question` (checked with `jsonschema`); extra fields `opens_at`, `horizon_months`, `resolution_criterion`, `resolution_source`, `threshold_status`.
+- **All thresholds are drafts** (`threshold_status: draft_check_with_alex`); the French text is a first pass and should be checked by a native speaker.
