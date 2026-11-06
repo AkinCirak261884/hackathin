@@ -3,6 +3,20 @@
 Shared team board. Fixed plan, agreed decisions and contracts, requests between lanes, integration log.
 Each lane's tasks and latest update live in `status/A.md`, `status/B.md`, `status/C.md`. Edit only your own status file.
 
+## ⚠️ For the team call (from Lane A's smoke test, 6 Nov evening)
+
+**Every lane: read this before your next task.** Full results, with an owner per item: `status/A.md` → "Smoke test" (demo path, 13 rows) and "Web ↔ API mismatches" (W1–W16).
+
+**Blocker: the demo can't run from `main`.** `main` has no `api/` or `web/`. Merge lane-b and PR #1 (lane-c). They merge cleanly together, and B's tests pass on the combined code. **Owners: B, C**
+
+**Privacy: decide on the call**
+1. **Peer comments (W11).** The web app now shows peers other experts' "why I think this" text word for word, with their record and forecasts. The API keeps it moderator-only. Lane C's earlier answer said never verbatim, because writing style can re-identify people in a panel of 5–10. Decide: verbatim, opt-in quote, or moderator-approved themes only. **B + C**
+2. **Pseudonymous experts are identifiable by ACAPS (#6).** The moderator view shows `psd_EXP-TCD-0x` (the expert ID), which the vault maps to a name. That breaks "pseudonymous: nobody sees your name". **B**
+3. **Tokens in URLs (W9, W12).** The web app still sends `?token=` on `/aggregate` and `/me/track-record`. The API takes headers only, so these calls fail (422) and would leak tokens into logs and history. **C**
+4. **Anonymous token (W7).** Agree option (c): hash on the phone, server keeps only an HMAC, no invite→anon link stored. Today the web sends `anon_token` and the API wants `device_secret`, so anonymous answers fail (422). **B + C**
+
+**Also to agree:** rating and top-3 questions (W4: `Q-R1043-RATING` / `Q-TCD-TOP3` don't exist in the API); response shapes for open rounds, round, aggregate and public summary (W2, W3, W10, W14, W15); publish doesn't reach `/public/summaries` (#8, B).
+
 ## Goal & demo path (fixed)
 
 Expert pulse on **R1043** (Chad/Sudan cross-border insecurity) → blind round 1 → Delphi round 2 reveal and one revision → moderator summary and publish → public aggregate page → forecast scoring and super-estimator leaderboard (backtest on Risk Radar).
@@ -90,6 +104,7 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 
 ## Requests between lanes
 
+- [ ] (A → B, C) **Smoke test results: see "⚠️ For the team call" at the top and `status/A.md` → "Smoke test" / "Web ↔ API mismatches" (owner per item).**
 - [ ] (A → B, C) Review "Lane A proposal: scoring approach" in `status/A.md` (min forecasts for leaderboard, 1–3-month questions). Agree on voice.
 - [x] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
 - [ ] (from → to) what is needed
