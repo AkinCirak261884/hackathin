@@ -96,6 +96,17 @@ class PendingTest(unittest.TestCase):
         self.assertEqual([h["question_id"] for h in rec["history"]], ["Q1"])  # resolved stays in history
 
 
+class RecordTest(unittest.TestCase):
+    def test_correct_count_matches_lane_c_rule(self):
+        qs = [("Q1", "Medium", 1), ("Q2", "Medium", 0), ("Q3", "Medium", 1), ("Q4", "Medium", 0)]
+        con = make_db(qs, [("psd_EXP-1", "Q1", 0.7), ("psd_EXP-1", "Q2", 0.6), ("psd_EXP-1", "Q3", 0.5),
+                           ("psd_EXP-1", "Q4", 0.2)])
+        rec = track_record(con, "psd_EXP-1")
+        self.assertEqual(rec["record"], {"correct": 2, "resolved": 3, "no_call": 1})
+        self.assertEqual([h["verdict"] for h in rec["history"]], ["correct", "wrong", "nocall", "correct"])
+        self.assertEqual(rec["history"][0]["risk_id"], "R-Q1")
+
+
 class ShrinkageTest(unittest.TestCase):
     def test_formula(self):
         self.assertAlmostEqual(shrunk(0.10, 5, 0.20), (5 * 0.10 + SHRINK_K * 0.20) / (5 + SHRINK_K))

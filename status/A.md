@@ -57,33 +57,56 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 > 5. **Alex:** yes, but frame it right. "Hidden until you answer" *is* Delphi round 1, so he'll likely say yes. The real questions for him: may peers ever see each other's free text, and is a feed look OK for ACAPS's brand?
 > 6. **Scoring proposal:** 👍 to all three. 1–3-month questions are great for the pilot; Profile already shows deadlines, so I'll show short-horizon questions first. "Badge only after N resolved" fits the "4 of 5 correct" hero; below N I'll show "3 more forecasts until your score counts". Please say the synthetic-expert caveat on the data slide, as you wrote.
 
-## Smoke test: R1043 demo path (19:35, 6 Nov)
+## Smoke test: R1043 demo path (rerun 19:41, 6 Nov, on lane-b @ 366e6b6 + lane-c @ 3cc33b0)
 
-**Setup:** `main` has no `api/` or `web/` yet, so I merged `main` + `origin/lane-b` (70317cd) + `origin/lane-c` (965ecc9) **locally only** (clean merge, nothing pushed). Lane B's 86 tests pass on the combined code. API on a fresh scratch DB (`GT_DB` / `GT_VAULT_DB`, never Lane B's live one), web app with `VITE_API_URL=http://localhost:8000`. Driven with the 8 synthetic experts' `responses_R1043.json`. Chrome extension was disconnected, so web screens were checked by replaying `web/src/api.js`'s real-API requests, not by clicking.
+**Setup:** `main` still has no `api/` or `web/`, so I merged `main` + `origin/lane-b` + `origin/lane-c` **locally only** (clean merge, nothing pushed, no files outside `analysis/` changed). Lane B's 97 tests pass on the combined code. API on a fresh scratch DB (`GT_DB` / `GT_VAULT_DB`, never Lane B's live one); demo history added with `python3 analysis/demo_history.py --demo` (refuses without `--demo`). Driven with the 8 synthetic experts. Chrome extension was disconnected, so web screens were checked by replaying `web/src/api.js`'s real-API requests and diffing Lane C's fixtures (what the screens read) against the API's real responses.
 
-| # | Step | API (Lane B) | Web app (Lane C) | Exact error / mismatch | Owner |
-|---|---|---|---|---|---|
-| 0 | Run demo from `main` | broken | broken | `main` has no `api/` or `web/`: lane-b and lane-c (PR #1) not merged | B, C |
-| 1 | Invite | works | broken | API: unknown invite → 401, `inv_demo_01..08` OK. Web sends `invite_token: "inv_demo"` → 401 `unknown invite` | C |
-| 2 | Choose tier | works | broken | Web anonymous sends `anon_token`, no `device_secret` → 422 `anonymous tier needs a device_secret of at least 16 chars`. Option (c) (hash on phone, server HMAC) not implemented on either side | B + C |
-| 3 | Round 1 (8 experts) | works | broken | Web: `GET /rounds/RD-R1043-1` → 404 (API uses `RND-R1043-1`); `Q-R1043-RATING`, `Q-TCD-TOP3` → 422 `questions not in this round`; `reasoning_basis: null` → 422 `Input should be a valid list`; round has top-level `triggers` but web reads `risk.triggers`; API questions have `kind: "agree"` (web expects `rating`), no `title`/`title_fr`/`text_fr`; `rating_probability`, `rating_impact`, `seeing`, `ranking` have no DB columns | C (IDs, body), B (store rating/ranking) |
-| 4 | Group view after own answer | works | broken | API: 403 before own answer, per-question `suppressed` at n=2, n=8 gives median/p25/p75/sorted dots, no tokens. **Missing:** weighted `aggregate` from `analysis/aggregate.py` not added. Web: `/rounds/{id}/aggregate?token=` → 422 `missing header x-invite-token` | B (aggregate), C (headers) |
-| 5 | Revise once | works | not tested | v2 → 201, second v2 → 409 `already revised once` | — |
-| 6 | Moderator view | broken | — | `GET /moderator/rounds/RND-R1043-1` returns the **mock** (`n_responses: 6`, `anon_3f9a…`, fake `response_ids`, `synthesis_source: "mock"`), not the real round. `disagreement()` not integrated; themes are mock | B |
-| 7 | Profile: track record + leaderboard | works (headers) | broken | Fresh DB has only R1043 → empty history, empty leaderboard: **fixed (A)**, `analysis/demo_history.py::seed_history(con)`, verified on the live API (Birch 73 resolved + badge, 8-entry leaderboard). Web: `/me/track-record?token=` → 422 missing header; `/leaderboard?...&token=` ignored, so `is_you` never set | A (fixed), B (call it in seed), C (headers) |
-| 8 | Publish public summary | broken | — | `POST /moderator/rounds/{id}/publish` → `published: true`, but `/public/summaries` still only shows mock `RND-R1043-0` | B |
-| 9 | No token in any URL | OK | broken | API takes tokens only in headers. Web puts tokens in 3 URLs: aggregate, track-record, leaderboard (`?token=`) | C |
-| 10 | Public summary: no tokens, pseudonyms, exact quotes | OK (on the mock) | — | None found; no "what's missing" text appears verbatim. Recheck once publish works | B |
-| 11 | Anonymous never by pseudonym | OK | — | "Sparrow" appears nowhere; leaderboard says "Anonymous expert"; peer outputs carry no tokens. Moderator mock lists `anon_…` tokens (no name); recheck when real | B |
-| 12 | Docs | minor | — | `api/README.md` says synthetic invites are `inv_tcd_01…`; seeded ones are `inv_demo_01…` | B |
+### Demo path
+
+| # | Step | Result | Detail | Owner |
+|---|---|---|---|---|
+| 0 | Run from `main` | broken | `main` has no `api/` or `web/`: lane-b and lane-c (PR #1) not merged | B, C |
+| 1 | Invite | works | unknown invite → 401; `inv_demo_01..08` accepted | — |
+| 2 | Choose tier | works | tier per answer; anonymous token derived server-side from `device_secret` | — |
+| 3 | Round 1 (8 experts) | works | v1 → 201, `next: "wait for the moderator to reveal"` | — |
+| 4 | Group view after own answer | works | 403 before own answer; `locked` in blind; after moderator `advance` → `view: "round_1"`, n=8, median/p25/p75/sorted dots; no tokens. **Missing:** weighted `aggregate` from `analysis/aggregate.py` | B |
+| 5 | Revise once | works | v2 in reveal → 201; second v2 → 409 `already revised once` | — |
+| 6 | Moderator view | partly | Real now (n, round-1 vs final, revision shifts, free text). **Missing:** `disagreement()` not integrated; `missing_clusters` still the mock (AI synthesis is B's next task). **Privacy:** pseudonymous contributors appear as `psd_EXP-TCD-0x`, i.e. the expert ID, which the vault maps to a name, so ACAPS could identify "pseudonymous" experts | B |
+| 7 | Profile: track record + leaderboard | works | Empty on a fresh DB → **fixed (A)**: `analysis/demo_history.py` (demo-only guards; also fixed a positional INSERT that broke on B's new 6-column `rounds`). Via the live API: Birch 73 resolved, badge, `record` 56/70; leaderboard 8 entries | A (fixed); B decides whether to call it |
+| 8 | Publish public summary | broken | `POST …/publish` → `published: true`, but `/public/summaries` still only shows mock `RND-R1043-0` | B |
+| 9 | No token in any URL | API OK, web broken | API: headers only. Web: `?token=` in `/rounds/{id}/aggregate` and `/me/track-record` (`web/src/api.js` l.96, l.100) | C |
+| 10 | Public summary: no tokens, pseudonyms, exact quotes | OK on the mock | none found; recheck once publish writes real summaries | B |
+| 11 | Anonymous never by pseudonym | OK | "Sparrow" appears nowhere (peer, public, moderator, leaderboard: "Anonymous expert") | — |
+| 12 | Docs | minor | `api/README.md` says synthetic invites `inv_tcd_01…`; seeded are `inv_demo_01…` | B |
+
+### Web ↔ API mismatches (web = what `web/src` and `fixtures/` expect; API = Lane B's real response)
+
+| # | Endpoint | Mismatch | Owner |
+|---|---|---|---|
+| W1 | all | Demo IDs: web uses round `RD-R1043-1`, token `E01`, invite `inv_demo`; API has `RND-R1043-1`, `psd_EXP-TCD-01`, `inv_demo_01..08` → 404 / 401 | C |
+| W2 | `GET /rounds/open` | web expects a top-level array of `{round_id, risk_id, title, stage, closes_at, est_minutes, n_questions, answered}`; API returns `{panel, rounds: [{…, risk_title, opened_at, you_submitted}]}`: `title`↔`risk_title`, `answered`↔`you_submitted`, no `closes_at` / `est_minutes` | C (adapt), B (`closes_at`) |
+| W3 | `GET /rounds/{id}` | web reads `risk.triggers[]` (+ `description`, `objective`), `risk.title`, `rationale_short`, `iso`, `trend`, `expected_exposure`, `priority_needs`, round `closes_at`; API has top-level `triggers` (`trigger_id, title, completion_rate` only), `risk_title`, and `risk` = `{risk_id, country, probability, impact, level, status}` | B (risk detail), C (top-level `triggers`) |
+| W4 | `GET /rounds/{id}` questions | web expects `kind: "rating"` `Q-R1043-RATING` and `kind: "ranking"` `Q-TCD-TOP3` (with `options`), plus `acaps_baseline`; API has `kind: "agree"` `Q-R1043-AGREE`, no ranking question, no `acaps_baseline` → POST 422 `questions not in this round` | B + C (decide) |
+| W5 | `POST /rounds/{id}/responses` | answer fields `rating_probability`, `rating_impact`, `seeing`, `ranking`, `ranking_other` are dropped (API `Answer` = `prob`, `agree` only; no DB columns) | B |
+| W6 | `POST …/responses` | `reasoning_basis: null` → 422 `Input should be a valid list` (send `[]`) | C |
+| W7 | `POST …/responses` | anonymous: web sends `anon_token`, no `device_secret` → 422 `needs a device_secret of at least 16 chars`. Option (c) (hash on phone, server HMAC, no invite→anon link) not implemented either side | B + C |
+| W8 | `POST …/responses` reply | web fixture has `contribution_ids`; API returns `stored, author_token, can_revise, aggregate_unlocked, next` | C |
+| W9 | `GET /rounds/{id}/aggregate` | auth: web `?token=` → 422 `missing header x-invite-token` | C |
+| W10 | `GET /rounds/{id}/aggregate` | shape: web expects `{n_responses, rating: {probability/impact: {too_low, agree, too_high}, you}, forecasts: [{question_id, values, median, p25, p75, you, n, acaps_baseline, seeing_count}], ranking, comments}`; API gives `{locked, view, questions: [{median, p25, p75, dots, agree_share, suppressed, n}], triggers_observed: [{trigger_id, share}], your_answers}`; web doesn't handle `locked` / `view` | C (adapt), B (3-way rating shares) |
+| W11 | `GET /rounds/{id}/aggregate` | **Policy conflict:** web shows peers `comments[]` = other experts' `reasoning_text` verbatim under pseudonym / "Anonymous expert" with their record and forecasts; API keeps reasoning moderator-only. Contradicts Lane C's own earlier answer here ("never verbatim, style can re-identify in 5–10") | B + C (team decision) |
+| W12 | `GET /me/track-record` | auth: web `?token=` → 422 missing header | C |
+| W13 | `GET /me/track-record` | web reads `history[].risk_id` and the correct/resolved record: **fixed (A)**, `history[].risk_id`, `history[].verdict`, `record: {correct, resolved, no_call}` (same 50% rule as `web/src/stats.js`). `impact[] {risk_id, date, note}` still missing | A (fixed), B (`impact`) |
+| W14 | `GET /public/summaries` | web expects an array of `{round_id, risk_id, risk_title, published_at, headline, summary_text, n_responses, rating_agreement, forecasts: [{question_id, text, median, n}]}`; API returns `{summaries: [{…, n, agree_share, questions: [{median, p25, p75}], approved_text}]}` | B + C |
+| W15 | `POST /moderator/rounds/{id}/publish` | contract body `{summary_text, headline}`; API `PublishIn` = `{approved_text}` | B + C |
+| W16 | `GET /leaderboard` | none: web removed the leaderboard (team decision); API and `analysis/leaderboard.py` still provide it | — |
 
 ## Latest update
 
-### Lane A — update #10 — 19:35
-Done: end-to-end smoke test of the R1043 demo path (table above). API path works for invite → round 1 → group view (403 / n≥3) → revise; moderator view and publish are still mocks; web app can't talk to the real API yet (IDs, body, `?token=`). Fixed the Lane A item: `analysis/demo_history.py::seed_history(con)` fills a fresh DB with all risks + resolved synthetic history, so profile/badge/leaderboard work in the demo. 55 unittests pass.
-Pushed: lane-a @ d46ed71 (code not yet merged into main)
-How to see it: table above · `python3 analysis/demo_history.py --db <db>`
-Requests to other lanes: →B: (0) merge lane-b into main; (6) real `/moderator/rounds/{id}` with `aggregate.disagreement()` + real themes; (8) publish must write to `/public/summaries`; (4) add `aggregate.aggregate()["aggregate"]` to `/aggregate` + `/thread`; (7) call `demo_history.seed_history(con)` at the end of `api/seed.py`; (3) store `rating_probability`, `rating_impact`, `ranking` (+ add `Q-R1043-RATING`/`Q-TCD-TOP3` or agree with C to drop them); (2) option (c) device-hashed anon token; (12) README invites · →C: (0) merge PR #1; (1) real invite from the link, not `inv_demo`; (3) use `RND-R1043-1`, read top-level `triggers`, send `reasoning_basis: []` not `null`, `kind: "agree"`; (4)(7)(9) send `X-Invite-Token` / `X-Device-Secret` headers, drop all `?token=`; (2) anonymous: send `device_secret` until (c) is agreed
-Contract change proposed: none new
+### Lane A — update #11 — 19:41
+Done: reran the smoke test on lane-b @ 366e6b6 + lane-c @ 3cc33b0 and listed every web↔API mismatch with an owner (tables above). Lane A fixes only: `demo_history.py` is demo-only (refuses without `--demo` / `demo=True`, refuses DBs with any non-synthetic expert or author token, all-or-nothing) and uses named columns (Lane B's `rounds` now has 6); `track_record()` adds `record {correct, resolved, no_call}`, `history[].verdict`, `history[].risk_id` (Lane C's request). Nothing outside `analysis/` changed. 60 unittests pass.
+Pushed: lane-a (code not merged into main)
+How to see it: tables above · `python3 analysis/demo_history.py --demo --db <demo db>`
+Requests to other lanes: →B: #0 merge lane-b; #4 add `aggregate.aggregate()["aggregate"]`; #6 integrate `aggregate.disagreement()`, real themes, and don't show pseudonymous experts' `psd_<expert_id>` to the moderator; #8 publish must write `/public/summaries`; W3 risk detail + round `closes_at`; W5 store `rating_probability` / `rating_impact` / `seeing` / `ranking`; W13 `impact[]`; W14/W15 public summary + publish shape; #12 README; optional: call `demo_history.seed_history(con, demo=True)` in the demo seed (your call) · →C: #0 merge PR #1; W1 use `RND-R1043-1` / real invite / API tokens; W2, W3, W8, W10 adapt to the API shapes; W6 `reasoning_basis: []`; W9/W12 headers, no `?token=`; W13 `record` is now in the track record · →B+C: W4 rating/ranking questions, W7 anonymous token (option c), W11 peer comments: decide on voice
+Contract change proposed: track record `record`, `history[].verdict`, `history[].risk_id`
 Next: stop, as asked
-Blockers: none for A; demo from main blocked on (0)
+Blockers: demo from main blocked on #0
