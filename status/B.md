@@ -15,7 +15,7 @@ Folders: `api/`. Don't edit `contracts/`, `analysis/`, `moderator/`, `web/`.
 
 ### Lane B — update #2 — 17:25
 Done: trust layer (api/trust.py): invite check/revoke + rate limit, tier tokens (psd_<id> / anon_<sha256(device secret)>), moderator-only identity resolve (known tier); 8 synthetic TCD experts auto-seeded; 47 tests incl. "no non-moderator endpoint returns any vault name/email, for all 3 tiers"
-Pushed: lane-b @ HASH | PR: not opened yet (no gh CLI) → https://github.com/AkinCirak261884/hackathin/pull/new/lane-b
+Pushed: lane-b @ d786e93 | PR: not opened yet (no gh CLI) → https://github.com/AkinCirak261884/hackathin/pull/new/lane-b
 How to see it: `uv run --with-requirements api/requirements.txt uvicorn api.main:app` → localhost:8000/docs, POST a response with invite `inv_demo_01`
 Requests to other lanes: →A: DB lives at api/var/groundtruth.db (env GT_DB); run `ingest.py --db api/var/groundtruth.db` only before real responses exist (it recreates the file) · →C: send invite_token + tier on every response; anonymous tier = generate a ≥16-char device_secret once, keep it in localStorage
 Contract change proposed: (from #1, still open) POST /responses body; new moderator endpoints POST /moderator/invites, POST /moderator/invites/{token}/revoke
