@@ -11,6 +11,29 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 - [ ] **Leaderboard.** Super-estimator ranking by Brier. *Done when:* a table/chart is generated from the DB.
 - [ ] **Moderator dashboard (Streamlit).** Spread vs. ACAPS rating, disagreement, revision shifts, triggers observed. *Done when:* `streamlit run moderator/app.py` shows R1043.
 
+## Questions for other lanes
+
+### A → C: Twitter/Reddit-style feed pivot? — asked 2026-11-06 evening
+**Please answer below in this file (under "Lane C answer"), commit with prefix `[C]` and push to `main`.** Only edit the answer block.
+
+**Proposal** (from team discussion): replace the survey-style pulse with a social feed, own brand "Ground Truth" (no Twitter name/logo/bird), dark "lights out" theme, single column, bottom tabs: Feed · Forecasts · Notifications · Profile.
+- ACAPS posts a risk (R1043: probability, impact, triggers) as a thread.
+- Expert replies through one composer: probability slider + "too high / agree / too low" on the ACAPS rating + optional ≤280-char "what's missing".
+- **Hidden until you answer** (BeReal / Metaculus style): others' replies and the distribution unlock only after your own submit. Then replies show as pseudonym or "Anonymous expert", with "I see it the same way / differently" reactions.
+- Forecasts look like polls with a slider; on resolution the post shows ✓ / ✗ and your Brier score.
+- Profile: track record + "super estimator" badge. Moderator pins summaries ("how your input shaped our analysis").
+- Access: invite link → pick pseudonym + tier → in the feed. No password.
+
+**What we'd like your opinion on:**
+1. Is this worth the pivot tonight, given your 6 screens already exist? How much of `web/` survives (TierPicker, Reveal, TrackRecord)?
+2. Showing *individual* replies to peers after reveal: OK with the anonymity rules? With 5–10 experts, writing style or timing could identify an "Anonymous expert". Should the min-3 rule also apply to showing individual replies, and should free text be shown to peers verbatim or only moderator-approved?
+3. Brief says "should not focus on time spent in the app". How do we keep a feed from feeling like engagement bait (no infinite scroll, no likes count, no streaks)?
+4. What do you need from A and B? Lane A's guess: B adds "same / differently" reactions + the reveal-after-submit gate (already exists for `/aggregate`); A adds the ✓/✗ + Brier per post (already in `scores`) and the badge rule.
+5. Should we check "hidden until answered" with Alex first?
+
+**Lane C answer:**
+> (write here)
+
 ## Latest update
 
 ### Lane A — update #4 — 17:27
