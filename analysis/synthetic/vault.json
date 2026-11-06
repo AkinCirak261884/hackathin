@@ -1,0 +1,66 @@
+[
+  {
+    "expert_id": "EXP-01",
+    "name": "Synthetic Expert 01",
+    "email": "expert01@example.org",
+    "invite_token": "inv_tcd_01",
+    "device_secret": null,
+    "author_token": "tok_exp_01"
+  },
+  {
+    "expert_id": "EXP-02",
+    "name": "Synthetic Expert 02",
+    "email": "expert02@example.org",
+    "invite_token": "inv_tcd_02",
+    "device_secret": null,
+    "author_token": "tok_exp_02"
+  },
+  {
+    "expert_id": "EXP-03",
+    "name": "Synthetic Expert 03",
+    "email": "expert03@example.org",
+    "invite_token": "inv_tcd_03",
+    "device_secret": null,
+    "author_token": "tok_exp_03"
+  },
+  {
+    "expert_id": "EXP-04",
+    "name": "Synthetic Expert 04",
+    "email": "expert04@example.org",
+    "invite_token": "inv_tcd_04",
+    "device_secret": null,
+    "author_token": "tok_exp_04"
+  },
+  {
+    "expert_id": "EXP-05",
+    "name": "Synthetic Expert 05",
+    "email": "expert05@example.org",
+    "invite_token": "inv_tcd_05",
+    "device_secret": null,
+    "author_token": "tok_exp_05"
+  },
+  {
+    "expert_id": "EXP-06",
+    "name": "Synthetic Expert 06",
+    "email": "expert06@example.org",
+    "invite_token": "inv_tcd_06",
+    "device_secret": "device-secret-d45c39a39ec353c1",
+    "author_token": "anon_a2cce2206a940f2eab0926a1"
+  },
+  {
+    "expert_id": "EXP-07",
+    "name": "Synthetic Expert 07",
+    "email": "expert07@example.org",
+    "invite_token": "inv_tcd_07",
+    "device_secret": null,
+    "author_token": "tok_exp_07"
+  },
+  {
+    "expert_id": "EXP-08",
+    "name": "Synthetic Expert 08",
+    "email": "expert08@example.org",
+    "invite_token": "inv_tcd_08",
+    "device_secret": null,
+    "author_token": "tok_exp_08"
+  }
+]

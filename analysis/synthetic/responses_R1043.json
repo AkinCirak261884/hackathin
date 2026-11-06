@@ -1,0 +1,339 @@
+[
+  {
+    "invite_token": "inv_tcd_01",
+    "tier": "known",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.7
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.4
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.5
+      }
+    ],
+    "triggers_observed": [
+      "T0618"
+    ],
+    "missing_text": "Rainy season (June to September) will cut road access to the eastern camps; the impact rating does not reflect this.",
+    "_author_token": "tok_exp_01"
+  },
+  {
+    "invite_token": "inv_tcd_02",
+    "tier": "pseudonymous",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.75
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.65
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.65
+      }
+    ],
+    "triggers_observed": [
+      "T0618",
+      "T0619",
+      "T0620"
+    ],
+    "missing_text": null,
+    "_author_token": "tok_exp_02"
+  },
+  {
+    "invite_token": "inv_tcd_03",
+    "tier": "pseudonymous",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": false
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.8
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.7
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.75
+      }
+    ],
+    "triggers_observed": [
+      "T0618",
+      "T0619",
+      "T0620"
+    ],
+    "missing_text": "Drone use by armed actors near the border is growing and not mentioned as its own trigger.",
+    "_author_token": "tok_exp_03"
+  },
+  {
+    "invite_token": "inv_tcd_04",
+    "tier": "known",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.75
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.35
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.35
+      }
+    ],
+    "triggers_observed": [
+      "T0618"
+    ],
+    "missing_text": "Seasonal flooding around Adré will limit humanitarian access just as new arrivals peak.",
+    "_author_token": "tok_exp_04"
+  },
+  {
+    "invite_token": "inv_tcd_05",
+    "tier": "pseudonymous",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": false
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.45
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.3
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.35
+      }
+    ],
+    "triggers_observed": [],
+    "missing_text": "Diplomatic mediation between Chad and Sudan could lower the probability; the analysis leaves this out.",
+    "_author_token": "tok_exp_05"
+  },
+  {
+    "invite_token": "inv_tcd_06",
+    "tier": "anonymous",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.65
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.4
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.4
+      }
+    ],
+    "triggers_observed": [
+      "T0618"
+    ],
+    "missing_text": "Sites near Adré are already overcrowded, new arrivals are sleeping outside. Congestion is a driver.",
+    "_author_token": "anon_a2cce2206a940f2eab0926a1",
+    "device_secret": "device-secret-d45c39a39ec353c1"
+  },
+  {
+    "invite_token": "inv_tcd_07",
+    "tier": "known",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.3
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.1
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.4
+      }
+    ],
+    "triggers_observed": [],
+    "missing_text": "Road access in the wet season and overcrowded transit sites, both missing.",
+    "_author_token": "tok_exp_07"
+  },
+  {
+    "invite_token": "inv_tcd_08",
+    "tier": "pseudonymous",
+    "version": 1,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.6
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.45
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.55
+      }
+    ],
+    "triggers_observed": [
+      "T0618"
+    ],
+    "missing_text": null,
+    "_author_token": "tok_exp_08"
+  },
+  {
+    "invite_token": "inv_tcd_02",
+    "tier": "pseudonymous",
+    "version": 2,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.7
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.5
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.5
+      }
+    ],
+    "triggers_observed": [
+      "T0618",
+      "T0619",
+      "T0620"
+    ],
+    "missing_text": null,
+    "_author_token": "tok_exp_02"
+  },
+  {
+    "invite_token": "inv_tcd_03",
+    "tier": "pseudonymous",
+    "version": 2,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": false
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.75
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.6
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.65
+      }
+    ],
+    "triggers_observed": [
+      "T0618",
+      "T0619",
+      "T0620"
+    ],
+    "missing_text": null,
+    "_author_token": "tok_exp_03"
+  },
+  {
+    "invite_token": "inv_tcd_05",
+    "tier": "pseudonymous",
+    "version": 2,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": false
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.55
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.35
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.4
+      }
+    ],
+    "triggers_observed": [],
+    "missing_text": null,
+    "_author_token": "tok_exp_05"
+  },
+  {
+    "invite_token": "inv_tcd_07",
+    "tier": "known",
+    "version": 2,
+    "answers": [
+      {
+        "question_id": "Q-R1043-AGREE",
+        "agree": true
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "prob": 0.5
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "prob": 0.3
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "prob": 0.45
+      }
+    ],
+    "triggers_observed": [],
+    "missing_text": null,
+    "_author_token": "tok_exp_07"
+  }
+]
