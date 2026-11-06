@@ -161,3 +161,7 @@ disagreement(con, question_id)  # → None if n < 3, else the dict below (modera
 | Weighted + extremized ×2.0 | 0.150 |
 
 The questions have no real close dates, so Risk ID order stands in for time. **Caveat:** the experts are synthetic and their errors are independent by construction, which flatters both averaging and extremizing (that's why ×2.0 still helps). Real experts share sources, so expect smaller gains; keep the factor mild until pilot data says otherwise. Numbers are in `backtest_summary.json` → `aggregate_backtest`.
+
+## demo_history.py
+
+A fresh Lane B database only has the open R1043 round, so the profile, badge and leaderboard are empty in the demo. `seed_history(con)` (or `python3 analysis/demo_history.py --db <path>`) adds all 139 risks and the synthetic backtest history (closed rounds `RND-{risk}-BT`, questions `Q-{risk}-MAT` with real outcomes, the 8 synthetic experts' answers under the same `psd_` / `anon_` tokens Lane B's API derives). Idempotent; leaves existing rows alone. Verified against Lane B's running API in the smoke test: Birch shows 73 resolved forecasts and a badge, the leaderboard lists 8 experts with "Anonymous expert" for the anonymous one.
