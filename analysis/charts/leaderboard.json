@@ -2,6 +2,8 @@
   "min_resolved": 5,
   "shrink_k": 5,
   "acaps_mapping": "midpoint",
+  "badge_baseline": "calibrated_acaps",
+  "calibration_prior": 5,
   "group_mean_brier": 0.2114,
   "entries": [
     {
@@ -10,6 +12,8 @@
       "n_resolved": 72,
       "shrunk_brier": 0.1478,
       "mean_brier": 0.1434,
+      "calibrated_acaps_brier_same_questions": 0.2325,
+      "gain_vs_calibrated_acaps_lower90": 0.0467,
       "acaps_brier_same_questions": 0.2245,
       "super_estimator": true,
       "is_you": false
@@ -20,6 +24,8 @@
       "n_resolved": 73,
       "shrunk_brier": 0.1527,
       "mean_brier": 0.1487,
+      "calibrated_acaps_brier_same_questions": 0.2317,
+      "gain_vs_calibrated_acaps_lower90": 0.0397,
       "acaps_brier_same_questions": 0.2269,
       "super_estimator": true,
       "is_you": false
@@ -30,6 +36,8 @@
       "n_resolved": 74,
       "shrunk_brier": 0.2166,
       "mean_brier": 0.217,
+      "calibrated_acaps_brier_same_questions": 0.2231,
+      "gain_vs_calibrated_acaps_lower90": -0.0099,
       "acaps_brier_same_questions": 0.2161,
       "super_estimator": false,
       "is_you": false
@@ -40,6 +48,8 @@
       "n_resolved": 63,
       "shrunk_brier": 0.2192,
       "mean_brier": 0.2198,
+      "calibrated_acaps_brier_same_questions": 0.2205,
+      "gain_vs_calibrated_acaps_lower90": -0.0464,
       "acaps_brier_same_questions": 0.2141,
       "super_estimator": false,
       "is_you": false
@@ -50,6 +60,8 @@
       "n_resolved": 75,
       "shrunk_brier": 0.2277,
       "mean_brier": 0.2288,
+      "calibrated_acaps_brier_same_questions": 0.2258,
+      "gain_vs_calibrated_acaps_lower90": -0.0351,
       "acaps_brier_same_questions": 0.218,
       "super_estimator": false,
       "is_you": false
@@ -60,6 +72,8 @@
       "n_resolved": 71,
       "shrunk_brier": 0.2332,
       "mean_brier": 0.2347,
+      "calibrated_acaps_brier_same_questions": 0.234,
+      "gain_vs_calibrated_acaps_lower90": -0.0142,
       "acaps_brier_same_questions": 0.2298,
       "super_estimator": false,
       "is_you": false
@@ -70,6 +84,8 @@
       "n_resolved": 62,
       "shrunk_brier": 0.2435,
       "mean_brier": 0.2461,
+      "calibrated_acaps_brier_same_questions": 0.2247,
+      "gain_vs_calibrated_acaps_lower90": -0.0672,
       "acaps_brier_same_questions": 0.216,
       "super_estimator": false,
       "is_you": false
@@ -80,6 +96,8 @@
       "n_resolved": 70,
       "shrunk_brier": 0.257,
       "mean_brier": 0.2603,
+      "calibrated_acaps_brier_same_questions": 0.2138,
+      "gain_vs_calibrated_acaps_lower90": -0.1075,
       "acaps_brier_same_questions": 0.2064,
       "super_estimator": false,
       "is_you": false

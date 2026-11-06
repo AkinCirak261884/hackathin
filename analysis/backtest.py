@@ -20,7 +20,8 @@ from pathlib import Path
 
 from ingest import build_db
 from leaderboard import leaderboard, track_record
-from scoring import ACAPS_PROB, APP_MAPPING, MAPPINGS, calibration, mean_brier, score_db
+from scoring import (ACAPS_PROB, APP_MAPPING, CALIBRATION_PRIOR, MAPPINGS, calibrated_acaps, calibration,
+                     label_counts, label_table, mean_brier, resolved_outcomes, score_db)
 from synthetic import EXPERTS, forecast, save, sigmoid, simulate
 
 SEED = 1043
@@ -101,8 +102,23 @@ def summarise(con, acaps_labels, experts):
             for name, m in MAPPINGS.items()
         },
         "climatology_brier": round(mean_brier([(base_rate, y) for _, y in acaps_pairs]), 4),
+        "acaps_by_label": label_table(con),
+        "calibrated_acaps": _calibrated_summary(con),
         "experts": rows,
         "note": "ACAPS baseline uses real outcomes; synthetic experts' knowledge is simulated.",
+    }
+
+
+def _calibrated_summary(con):
+    res = resolved_outcomes(con)
+    counts = label_counts(res)
+    loo = mean_brier([(calibrated_acaps(label, counts, y), y) for label, y in res.values()])
+    in_sample = mean_brier([(calibrated_acaps(label, counts), y) for label, y in res.values()])
+    return {
+        "prior_pseudo_risks": CALIBRATION_PRIOR,
+        "brier_leave_one_out": round(loo, 4),
+        "brier_in_sample_leaky": round(in_sample, 4),
+        "note": "Leave-one-out is the honest score and the one the badge uses; in-sample lets each risk set its own baseline.",
     }
 
 
@@ -233,14 +249,21 @@ def main():
     print(f"  {'Always base rate':28} Brier {summary['climatology_brier']:.3f}")
     for r in summary["experts"]:
         print(f"  {r['display_name'] + ' (' + r['archetype'] + ')':28} Brier {r['brier']:.3f}  n={r['n']}")
+    c = summary["calibrated_acaps"]
+    print(f"  {'Calibrated ACAPS (LOO)':28} Brier {c['brier_leave_one_out']:.3f}   (in-sample, leaky: {c['brier_in_sample_leaky']:.3f})")
+    print("\nPer label (n, materialised, 90% Wilson):")
+    for r in summary["acaps_by_label"]:
+        print(f"  {r['label']:10} n={r['n']:2} k={r['materialised']:2} rate {r['rate']:.0%} "
+              f"[{r['wilson90'][0]:.0%}–{r['wilson90'][1]:.0%}] midpoint {r['midpoint']:.0%} calibrated {r['calibrated']:.0%}")
     print("\nACAPS calibration:")
     for b in summary["acaps"]["calibration"]:
         print(f"  said {b['mean_prob']:.0%} → materialised {b['observed']:.0%} (n={b['n']})")
     print("\nLeaderboard:")
     for e in board["entries"]:
         badge = "  ★ super estimator" if e["super_estimator"] else ""
-        print(f"  {e['rank']}. {e['display_name']:18} shrunk {e['shrunk_brier']:.3f} raw {e['mean_brier']:.3f} "
-              f"vs ACAPS {e['acaps_brier_same_questions']:.3f} (n={e['n_resolved']}){badge}")
+        print(f"  {e['rank']}. {e['display_name']:18} {e['mean_brier']:.3f} vs calibrated ACAPS "
+              f"{e['calibrated_acaps_brier_same_questions']:.3f} (gain lower90 {e['gain_vs_calibrated_acaps_lower90']:+.3f}) "
+              f"raw ACAPS {e['acaps_brier_same_questions']:.3f} n={e['n_resolved']}{badge}")
     print(f"\nWrote calibration.svg, backtest_summary.json, leaderboard.json, track_record_example.json to {CHARTS}")
 
 

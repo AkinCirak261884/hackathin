@@ -78,6 +78,7 @@ ACAPS's 2019 risk methodology ([technical brief, p. 11](https://www.acaps.org/fi
 | Anonymous expert / Birch (sharp) ★ | 0.143 / 0.149 |
 | **ACAPS rating (real outcomes)** | **0.213** |
 | Kestrel (calibrated, no info beyond ACAPS) | 0.217 |
+| Calibrated ACAPS, leave-one-out (badge baseline) | 0.220 |
 | Osprey (alarmist) | 0.220 |
 | Alder (noisy, often misreads signals) | 0.229 |
 | Linden (anchored on ACAPS) | 0.235 |
@@ -88,7 +89,21 @@ ACAPS's 2019 risk methodology ([technical brief, p. 11](https://www.acaps.org/fi
 
 **Real finding:** ACAPS's own ratings beat the base rate and are well calibrated in the middle: risks rated Medium materialised 48% of the time, High 83%, Very High 88%. Low-rated risks materialised more often than rated (43%, n=14).
 
-**Also real:** ACAPS's extreme ratings are overconfident. Very Low risks materialised 33% of the time (rated 5%) and Very High ones 88% (rated 95%), so any forecaster who pulls those towards 50% scores better than ACAPS, even with no extra knowledge. While tuning the synthetic panel, random noise around ACAPS's rating alone was enough to "beat" it. Worth raising with Alex: it may argue for the edge mapping at the extremes, or for ACAPS hedging Very Low/Very High.
+### Sample sizes per ACAPS label (99 resolved risks)
+
+| Label | n | Materialised | Rate | 90% Wilson interval | Midpoint | Calibrated (all data) |
+|---|---|---|---|---|---|---|
+| Very Low | 3 | 1 | 33% | 8–75% | 5% | 16% |
+| Low | 14 | 6 | 43% | 24–64% | 22% | 37% |
+| Medium | 44 | 21 | 48% | 36–60% | 50% | 48% |
+| High | 30 | 25 | 83% | 70–92% | 78% | 83% |
+| Very High | 8 | 7 | 88% | 59–97% | 95% | 90% |
+
+Only **Low** is clearly mis-rated: its interval excludes the 22% midpoint. Very High is consistent with 95%, and Very Low rests on 3 risks. Same numbers in `backtest_summary.json` → `acaps_by_label`.
+
+### Why the badge compares against *calibrated* ACAPS, and needs a clear margin
+
+Raw ACAPS ratings can be beaten without knowing anything: pulling every rating ~20% towards 50% scores 0.2115 vs ACAPS's 0.2133, mostly by fixing the Low label. A badge for that would reward hedging, not insight. So the badge baseline is **calibrated ACAPS**: for each question, the historical materialisation rate of its ACAPS label, computed **leaving that question's own risk out** (so its outcome never sets its own baseline), and shrunk towards the band midpoint with the weight of 5 pseudo-risks (`scoring.calibrated_acaps`). Measured honestly (leave-one-out), calibrated ACAPS scores **0.2197**, slightly *worse* than raw ACAPS (0.2133; the leaky in-sample version would claim 0.2046): with 3–44 risks per label, re-estimating the rates costs about as much as it fixes. That is why "lower mean Brier" alone is still not enough: a hedger also beats calibrated ACAPS by ~0.002 per question. The badge therefore also requires the improvement to be **clear**: the paired 90% interval of (calibrated ACAPS Brier − your Brier) over the same questions must lie above 0. A hedger's ~0.002 edge never clears that; the sharp experts' ~0.08 edge does (lower bounds +0.040 / +0.047). Raw ACAPS stays in the track record as secondary info.
 
 **Not a finding:** the experts' scores. Their "knowledge" is simulated, so the table only shows the pipeline can tell a sharp forecaster from a biased one. Say this on the slide.
 
@@ -105,6 +120,7 @@ leaderboard(con, viewer_token=None)      # → peer-visible board: display names
 - **`pending`:** the author's final answers on unresolved questions, soonest deadline first, in Lane C's fixture shape (`question_id, title, title_fr, text, text_fr, your_prob, closes_at, submitted_at`; French fields are `null` until questions carry translations).
 - **Ranked only after 5 resolved forecasts** (`MIN_RESOLVED`); below that, `forecasts_until_counted` says how many more are needed.
 - **Rank by shrunk mean Brier:** `(n·mean + 5·group_mean) / (n + 5)` (`SHRINK_K = 5`), so a few lucky calls can't top the board.
-- **Super estimator** = ≥ 5 resolved forecasts **and** mean Brier lower than ACAPS's mean Brier on exactly the same questions (paired). ACAPS's forecast for a question is its rating of that question's risk.
+- **Super estimator** = ≥ 5 resolved forecasts **and** clearly better than **calibrated ACAPS** on exactly the same questions: `gain_vs_calibrated_acaps_lower90 > 0` (paired 90% lower bound of calibrated-ACAPS Brier − your Brier). See "Why the badge compares against calibrated ACAPS" above.
+- **Fields:** per question `calibrated_acaps_prob`, `calibrated_acaps_brier`, `beat_calibrated_acaps` (badge baseline) next to raw `acaps_prob`, `acaps_brier`, `beat_acaps` (secondary). Per expert `calibrated_acaps_baseline_brier`, `gain_vs_calibrated_acaps`, `gain_vs_calibrated_acaps_lower90`, `n_beat_calibrated_acaps`, next to raw `acaps_baseline_brier`, `n_beat_acaps`.
 - **Names:** `psd_*` tokens show the pseudonym from `experts`; `anon_*` tokens show "Anonymous expert". Tokens listed in an optional `leaderboard_opt_out(author_token)` table are left off the board but still get their own track record.
 - **Backtest:** 2 of 8 synthetic experts earn the badge (the two "sharp" ones, the only ones given information beyond ACAPS).
