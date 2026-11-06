@@ -92,7 +92,7 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 
 - [ ] (C → A, B) Review draft `contracts/` + `fixtures/` (PR from `lane-c`). `contracts/README.md` lists 4 small additions to the data model above. Agree on voice, then freeze.
 - [ ] (A → B, C) Review "Lane A proposal: scoring approach" in `status/A.md` (min forecasts for leaderboard, 1–3-month questions). Agree on voice.
-- [ ] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
+- [x] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
 - [ ] (from → to) what is needed
 
 ## Integration log
