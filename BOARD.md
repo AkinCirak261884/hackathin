@@ -15,13 +15,13 @@ Also answer the brief's example question: *"top three risks in Chad over the nex
 |---|---|---|---|
 | **A — data & scoring** | ___ | `analysis/`, `moderator/` | Risk Radar ingest, trigger → question generator, synthetic experts, Brier scoring, backtest, leaderboard, Streamlit moderator dashboard |
 | **B — backend & trust** | ___ | `api/` | DB schema, core API, identity vault, anonymity tiers, min-3 suppression, round stages, AI synthesis (moderator side only), publish flow |
-| **C — expert app & pitch** | ___ | `web/`, `pitch/` | Expert pulse app (mobile), anonymity tier picker, group reveal, track record, public summary page, EN/FR, pitch deck, demo script |
+| **C — expert app & pitch** | AkinCirak261884 | `web/`, `pitch/` | Expert pulse app (mobile), anonymity tier picker, group reveal, track record, public summary page, EN/FR, pitch deck, demo script |
 
 Shared, changed only after voice agreement: `contracts/`, `fixtures/`, `BOARD.md` decisions section.
 
 ## Decisions & contracts (change only after voice agreement)
 
-- **Stack:** `api/` = FastAPI + SQLite · `moderator/` = Streamlit (reads the DB directly) · `analysis/` = Python · `web/` = ___ (plain HTML/JS or React, Lane C decides)
+- **Stack:** `api/` = FastAPI + SQLite · `moderator/` = Streamlit (reads the DB directly) · `analysis/` = Python · `web/` = React 18 + Vite (Lane C decided)
 - **Branches:** `lane-a`, `lane-b`, `lane-c` → merge to `main` via small PRs, at least every 2–3 hours
 - **Commit prefix:** `[A]`, `[B]`, `[C]`
 - **Triggers → questions:** each trigger's "objective to meet 100%" becomes a yes/no question resolving 6 months after the round opens. R1043 = 3 trigger questions + 1 "do you agree with ACAPS's rating?" item.
@@ -88,6 +88,7 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 
 ## Requests between lanes
 
+- [ ] (C → A, B) Review draft `contracts/` + `fixtures/` (PR from `lane-c`). `contracts/README.md` lists 4 small additions to the data model above. Agree on voice, then freeze.
 - [ ] (from → to) what is needed
 
 ## Integration log
