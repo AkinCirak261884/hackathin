@@ -76,6 +76,24 @@ class BadgeTest(unittest.TestCase):
         self.assertTrue(all(h["beat_acaps"] for h in rec["history"]))
 
 
+class PendingTest(unittest.TestCase):
+    def test_unresolved_final_answers_soonest_first(self):
+        con = make_db([("Q1", "Medium", 1)], [("psd_EXP-1", "Q1", 0.7)])
+        con.executescript("""
+            INSERT INTO risks VALUES ('R-P', 'High');
+            INSERT INTO questions VALUES ('P-late', 'R-P', 'Late question', '2027-05-06', NULL),
+                                         ('P-soon', 'R-P', 'Soon question', '2027-01-31', NULL);
+            INSERT INTO contributions VALUES ('psd_EXP-1', 'P-late', 0.3, 1), ('psd_EXP-1', 'P-soon', 0.4, 1),
+                                             ('psd_EXP-1', 'P-soon', 0.55, 2), ('psd_EXP-2', 'P-soon', 0.9, 1);
+        """)
+        rec = track_record(con, "psd_EXP-1")
+        self.assertEqual([p["question_id"] for p in rec["pending"]], ["P-soon", "P-late"])
+        self.assertEqual(rec["pending"][0]["your_prob"], 0.55)  # final version
+        self.assertEqual(set(rec["pending"][0]), {"question_id", "title", "title_fr", "text", "text_fr",
+                                                  "your_prob", "closes_at", "submitted_at"})
+        self.assertEqual([h["question_id"] for h in rec["history"]], ["Q1"])  # resolved stays in history
+
+
 class ShrinkageTest(unittest.TestCase):
     def test_formula(self):
         self.assertAlmostEqual(shrunk(0.10, 5, 0.20), (5 * 0.10 + SHRINK_K * 0.20) / (5 + SHRINK_K))

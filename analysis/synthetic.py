@@ -38,14 +38,16 @@ OPENED = date(2026, 11, 6)
 
 # anchor: pull towards ACAPS · skill: how much of the truth they see · bias: logit shift
 # noise: logit std dev · stubborn: 1 = never revises after the reveal, 0 = jumps to the median
+# Only "sharp" experts know more than ACAPS. The rest add bias or noise around ACAPS's rating,
+# so in the backtest only the two sharp experts should earn the super-estimator badge.
 ARCHETYPES = {
-    "sharp":           dict(anchor=0.1, skill=1.0, bias=0.0,  noise=0.25, stubborn=0.8),
-    "well_calibrated": dict(anchor=0.3, skill=0.7, bias=0.0,  noise=0.35, stubborn=0.6),
-    "anchored":        dict(anchor=0.9, skill=0.1, bias=0.0,  noise=0.2,  stubborn=0.3),
-    "alarmist":        dict(anchor=0.2, skill=0.5, bias=1.0,  noise=0.4,  stubborn=0.7),
-    "complacent":      dict(anchor=0.2, skill=0.5, bias=-0.9, noise=0.4,  stubborn=0.5),
-    "noisy":           dict(anchor=0.2, skill=0.4, bias=0.0,  noise=1.1,  stubborn=0.4),
-    "hedger":          dict(anchor=0.0, skill=0.2, bias=0.0,  noise=0.2,  stubborn=0.9),
+    "sharp":           dict(anchor=0.1, skill=1.0,  bias=0.0,  noise=0.25, stubborn=0.8),
+    "well_calibrated": dict(anchor=1.0, skill=0.0,  bias=0.0,  noise=0.3,  stubborn=0.6),  # = ACAPS, no extra info
+    "anchored":        dict(anchor=1.0, skill=0.0,  bias=0.0,  noise=0.2,  stubborn=0.3),
+    "alarmist":        dict(anchor=0.2, skill=0.25, bias=1.0,  noise=0.4,  stubborn=0.7),
+    "complacent":      dict(anchor=0.2, skill=0.25, bias=-0.9, noise=0.4,  stubborn=0.5),
+    "noisy":           dict(anchor=1.0, skill=-0.2, bias=0.0,  noise=1.0,  stubborn=0.4),  # often misreads signals
+    "hedger":          dict(anchor=0.0, skill=0.1,  bias=0.0,  noise=0.2,  stubborn=0.9),
 }
 
 EXPERTS = [

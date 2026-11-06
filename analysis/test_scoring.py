@@ -42,7 +42,7 @@ class BacktestTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
-        cls.summary, _, _ = run(Path(cls.tmp.name) / "bt.db")
+        cls.summary, cls.board, _ = run(Path(cls.tmp.name) / "bt.db")
 
     @classmethod
     def tearDownClass(cls):
@@ -63,6 +63,12 @@ class BacktestTest(unittest.TestCase):
         self.assertEqual(ranked[0], "sharp")
         self.assertLess(ranked.index("well_calibrated"), ranked.index("anchored"))
         self.assertIn(ranked[-1], {"complacent", "hedger", "noisy", "alarmist"})
+
+    def test_only_sharp_experts_earn_the_badge(self):
+        badges = [e["display_name"] for e in self.board["entries"] if e["super_estimator"]]
+        self.assertTrue(1 <= len(badges) <= 2, badges)
+        sharp = {r["display_name"] for r in self.summary["experts"] if r["archetype"] == "sharp"}
+        self.assertLessEqual(set(badges), sharp)
 
     def test_chart_renders(self):
         svg = calibration_svg(self.summary)

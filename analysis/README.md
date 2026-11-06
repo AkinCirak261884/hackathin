@@ -37,7 +37,7 @@ Invented Chad (TCD) panel of 8 experts and a simulated round on R1043. **All peo
 python3 analysis/synthetic.py --out analysis/synthetic
 ```
 
-- Each expert has an archetype: `sharp`, `well_calibrated`, `anchored` (on ACAPS), `alarmist`, `complacent`, `noisy`, `hedger`. Forecast logit = `anchor·logit(ACAPS) + skill·logit(truth) + bias + noise`, rounded to 5 points.
+- Each expert has an archetype: `sharp`, `well_calibrated`, `anchored` (on ACAPS), `alarmist`, `complacent`, `noisy`, `hedger`. Only `sharp` sees more than ACAPS. Forecast logit = `anchor·logit(ACAPS) + skill·logit(truth) + bias + noise`, rounded to 5 points.
 - Round 1: everyone answers the 4 R1043 questions; 6 write a "what's missing" text (written to form clusters: wet-season access, overcrowded sites, drones, mediation). Round 2: less stubborn experts move towards the group median (4 revisions).
 - Writes `experts`, `rounds`, `contributions` to the DB, and committed JSON in `analysis/synthetic/`:
   - `experts.json`: public profiles + archetype (no names)
@@ -75,16 +75,20 @@ ACAPS's 2019 risk methodology ([technical brief, p. 11](https://www.acaps.org/fi
 
 | Forecaster | Brier ↓ |
 |---|---|
-| Anonymous expert / Birch (sharp) | 0.143 / 0.149 |
-| Kestrel (well calibrated) | 0.149 |
-| Alder (noisy) | 0.178 |
-| Osprey (alarmist) | 0.198 |
+| Anonymous expert / Birch (sharp) ★ | 0.143 / 0.149 |
 | **ACAPS rating (real outcomes)** | **0.213** |
-| Linden (anchored on ACAPS) | 0.218 |
-| Heron (complacent) / Wren (hedger) | 0.226 / 0.231 |
+| Kestrel (calibrated, no info beyond ACAPS) | 0.217 |
+| Osprey (alarmist) | 0.220 |
+| Alder (noisy, often misreads signals) | 0.229 |
+| Linden (anchored on ACAPS) | 0.235 |
+| Wren (hedger) / Heron (complacent) | 0.246 / 0.260 |
 | Always the 61% base rate | 0.239 |
 
+★ = super-estimator badge. Only the two "sharp" archetypes are given more information than ACAPS, so only they earn it (2 of 8).
+
 **Real finding:** ACAPS's own ratings beat the base rate and are well calibrated in the middle: risks rated Medium materialised 48% of the time, High 83%, Very High 88%. Low-rated risks materialised more often than rated (43%, n=14).
+
+**Also real:** ACAPS's extreme ratings are overconfident. Very Low risks materialised 33% of the time (rated 5%) and Very High ones 88% (rated 95%), so any forecaster who pulls those towards 50% scores better than ACAPS, even with no extra knowledge. While tuning the synthetic panel, random noise around ACAPS's rating alone was enough to "beat" it. Worth raising with Alex: it may argue for the edge mapping at the extremes, or for ACAPS hedging Very Low/Very High.
 
 **Not a finding:** the experts' scores. Their "knowledge" is simulated, so the table only shows the pipeline can tell a sharp forecaster from a biased one. Say this on the slide.
 
@@ -94,12 +98,13 @@ Per-question track record and the super-estimator leaderboard. Works on any DB w
 
 ```python
 from leaderboard import track_record, leaderboard
-track_record(con, author_token)          # → GET /me/track-record (served only to its owner)
+track_record(con, author_token)          # → GET /me/track-record (served only to its owner): resolved "history" + unresolved "pending"
 leaderboard(con, viewer_token=None)      # → peer-visible board: display names, no tokens
 ```
 
+- **`pending`:** the author's final answers on unresolved questions, soonest deadline first, in Lane C's fixture shape (`question_id, title, title_fr, text, text_fr, your_prob, closes_at, submitted_at`; French fields are `null` until questions carry translations).
 - **Ranked only after 5 resolved forecasts** (`MIN_RESOLVED`); below that, `forecasts_until_counted` says how many more are needed.
 - **Rank by shrunk mean Brier:** `(n·mean + 5·group_mean) / (n + 5)` (`SHRINK_K = 5`), so a few lucky calls can't top the board.
 - **Super estimator** = ≥ 5 resolved forecasts **and** mean Brier lower than ACAPS's mean Brier on exactly the same questions (paired). ACAPS's forecast for a question is its rating of that question's risk.
 - **Names:** `psd_*` tokens show the pseudonym from `experts`; `anon_*` tokens show "Anonymous expert". Tokens listed in an optional `leaderboard_opt_out(author_token)` table are left off the board but still get their own track record.
-- **Backtest caveat:** 6 of 8 synthetic experts earn the badge, because simulated knowledge makes them better than ACAPS. With real experts expect far fewer.
+- **Backtest:** 2 of 8 synthetic experts earn the badge (the two "sharp" ones, the only ones given information beyond ACAPS).

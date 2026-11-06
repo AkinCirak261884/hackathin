@@ -4,6 +4,7 @@ Works on any DB with the BOARD.md tables (Lane B's api/var/groundtruth.db or ana
 reads `contributions`, `questions` (with `outcome`), `risks` (ACAPS probability label), `experts`.
 
     track_record(con, author_token)   -> the shape Lane B serves at GET /me/track-record
+                                         (resolved "history" + unresolved "pending")
     leaderboard(con, viewer_token)    -> peer-visible ranking: display names only, no tokens
 
 Rules:
@@ -54,6 +55,33 @@ def resolved_answers(con):
             "beat_acaps": (b < acaps_b) if acaps_b is not None else None,
         })
     return by_token
+
+
+def _has(con, table, column=None):
+    if column is None:
+        return con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)).fetchone() is not None
+    return any(row[1] == column for row in con.execute(f"PRAGMA table_info({table})"))
+
+
+def pending_answers(con, author_token):
+    """The author's final answers on questions that haven't resolved yet, soonest deadline first.
+    Same item shape as Lane C's fixtures/me_track_record.json "pending"."""
+    title = "(SELECT t.title FROM triggers t WHERE t.trigger_id = q.trigger_id)" if _has(con, "triggers") else "NULL"
+    created = "c.created_at" if _has(con, "contributions", "created_at") else "NULL"
+    rows = con.execute(f"""
+        SELECT c.question_id, {title}, q.text, c.prob, q.closes_at, {created}
+        FROM contributions c
+        JOIN questions q ON q.question_id = c.question_id
+        WHERE c.author_token = ? AND c.prob IS NOT NULL AND q.outcome IS NULL
+          AND c.version = (SELECT MAX(version) FROM contributions c2
+                           WHERE c2.author_token = c.author_token AND c2.question_id = c.question_id)
+        ORDER BY q.closes_at, c.question_id
+    """, (author_token,)).fetchall()
+    return [
+        {"question_id": qid, "title": t, "title_fr": None, "text": text, "text_fr": None,
+         "your_prob": prob, "closes_at": closes_at, "submitted_at": submitted_at}
+        for qid, t, text, prob, closes_at, submitted_at in rows
+    ]
 
 
 def shrunk(mean, n, group_mean, k=SHRINK_K):
@@ -148,4 +176,5 @@ def track_record(con, author_token):
         "rank_percentile": round(1 - (rank - 1) / len(ranked), 3) if rank else None,
         "acaps_mapping": APP_MAPPING,
         "history": history,
+        "pending": pending_answers(con, author_token),
     }

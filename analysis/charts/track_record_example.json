@@ -2,10 +2,10 @@
   "pseudonymous": {
     "author_token": "psd_EXP-TCD-01",
     "n_resolved": 74,
-    "mean_brier": 0.1494,
+    "mean_brier": 0.217,
     "acaps_brier_same_questions": 0.2161,
-    "n_beat_acaps": 45,
-    "super_estimator": true,
+    "n_beat_acaps": 37,
+    "super_estimator": false,
     "acaps_baseline_brier": 0.2161,
     "min_resolved": 5,
     "forecasts_until_counted": 0,
@@ -20,11 +20,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.75,
+        "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0018-MAT",
@@ -32,8 +32,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.85,
-        "brier": 0.0225,
+        "your_prob": 0.95,
+        "brier": 0.0025,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
         "beat_acaps": false
@@ -44,11 +44,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.55,
-        "brier": 0.3025,
+        "your_prob": 0.45,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R0033-MAT",
@@ -56,11 +56,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.85,
-        "brier": 0.0225,
+        "your_prob": 0.5,
+        "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0073-MAT",
@@ -68,8 +68,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.35,
-        "brier": 0.4225,
+        "your_prob": 0.25,
+        "brier": 0.5625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
         "beat_acaps": true
@@ -92,8 +92,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.35,
-        "brier": 0.1225,
+        "your_prob": 0.4,
+        "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -104,11 +104,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.7,
-        "brier": 0.09,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R0094-MAT",
@@ -116,8 +116,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.2,
-        "brier": 0.04,
+        "your_prob": 0.4,
+        "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -128,8 +128,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.45,
-        "brier": 0.2025,
+        "your_prob": 0.75,
+        "brier": 0.5625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
         "beat_acaps": true
@@ -140,8 +140,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.3,
-        "brier": 0.49,
+        "your_prob": 0.75,
+        "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": false
@@ -152,11 +152,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.65,
-        "brier": 0.4225,
+        "your_prob": 0.45,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R0120-MAT",
@@ -164,8 +164,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.5,
-        "brier": 0.25,
+        "your_prob": 0.4,
+        "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": false
@@ -176,11 +176,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.35,
-        "brier": 0.1225,
+        "your_prob": 0.2,
+        "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R0190-MAT",
@@ -188,8 +188,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.55,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -200,27 +200,15 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.45,
-        "brier": 0.3025,
+        "your_prob": 0.2,
+        "brier": 0.64,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0242-MAT",
         "text": "Will this risk materialise within six months? An increase in security incidents lead to displacement in Niono circle.",
-        "closes_at": "2026-05-06",
-        "outcome": 0,
-        "outcome_label": "didn't happen",
-        "your_prob": 0.4,
-        "brier": 0.16,
-        "acaps_prob": 0.5,
-        "acaps_brier": 0.25,
-        "beat_acaps": true
-      },
-      {
-        "question_id": "Q-R0274-MAT",
-        "text": "Will this risk materialise within six months? Diplomatic tensions between Lebanon and the Gulf states affect Lebanon's economy and aggravate humanitarian needs",
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
@@ -231,13 +219,25 @@
         "beat_acaps": true
       },
       {
+        "question_id": "Q-R0274-MAT",
+        "text": "Will this risk materialise within six months? Diplomatic tensions between Lebanon and the Gulf states affect Lebanon's economy and aggravate humanitarian needs",
+        "closes_at": "2026-05-06",
+        "outcome": 0,
+        "outcome_label": "didn't happen",
+        "your_prob": 0.65,
+        "brier": 0.4225,
+        "acaps_prob": 0.5,
+        "acaps_brier": 0.25,
+        "beat_acaps": false
+      },
+      {
         "question_id": "Q-R0296-MAT",
         "text": "Will this risk materialise within six months? The implementation of the Migrant Protection Protocol leads to an increased number of migrants stranded at the border lacking protection, shelter, and services.",
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.4,
-        "brier": 0.16,
+        "your_prob": 0.75,
+        "brier": 0.5625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
         "beat_acaps": true
@@ -248,11 +248,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.85,
-        "brier": 0.0225,
+        "your_prob": 0.75,
+        "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0332-MAT",
@@ -260,8 +260,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.55,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -272,8 +272,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.7,
-        "brier": 0.09,
+        "your_prob": 0.6,
+        "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -284,8 +284,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.35,
-        "brier": 0.1225,
+        "your_prob": 0.4,
+        "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -296,8 +296,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.75,
-        "brier": 0.0625,
+        "your_prob": 0.25,
+        "brier": 0.5625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
         "beat_acaps": true
@@ -308,8 +308,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.55,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -320,8 +320,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.25,
-        "brier": 0.0625,
+        "your_prob": 0.45,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -332,8 +332,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.15,
-        "brier": 0.0225,
+        "your_prob": 0.4,
+        "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -344,11 +344,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.45,
-        "brier": 0.3025,
+        "your_prob": 0.2,
+        "brier": 0.64,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0463-MAT",
@@ -356,11 +356,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.9,
-        "brier": 0.01,
+        "your_prob": 0.5,
+        "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0492-MAT",
@@ -368,11 +368,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.25,
-        "brier": 0.0625,
+        "your_prob": 0.6,
+        "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0510-MAT",
@@ -380,11 +380,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.75,
-        "brier": 0.0625,
+        "your_prob": 0.5,
+        "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0522-MAT",
@@ -392,11 +392,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.9,
-        "brier": 0.01,
+        "your_prob": 0.7,
+        "brier": 0.09,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0525-MAT",
@@ -404,11 +404,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.25,
-        "brier": 0.0625,
+        "your_prob": 0.2,
+        "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R0546-MAT",
@@ -428,11 +428,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.65,
-        "brier": 0.1225,
+        "your_prob": 0.85,
+        "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R0552-MAT",
@@ -440,11 +440,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.25,
-        "brier": 0.0625,
+        "your_prob": 0.55,
+        "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0553-MAT",
@@ -452,8 +452,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.9,
-        "brier": 0.01,
+        "your_prob": 0.7,
+        "brier": 0.09,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -464,8 +464,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.9,
+        "brier": 0.01,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
         "beat_acaps": false
@@ -476,8 +476,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.5,
-        "brier": 0.25,
+        "your_prob": 0.45,
+        "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": false
@@ -500,11 +500,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.75,
-        "brier": 0.0625,
+        "your_prob": 0.45,
+        "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0970-MAT",
@@ -512,8 +512,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.25,
-        "brier": 0.0625,
+        "your_prob": 0.35,
+        "brier": 0.1225,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
         "beat_acaps": false
@@ -524,8 +524,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.7,
-        "brier": 0.09,
+        "your_prob": 0.9,
+        "brier": 0.01,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
         "beat_acaps": false
@@ -536,11 +536,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.6,
-        "brier": 0.16,
+        "your_prob": 0.45,
+        "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0985-MAT",
@@ -548,11 +548,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.6,
-        "brier": 0.36,
+        "your_prob": 0.8,
+        "brier": 0.64,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R0990-MAT",
@@ -560,8 +560,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.7,
-        "brier": 0.09,
+        "your_prob": 0.55,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -572,8 +572,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.35,
-        "brier": 0.4225,
+        "your_prob": 0.5,
+        "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": false
@@ -584,8 +584,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.5,
-        "brier": 0.25,
+        "your_prob": 0.25,
+        "brier": 0.0625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
         "beat_acaps": false
@@ -596,8 +596,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.55,
-        "brier": 0.3025,
+        "your_prob": 0.6,
+        "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": false
@@ -608,8 +608,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.35,
-        "brier": 0.1225,
+        "your_prob": 0.45,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
@@ -620,8 +620,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.4,
-        "brier": 0.36,
+        "your_prob": 0.3,
+        "brier": 0.49,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": false
@@ -632,11 +632,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.4,
-        "brier": 0.16,
+        "your_prob": 0.6,
+        "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R1003-MAT",
@@ -644,15 +644,27 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.2,
-        "brier": 0.64,
+        "your_prob": 0.05,
+        "brier": 0.9025,
         "acaps_prob": 0.05,
         "acaps_brier": 0.9025,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R1007-MAT",
         "text": "Will this risk materialise within six months? Escalating tensions around universal suffrage in Somalia heightens conflict and instability ahead of the 2026 elections",
+        "closes_at": "2026-05-06",
+        "outcome": 1,
+        "outcome_label": "happened",
+        "your_prob": 0.75,
+        "brier": 0.0625,
+        "acaps_prob": 0.78,
+        "acaps_brier": 0.0484,
+        "beat_acaps": false
+      },
+      {
+        "question_id": "Q-R1008-MAT",
+        "text": "Will this risk materialise within six months? Rising water scarcity in Iran leads to a deterioration in health, food security, and livelihood needs",
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
@@ -663,28 +675,16 @@
         "beat_acaps": true
       },
       {
-        "question_id": "Q-R1008-MAT",
-        "text": "Will this risk materialise within six months? Rising water scarcity in Iran leads to a deterioration in health, food security, and livelihood needs",
-        "closes_at": "2026-05-06",
-        "outcome": 1,
-        "outcome_label": "happened",
-        "your_prob": 0.7,
-        "brier": 0.09,
-        "acaps_prob": 0.78,
-        "acaps_brier": 0.0484,
-        "beat_acaps": false
-      },
-      {
         "question_id": "Q-R1011-MAT",
         "text": "Will this risk materialise within six months? US military build-up in the Caribbean triggers internal destabilisation in Venezuela and heightens humanitarian needs",
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.75,
-        "brier": 0.0625,
+        "your_prob": 0.45,
+        "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R1012-MAT",
@@ -692,11 +692,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.75,
-        "brier": 0.0625,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R1015-MAT",
@@ -704,11 +704,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.7,
-        "brier": 0.09,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R1016-MAT",
@@ -716,11 +716,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.4,
-        "brier": 0.36,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R1017-MAT",
@@ -728,8 +728,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.9,
-        "brier": 0.01,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": true
@@ -740,8 +740,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.85,
-        "brier": 0.0225,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": true
@@ -764,11 +764,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.65,
-        "brier": 0.4225,
+        "your_prob": 0.85,
+        "brier": 0.7225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R1023-MAT",
@@ -776,8 +776,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.6,
-        "brier": 0.16,
+        "your_prob": 0.75,
+        "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": false
@@ -800,8 +800,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.65,
-        "brier": 0.1225,
+        "your_prob": 0.75,
+        "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": false
@@ -812,11 +812,11 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.55,
-        "brier": 0.2025,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R1028-MAT",
@@ -824,11 +824,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.4,
-        "brier": 0.16,
+        "your_prob": 0.2,
+        "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": true
       },
       {
         "question_id": "Q-R1029-MAT",
@@ -836,8 +836,8 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.3,
-        "brier": 0.09,
+        "your_prob": 0.25,
+        "brier": 0.0625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
         "beat_acaps": false
@@ -848,8 +848,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.9,
+        "brier": 0.01,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": true
@@ -860,8 +860,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.9,
-        "brier": 0.01,
+        "your_prob": 0.8,
+        "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": true
@@ -872,8 +872,8 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.8,
-        "brier": 0.04,
+        "your_prob": 0.85,
+        "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
         "beat_acaps": true
@@ -884,11 +884,11 @@
         "closes_at": "2026-05-06",
         "outcome": 0,
         "outcome_label": "didn't happen",
-        "your_prob": 0.3,
-        "brier": 0.09,
+        "your_prob": 0.5,
+        "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": false
       },
       {
         "question_id": "Q-R1056-MAT",
@@ -896,11 +896,43 @@
         "closes_at": "2026-05-06",
         "outcome": 1,
         "outcome_label": "happened",
-        "your_prob": 0.75,
-        "brier": 0.0625,
+        "your_prob": 0.55,
+        "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
+      }
+    ],
+    "pending": [
+      {
+        "question_id": "Q-R1043-T0618",
+        "title": "Expansion of cross-border attacks and insecurity",
+        "title_fr": null,
+        "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement, or humanitarian access disruptions, by 6 May 2027?",
+        "text_fr": null,
+        "your_prob": 0.75,
+        "closes_at": "2027-05-06",
+        "submitted_at": "2026-11-06T20:24:00"
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "title": "Attacks on strategic infrastructure in Chad",
+        "title_fr": null,
+        "text": "Will attacks directly target strategic infrastructure in Chad, including airports, military facilities, border posts, or major transport corridors, causing significant disruption to civilian, humanitarian, or commercial activities, by 6 May 2027?",
+        "text_fr": null,
+        "your_prob": 0.6,
+        "closes_at": "2027-05-06",
+        "submitted_at": "2026-11-06T20:24:00"
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "title": "Renewed proxy mobilisation and cross-border armed group activity",
+        "title_fr": null,
+        "text": "Will armed groups, militias, or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, resulting in sustained violence, retaliatory attacks, or territorial insecurity in eastern Chad, by 6 May 2027?",
+        "text_fr": null,
+        "your_prob": 0.7,
+        "closes_at": "2027-05-06",
+        "submitted_at": "2026-11-06T20:24:00"
       }
     ]
   },
@@ -1782,6 +1814,38 @@
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
         "beat_acaps": true
+      }
+    ],
+    "pending": [
+      {
+        "question_id": "Q-R1043-T0618",
+        "title": "Expansion of cross-border attacks and insecurity",
+        "title_fr": null,
+        "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement, or humanitarian access disruptions, by 6 May 2027?",
+        "text_fr": null,
+        "your_prob": 0.65,
+        "closes_at": "2027-05-06",
+        "submitted_at": "2026-11-06T19:15:00"
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "title": "Attacks on strategic infrastructure in Chad",
+        "title_fr": null,
+        "text": "Will attacks directly target strategic infrastructure in Chad, including airports, military facilities, border posts, or major transport corridors, causing significant disruption to civilian, humanitarian, or commercial activities, by 6 May 2027?",
+        "text_fr": null,
+        "your_prob": 0.4,
+        "closes_at": "2027-05-06",
+        "submitted_at": "2026-11-06T19:15:00"
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "title": "Renewed proxy mobilisation and cross-border armed group activity",
+        "title_fr": null,
+        "text": "Will armed groups, militias, or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, resulting in sustained violence, retaliatory attacks, or territorial insecurity in eastern Chad, by 6 May 2027?",
+        "text_fr": null,
+        "your_prob": 0.4,
+        "closes_at": "2027-05-06",
+        "submitted_at": "2026-11-06T19:15:00"
       }
     ]
   }

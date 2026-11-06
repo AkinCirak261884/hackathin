@@ -129,61 +129,27 @@
       "archetype": "well_calibrated",
       "anonymous": false,
       "n": 74,
-      "brier": 0.1494,
+      "brier": 0.217,
       "calibration": [
         {
-          "mean_prob": 0.29062499999999997,
-          "observed": 0.25,
-          "n": 16
-        },
-        {
-          "mean_prob": 0.465,
-          "observed": 0.35,
-          "n": 20
-        },
-        {
-          "mean_prob": 0.6894736842105263,
-          "observed": 0.8421052631578947,
-          "n": 19
-        },
-        {
-          "mean_prob": 0.8472222222222222,
-          "observed": 1,
-          "n": 18
-        }
-      ]
-    },
-    {
-      "display_name": "Alder",
-      "archetype": "noisy",
-      "anonymous": false,
-      "n": 75,
-      "brier": 0.1776,
-      "calibration": [
-        {
-          "mean_prob": 0.11818181818181818,
-          "observed": 0.18181818181818182,
+          "mean_prob": 0.2409090909090909,
+          "observed": 0.45454545454545453,
           "n": 11
         },
         {
-          "mean_prob": 0.3038461538461538,
-          "observed": 0.46153846153846156,
-          "n": 13
+          "mean_prob": 0.47586206896551725,
+          "observed": 0.4827586206896552,
+          "n": 29
         },
         {
-          "mean_prob": 0.4866666666666667,
-          "observed": 0.4666666666666667,
+          "mean_prob": 0.6966666666666667,
+          "observed": 0.6,
           "n": 15
         },
         {
-          "mean_prob": 0.6849999999999999,
-          "observed": 0.7,
-          "n": 20
-        },
-        {
-          "mean_prob": 0.8375,
-          "observed": 0.9375,
-          "n": 16
+          "mean_prob": 0.8416666666666667,
+          "observed": 0.8888888888888888,
+          "n": 18
         }
       ]
     },
@@ -192,22 +158,56 @@
       "archetype": "alarmist",
       "anonymous": false,
       "n": 63,
-      "brier": 0.1984,
+      "brier": 0.2198,
       "calibration": [
         {
-          "mean_prob": 0.48750000000000004,
+          "mean_prob": 0.52,
           "observed": 0,
+          "n": 5
+        },
+        {
+          "mean_prob": 0.6875,
+          "observed": 0.42857142857142855,
+          "n": 28
+        },
+        {
+          "mean_prob": 0.8482758620689655,
+          "observed": 0.8275862068965517,
+          "n": 29
+        }
+      ]
+    },
+    {
+      "display_name": "Alder",
+      "archetype": "noisy",
+      "anonymous": false,
+      "n": 75,
+      "brier": 0.2288,
+      "calibration": [
+        {
+          "mean_prob": 0.08125,
+          "observed": 0.5,
           "n": 8
         },
         {
-          "mean_prob": 0.6815789473684211,
-          "observed": 0.3157894736842105,
+          "mean_prob": 0.2423076923076923,
+          "observed": 0.38461538461538464,
+          "n": 13
+        },
+        {
+          "mean_prob": 0.4466666666666667,
+          "observed": 0.4,
+          "n": 15
+        },
+        {
+          "mean_prob": 0.6736842105263158,
+          "observed": 0.5789473684210527,
           "n": 19
         },
         {
-          "mean_prob": 0.8585714285714285,
-          "observed": 0.8571428571428571,
-          "n": 35
+          "mean_prob": 0.875,
+          "observed": 0.9,
+          "n": 20
         }
       ]
     },
@@ -216,61 +216,32 @@
       "archetype": "anchored",
       "anonymous": false,
       "n": 71,
-      "brier": 0.2176,
+      "brier": 0.2347,
       "calibration": [
         {
-          "mean_prob": 0.06666666666666667,
+          "mean_prob": 0.05,
           "observed": 0.3333333333333333,
           "n": 3
         },
         {
-          "mean_prob": 0.26666666666666666,
+          "mean_prob": 0.24583333333333335,
           "observed": 0.5,
           "n": 12
         },
         {
-          "mean_prob": 0.508,
-          "observed": 0.48,
-          "n": 25
+          "mean_prob": 0.5071428571428571,
+          "observed": 0.5357142857142857,
+          "n": 28
         },
         {
-          "mean_prob": 0.7071428571428571,
-          "observed": 0.7619047619047619,
-          "n": 21
+          "mean_prob": 0.7307692307692307,
+          "observed": 0.7692307692307693,
+          "n": 13
         },
         {
-          "mean_prob": 0.875,
-          "observed": 0.9,
-          "n": 10
-        }
-      ]
-    },
-    {
-      "display_name": "Heron",
-      "archetype": "complacent",
-      "anonymous": false,
-      "n": 70,
-      "brier": 0.2263,
-      "calibration": [
-        {
-          "mean_prob": 0.1111111111111111,
-          "observed": 0.1111111111111111,
-          "n": 9
-        },
-        {
-          "mean_prob": 0.2772727272727273,
-          "observed": 0.36363636363636365,
-          "n": 33
-        },
-        {
-          "mean_prob": 0.4431818181818182,
-          "observed": 0.8181818181818182,
-          "n": 22
-        },
-        {
-          "mean_prob": 0.6583333333333333,
-          "observed": 0.8333333333333334,
-          "n": 6
+          "mean_prob": 0.85,
+          "observed": 0.8,
+          "n": 15
         }
       ]
     },
@@ -279,17 +250,41 @@
       "archetype": "hedger",
       "anonymous": false,
       "n": 62,
-      "brier": 0.2311,
+      "brier": 0.2461,
       "calibration": [
         {
-          "mean_prob": 0.4922222222222222,
-          "observed": 0.5333333333333333,
-          "n": 45
+          "mean_prob": 0.4981132075471698,
+          "observed": 0.6226415094339622,
+          "n": 53
         },
         {
-          "mean_prob": 0.621875,
-          "observed": 0.875,
-          "n": 16
+          "mean_prob": 0.6055555555555555,
+          "observed": 0.6666666666666666,
+          "n": 9
+        }
+      ]
+    },
+    {
+      "display_name": "Heron",
+      "archetype": "complacent",
+      "anonymous": false,
+      "n": 70,
+      "brier": 0.2603,
+      "calibration": [
+        {
+          "mean_prob": 0.13125,
+          "observed": 0.25,
+          "n": 8
+        },
+        {
+          "mean_prob": 0.28292682926829266,
+          "observed": 0.4878048780487805,
+          "n": 41
+        },
+        {
+          "mean_prob": 0.4342105263157895,
+          "observed": 0.6842105263157895,
+          "n": 19
         }
       ]
     }
