@@ -1,7 +1,9 @@
 {
  "round_id": "RND-R1043-1",
- "stage": "blind",
+ "stage": "reveal",
  "min_n": 3,
+ "locked": false,
+ "view": "round_1",
  "suppressed": false,
  "questions": [
   {

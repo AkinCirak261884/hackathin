@@ -122,6 +122,7 @@ def test_thread_shows_shares_and_approved_themes_only():
     post(3)
     with db.main_db() as m:
         m.execute("INSERT INTO summaries VALUES (?,?,?)", (RID, "Access constraints under-rated.", "2026-11-07"))
+        m.execute("UPDATE rounds SET stage = 'reveal' WHERE round_id = ?", (RID,))
     t = client.get(f"/rounds/{RID}/thread", headers=hdr(3)).json()
     assert t["suppressed"] is False
     assert t["reasoning_basis"] == [{"basis": "experience", "share": 0.33}, {"basis": "media_osint", "share": 0.67}]

@@ -31,6 +31,12 @@ def agg(i=1, secret=None):
     return client.get(f"/rounds/{RID}/aggregate", headers=h)
 
 
+def stage(s):
+    """Set the stage directly (unit tests); the advance endpoint is tested in test_lifecycle.py."""
+    with db.main_db() as m:
+        m.execute("UPDATE rounds SET stage = ? WHERE round_id = ?", (s, RID))
+
+
 def q_of(aggregate, qid=Q):
     return next(q for q in aggregate["questions"] if q["question_id"] == qid)
 
@@ -52,14 +58,16 @@ def test_v1_only_once_per_invite():
 
 
 def test_v2_needs_v1_and_only_once():
-    assert post(1, version=2).status_code == 409
     assert post(1).status_code == 201
+    stage("reveal")
+    assert post(2, version=2).status_code == 409   # no v1 from this invite
     assert post(1, 0.8, version=2).status_code == 201
     assert post(1, 0.9, version=2).status_code == 409
 
 
 def test_v2_must_keep_same_tier():
     assert post(1, tier="anonymous", secret=SECRET).status_code == 201
+    stage("reveal")
     assert post(1, version=2, tier="pseudonymous").status_code == 409
     assert post(1, version=2, tier="anonymous", secret=SECRET).status_code == 201
 
@@ -112,6 +120,7 @@ def test_aggregate_locked_before_own_submit():
 def test_n2_is_suppressed():
     post(1, 0.4)
     post(2, 0.6)
+    stage("reveal")  # forced: advance itself refuses n < 3
     a = agg(1).json()
     assert a["suppressed"] is True
     q = q_of(a)
@@ -123,6 +132,7 @@ def test_n3_is_shown_with_sorted_dots():
     post(1, 0.7)
     post(2, 0.2)
     post(3, 0.5)
+    stage("reveal")
     q = q_of(agg(2).json())
     assert q["suppressed"] is False and q["n"] == 3
     assert q["dots"] == [0.2, 0.5, 0.7] and q["median"] == 0.5
@@ -133,17 +143,21 @@ def test_revision_counts_once_and_uses_latest():
     post(1, 0.1)
     post(2, 0.5)
     post(3, 0.9)
+    stage("reveal")
     post(1, 0.6, version=2)
     a = agg(1).json()
-    q = q_of(a)
-    assert q["n"] == 3 and q["dots"] == [0.5, 0.6, 0.9]
+    assert q_of(a)["dots"] == [0.1, 0.5, 0.9]          # reveal shows the frozen round-1 picture
     assert a["your_answers"][Q] == 0.6 and a["can_revise"] is False
+    stage("closed")
+    q = q_of(agg(1).json())
+    assert q["n"] == 3 and q["dots"] == [0.5, 0.6, 0.9]  # final view: latest version, counted once
 
 
 def test_anonymous_caller_needs_device_secret_to_unlock():
     post(1, tier="anonymous", secret=SECRET)
     post(2)
     post(3)
+    stage("reveal")
     assert agg(1).status_code == 403
     assert agg(1, secret=SECRET).status_code == 200
 
@@ -152,6 +166,7 @@ def test_triggers_observed_share():
     post(1, triggers_observed=["T0618"])
     post(2, triggers_observed=["R1043 - T0618", "T0619"])  # long form accepted
     post(3)
+    stage("reveal")
     t = {x["trigger_id"]: x["share"] for x in agg(1).json()["triggers_observed"]}
     assert t == {"T0618": 0.67, "T0619": 0.33}
 
@@ -160,6 +175,7 @@ def test_aggregate_never_contains_free_text():
     post(1, missing_text="SECRET-FIELD-NOTE")
     post(2)
     post(3)
+    stage("closed")
     assert "SECRET-FIELD-NOTE" not in agg(1).text
 
 
@@ -172,10 +188,13 @@ SYNTH = Path(os.environ.get("GT_SYNTH_DIR", seed.SYNTH_DIR))
 def test_lane_a_synthetic_round_posts_cleanly(tmp_path):
     seed.seed(SYNTH)
     bodies = json.loads((SYNTH / "responses_R1043.json").read_text(encoding="utf-8"))
-    for b in sorted(bodies, key=lambda b: b["version"]):
-        b = {k: v for k, v in b.items() if not k.startswith("_")}
-        r = client.post(f"/rounds/{RID}/responses", json=b)
-        assert r.status_code == 201, r.text
+    for version in (1, 2):
+        for b in [b for b in bodies if b["version"] == version]:
+            b = {k: v for k, v in b.items() if not k.startswith("_")}
+            r = client.post(f"/rounds/{RID}/responses", json=b)
+            assert r.status_code == 201, r.text
+        if version == 1:
+            assert client.post(f"/moderator/rounds/{RID}/advance").json()["to_stage"] == "reveal"
     first = next(b for b in bodies if b["version"] == 1)
     a = client.get(f"/rounds/{RID}/aggregate", headers={
         "X-Invite-Token": first["invite_token"], **({"X-Device-Secret": first["device_secret"]}

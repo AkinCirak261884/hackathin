@@ -39,3 +39,20 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
   Same 403 / n ≥ 3 gate. Never individual replies or verbatim text.
 - `reasoning_text` / `reasoning_basis` stored on responses, visible only in `GET /moderator/rounds/{id}` → `free_text`.
 - No `?token=` anywhere: tokens and secrets go in headers. Uvicorn's access log (client IPs) is disabled at startup.
+
+## Round lifecycle (`api/rounds.py`)
+
+| stage | accepts | `/aggregate` + `/thread` (after your own v1) |
+|---|---|---|
+| `blind` | v1 only | `locked: true`, no numbers (so nothing changes in real time) |
+| `reveal` | v2 only (one revision) | `view: "round_1"`, frozen v1 distribution |
+| `closed` | nothing | `view: "final"`, each author's latest answer |
+
+- `POST /moderator/rounds/{id}/advance` (optional body `{"to": "reveal"|"closed"}`): blind → reveal needs ≥ 3 answers; never backwards.
+- `POST /moderator/rounds {"risk_id", "question_set": "core"|"short_horizon", "question_ids"?}` launches a round
+  (Lane A's `analysis/questions/short_horizon.json` is loaded as `short_horizon`, e.g. pilot `RND-R1043-P2`).
+- Each round has its own question list (`round_questions`); answers to other questions → 422.
+- `GET /rounds/open?panel=TCD` and `GET /rounds/{id}` now come from the DB (all 139 Risk Radar risks are seeded
+  via Lane A's `ingest.py`; `completion_rate` is a 0–1 fraction).
+- `GET /moderator/rounds/{id}`: real n, round-1 vs final distributions (from n = 1), revision shifts, contributors
+  (identity only if every answer of that token was "known"), free text. AI clusters still mock (task 5).

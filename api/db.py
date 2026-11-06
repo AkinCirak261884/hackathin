@@ -27,12 +27,20 @@ CREATE TABLE IF NOT EXISTS questions (
     question_id TEXT PRIMARY KEY, risk_id TEXT NOT NULL REFERENCES risks(risk_id),
     trigger_id TEXT REFERENCES triggers(trigger_id),   -- NULL for the "agree with rating" item
     text TEXT NOT NULL, closes_at TEXT NOT NULL,
+    question_set TEXT NOT NULL DEFAULT 'core',          -- core (6-month) | short_horizon (pilot)
+    title TEXT, title_fr TEXT, text_fr TEXT, opens_at TEXT, resolution_criterion TEXT,
     outcome INTEGER CHECK (outcome IN (0, 1))           -- NULL until resolved
 );
 CREATE TABLE IF NOT EXISTS rounds (
     round_id TEXT PRIMARY KEY, risk_id TEXT NOT NULL REFERENCES risks(risk_id),
     stage TEXT NOT NULL CHECK (stage IN ('blind', 'reveal', 'closed')),
-    opened_at TEXT NOT NULL
+    opened_at TEXT NOT NULL,
+    panel TEXT NOT NULL DEFAULT 'TCD', closed_at TEXT
+);
+CREATE TABLE IF NOT EXISTS round_questions (
+    round_id TEXT NOT NULL REFERENCES rounds(round_id),
+    question_id TEXT NOT NULL REFERENCES questions(question_id),
+    PRIMARY KEY (round_id, question_id)
 );
 -- Pseudonymous profile only. No names, no emails, no IPs.
 CREATE TABLE IF NOT EXISTS experts (
@@ -111,7 +119,13 @@ def vault_db() -> sqlite3.Connection:
 
 
 # Columns added after the first schema; ALTERed into existing DBs on startup.
-MIGRATIONS = [("contributions", "reasoning_text", "TEXT"), ("contributions", "reasoning_basis", "TEXT")]
+MIGRATIONS = [
+    ("contributions", "reasoning_text", "TEXT"), ("contributions", "reasoning_basis", "TEXT"),
+    ("rounds", "panel", "TEXT NOT NULL DEFAULT 'TCD'"), ("rounds", "closed_at", "TEXT"),
+    ("questions", "question_set", "TEXT NOT NULL DEFAULT 'core'"), ("questions", "title", "TEXT"),
+    ("questions", "title_fr", "TEXT"), ("questions", "text_fr", "TEXT"), ("questions", "opens_at", "TEXT"),
+    ("questions", "resolution_criterion", "TEXT"),
+]
 
 
 def init_db(main_path: Path | None = None, vault_path: Path | None = None) -> None:

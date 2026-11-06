@@ -1,6 +1,5 @@
-"""Ground Truth core API (Lane B). Responses are invite-checked and
-get a tier-based author token (api/trust.py); other data is still mock JSON
-from api/mocks/ so Lane C can build against the real URLs today.
+"""Ground Truth core API (Lane B). Real data for rounds, responses, aggregates, track record and
+leaderboard. Still mock: AI clusters (moderator), publish flow and /public/summaries.
 
 Run:  uvicorn api.main:app --reload     (from the repo root)
 """
@@ -35,7 +34,7 @@ async def lifespan(_app):
     yield
 
 
-app = FastAPI(title="Ground Truth API", version="0.1.0-stub", lifespan=lifespan)
+app = FastAPI(title="Ground Truth API", version="0.2.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -68,6 +67,17 @@ class PublishIn(BaseModel):
     approved_text: str
 
 
+class RoundIn(BaseModel):
+    risk_id: str
+    question_set: Literal["core", "short_horizon"] = "core"
+    question_ids: Optional[list[str]] = None   # overrides question_set
+    panel: str = "TCD"
+
+
+class AdvanceIn(BaseModel):
+    to: Optional[Literal["reveal", "closed"]] = None   # optional safety check
+
+
 class InviteIn(BaseModel):
     expert_id: str
     country_panel: str = "TCD"
@@ -75,41 +85,21 @@ class InviteIn(BaseModel):
 
 # ---------- expert / public ----------
 
-def _round_or_404(round_id: str) -> dict:
-    rounds.get_round(round_id)  # 404 via TrustError handler
-    for r in mock("rounds_open")["rounds"]:
-        if r["round_id"] == round_id:
-            return r
-    raise HTTPException(404, "round not found")
-
-
 @app.get("/health")
 def health():
-    return {"ok": True, "stage": "stub"}
+    return {"ok": True}
 
 
 @app.get("/rounds/open")
-def rounds_open(panel: str = "TCD"):
-    data = mock("rounds_open")
-    if panel.upper() != data["panel"]:
-        return {"panel": panel.upper(), "rounds": []}
-    return data
+def rounds_open(panel: str = "TCD", x_invite_token: Optional[str] = Header(None),
+                x_device_secret: Optional[str] = Header(None)):
+    """Open (blind/reveal) rounds for a panel. With headers, `you_submitted` is filled in."""
+    return rounds.list_open(panel, x_invite_token, x_device_secret)
 
 
 @app.get("/rounds/{round_id}")
 def get_round(round_id: str):
-    r = _round_or_404(round_id)
-    return {
-        **r,
-        "risk": {"risk_id": "R1043", "country": "Chad", "probability": "High",
-                 "impact": 4, "level": "High", "status": "Active"},
-        "triggers": [
-            {"trigger_id": "T0618", "title": "Expansion of cross-border attacks and insecurity", "completion_rate": 0.4},
-            {"trigger_id": "T0619", "title": "Attacks on strategic infrastructure in Chad", "completion_rate": 0.1},
-            {"trigger_id": "T0620", "title": "Renewed proxy mobilisation and cross-border armed group activity", "completion_rate": 0.2},
-        ],
-        "questions": mock("_questions"),
-    }
+    return rounds.round_detail(round_id)
 
 
 @app.post("/rounds/{round_id}/responses", status_code=201)
@@ -159,13 +149,17 @@ def public_summaries():
 
 # ---------- moderator ----------
 
+@app.post("/moderator/rounds", status_code=201)
+def create_round(body: RoundIn):
+    """Launch a round in one click: core questions, Lane A's short-horizon pilot set, or explicit ids."""
+    return rounds.create_round(body.risk_id, body.question_set, body.question_ids, body.panel)
+
+
 @app.get("/moderator/rounds/{round_id}")
 def moderator_round(round_id: str):
-    _round_or_404(round_id)
-    out = mock("moderator_round")
-    for c in out["contributors"]:
-        c["identity"] = trust.resolve_identity(c["author_token"], c["tier"])
-    out["free_text"] = rounds.moderator_free_text(round_id)  # real data; clusters still mock
+    out = rounds.moderator_view(round_id)
+    m = mock("moderator_round")  # AI synthesis = task 5
+    out["missing_clusters"], out["synthesis_source"] = m["missing_clusters"], m["synthesis_source"]
     return out
 
 
@@ -183,12 +177,12 @@ def revoke_invite(invite_token: str):
 
 
 @app.post("/moderator/rounds/{round_id}/advance")
-def advance(round_id: str):
-    _round_or_404(round_id)
-    return mock("advance")
+def advance(round_id: str, body: Optional[AdvanceIn] = None):
+    """blind -> reveal (needs n >= 3) -> closed. Never backwards."""
+    return rounds.advance(round_id, body.to if body else None)
 
 
 @app.post("/moderator/rounds/{round_id}/publish")
 def publish(round_id: str, body: PublishIn):
-    _round_or_404(round_id)
+    rounds.get_round(round_id)
     return mock("publish")

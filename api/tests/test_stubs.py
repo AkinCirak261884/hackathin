@@ -22,7 +22,6 @@ EXPERT_AND_PUBLIC = [
 ]
 MODERATOR = [
     ("get", f"/moderator/rounds/{RID}", None),
-    ("post", f"/moderator/rounds/{RID}/advance", None),
     ("post", f"/moderator/rounds/{RID}/publish", {"approved_text": "ok"}),
 ]
 
