@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from api import db, records, rounds, seed, trust
+from api import db, records, rounds, seed, synthesis, trust
 from api.db import init_db
 
 MOCKS = Path(__file__).parent / "mocks"
@@ -157,10 +157,20 @@ def create_round(body: RoundIn):
 
 @app.get("/moderator/rounds/{round_id}")
 def moderator_round(round_id: str):
+    """Never calls the AI: shows the cached synthesis if still fresh, else the free local grouping."""
     out = rounds.moderator_view(round_id)
-    m = mock("moderator_round")  # AI synthesis = task 5
-    out["missing_clusters"], out["synthesis_source"] = m["missing_clusters"], m["synthesis_source"]
+    syn = synthesis.cached(round_id) or synthesis.local_view(round_id)
+    out.update({k: syn.get(k) for k in ("missing_clusters", "synthesis_source", "fallback_reason", "model",
+                                       "identifying_details", "coordination_flags")})
+    out["synthesis_generated_at"] = syn.get("generated_at")
     return out
+
+
+@app.post("/moderator/rounds/{round_id}/synthesis")
+def run_synthesis(round_id: str, force: bool = False):
+    """Cluster "what's missing" answers with Claude (cached per input; ?force=true re-runs).
+    Falls back to keyword grouping without a key, on API errors or on a refusal."""
+    return synthesis.run(round_id, force=force)
 
 
 @app.post("/moderator/invites", status_code=201)

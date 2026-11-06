@@ -74,6 +74,11 @@ CREATE TABLE IF NOT EXISTS observed_triggers (
     PRIMARY KEY (round_id, author_token, trigger_id, version)
 );
 CREATE TABLE IF NOT EXISTS leaderboard_opt_out (author_token TEXT PRIMARY KEY);
+-- Moderator-only AI synthesis cache; input_hash detects new answers (stale cache).
+CREATE TABLE IF NOT EXISTS syntheses (
+    round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
+    input_hash TEXT NOT NULL, result_json TEXT NOT NULL, created_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS summaries (
     round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
     approved_text TEXT NOT NULL, published_at TEXT NOT NULL

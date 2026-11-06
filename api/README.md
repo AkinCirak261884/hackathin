@@ -56,3 +56,17 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
   via Lane A's `ingest.py`; `completion_rate` is a 0–1 fraction).
 - `GET /moderator/rounds/{id}`: real n, round-1 vs final distributions (from n = 1), revision shifts, contributors
   (identity only if every answer of that token was "known"), free text. AI clusters still mock (task 5).
+
+## AI synthesis (`api/synthesis.py`, moderator only)
+
+- `POST /moderator/rounds/{id}/synthesis[?force=true]` clusters the "what's missing" answers with Claude
+  (`claude-opus-5-5`, effort `low`, JSON-schema output, server-side `fallbacks: "default"` on a refusal).
+  Result cached per round + input hash; `GET /moderator/rounds/{id}` only reads the cache (never a paid call)
+  and shows `missing_clusters` (with `response_ids` → `free_text`), `identifying_details`, `coordination_flags`,
+  `synthesis_source` (`claude` / `fallback` / `none`) and `fallback_reason`.
+- Credentials: `ANTHROPIC_API_KEY` (or an `ant auth login` profile). Without them, on API errors or a refusal,
+  it falls back to keyword grouping labelled "no AI". `GT_AI=off` never calls the API.
+- Safety: only response id + text are sent (no tokens/tiers/identities; synthetic data only); answers are wrapped
+  as data and instructions inside them are ignored; output validated (unknown ids dropped, one cluster per answer);
+  summaries must not contain identifying details; copy-paste/coordinated answers are flagged locally. Nothing is
+  published from here — the moderator approves text in the publish flow.
