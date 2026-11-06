@@ -12,9 +12,9 @@ export const asPct = (x) => `${Math.round(x * 100)}%`
 // A forecast "counts as correct" when it was on the right side of 50%. 50% is no call.
 export function verdict(prob, outcome) {
   if (prob === 0.5) return 'nocall'
-  return (prob > 0.5) === outcome ? 'correct' : 'wrong'
+  return (prob > 0.5) === Boolean(outcome) ? 'correct' : 'wrong'
 }
-export function recordSummary(resolved) {
+export function recordSummary(resolved = []) {
   const v = resolved.map((r) => verdict(r.your_prob, r.outcome))
   return { correct: v.filter((x) => x === 'correct').length, total: v.filter((x) => x !== 'nocall').length, verdicts: v }
 }

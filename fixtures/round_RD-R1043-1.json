@@ -60,7 +60,7 @@
       "text": "ACAPS rates this risk High probability and impact 4/5. Do you agree?",
       "text_fr": "ACAPS évalue ce risque à une probabilité élevée et un impact de 4/5. Êtes-vous d'accord ?",
       "closes_at": "2026-11-13T18:00:00Z",
-      "acaps_baseline": 0.7,
+      "acaps_baseline": 0.78,
       "outcome": null
     },
     {

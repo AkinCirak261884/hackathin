@@ -1,0 +1,79 @@
+{
+  "min_resolved": 5,
+  "shrink_k": 5,
+  "acaps_mapping": "midpoint",
+  "group_mean_brier": 0.1657,
+  "entries": [
+    {
+      "rank": 1,
+      "display_name": "Anonymous expert",
+      "n_resolved": 6,
+      "mean_brier": 0.098,
+      "shrunk_brier": 0.1288,
+      "acaps_brier_same_questions": 0.226,
+      "super_estimator": true,
+      "is_you": false
+    },
+    {
+      "rank": 2,
+      "display_name": "Birch",
+      "n_resolved": 9,
+      "mean_brier": 0.112,
+      "shrunk_brier": 0.1312,
+      "acaps_brier_same_questions": 0.221,
+      "super_estimator": true,
+      "is_you": false
+    },
+    {
+      "rank": 3,
+      "display_name": "Kestrel",
+      "n_resolved": 8,
+      "mean_brier": 0.12,
+      "shrunk_brier": 0.1376,
+      "acaps_brier_same_questions": 0.1688,
+      "super_estimator": true,
+      "is_you": true
+    },
+    {
+      "rank": 4,
+      "display_name": "Heron",
+      "n_resolved": 11,
+      "mean_brier": 0.171,
+      "shrunk_brier": 0.1693,
+      "acaps_brier_same_questions": 0.205,
+      "super_estimator": true,
+      "is_you": false
+    },
+    {
+      "rank": 5,
+      "display_name": "Linden",
+      "n_resolved": 12,
+      "mean_brier": 0.199,
+      "shrunk_brier": 0.1892,
+      "acaps_brier_same_questions": 0.208,
+      "super_estimator": true,
+      "is_you": false
+    },
+    {
+      "rank": 6,
+      "display_name": "Osprey",
+      "n_resolved": 10,
+      "mean_brier": 0.214,
+      "shrunk_brier": 0.1979,
+      "acaps_brier_same_questions": 0.219,
+      "super_estimator": true,
+      "is_you": false
+    },
+    {
+      "rank": 7,
+      "display_name": "Wren",
+      "n_resolved": 7,
+      "mean_brier": 0.246,
+      "shrunk_brier": 0.2125,
+      "acaps_brier_same_questions": 0.214,
+      "super_estimator": false,
+      "is_you": false
+    }
+  ],
+  "n_not_yet_ranked": 1
+}

@@ -18,7 +18,7 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const qById = Object.fromEntries(round.questions.map((q) => [q.question_id, q]))
   const ranking = round.questions.find((q) => q.kind === 'ranking')
   const n = agg.n_responses
-  const rec = tr ? recordSummary(tr.resolved) : null
+  const rec = tr ? recordSummary(tr.history) : null
 
   const forecastTakeaway = (f) => {
     const others = [...f.values]

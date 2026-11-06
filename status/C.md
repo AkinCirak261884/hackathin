@@ -13,11 +13,11 @@ Folders: `web/`, `pitch/`. Don't edit `contracts/`, `api/`, `analysis/`, `modera
 
 ## Latest update
 
-### Lane C — update #2 — 17:57
-Done: Pulse flow polished (headings + subtitles on every step, presets for forecasts, "your answers and why" recap step with reasoning + source tags). Results page: one chart per answer type (rating bar, forecast dot plot, ranking bars) with a one-line takeaway. Profile: "4 of 5 correct", Brier vs ACAPS, latest + past predictions. Phone (thumb action bar, tab bar) + desktop (top nav, 2–3 columns) layouts.
+### Lane C — update #3 — 19:09
+Done: Lane A's 3 requests. Profile now uses A's track-record shape (super-estimator badge, rank "#3 of 7", "N more forecasts until your score counts", beat-ACAPS per question with ACAPS marker), new panel leaderboard (A's shape), ACAPS midpoint mapping (5/22/50/78/95) in fixtures + contracts. "Check my answers" replaces revise.
 Pushed: lane-c | PR: https://github.com/AkinCirak261884/hackathin/pull/1
-How to see it: cd web && npm install && npm run dev → http://localhost:5173
-Requests to other lanes: →B: store reasoning_text / reasoning_basis (moderator-only, like missing_text). →A: optional: use reasoning_basis in the moderator view
-Contract change proposed: questions.title/title_fr; responses.reasoning_text/reasoning_basis (see contracts/README.md)
-Next: offline queue; decide with team whether to keep a one-time revise (Delphi round 2)
+How to see it: cd web && npm run dev → #/me (and #/me?new=1 for a not-yet-ranked expert)
+Requests to other lanes: →B: serve GET /leaderboard (contracts/schemas/leaderboard.schema.json) and /me/track-record in A's shape + pending + impact. →A+B: align IDs/tokens (RD- vs RND-, E01 vs psd_EXP-TCD-01) on voice
+Contract change proposed: midpoint mapping; /leaderboard; track-record = A's shape (history[]). See contracts/README.md
+Next: switch web/src/api.js to B's real API once IDs/auth are agreed
 Blockers: contract freeze needs A+B OK

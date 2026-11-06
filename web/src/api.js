@@ -4,6 +4,8 @@ import round from '@fixtures/round_RD-R1043-1.json'
 import aggregate from '@fixtures/aggregate_RD-R1043-1.json'
 import postReply from '@fixtures/post_response_201.json'
 import trackRecord from '@fixtures/me_track_record.json'
+import trackRecordNew from '@fixtures/me_track_record_new.json'
+import leaderboard from '@fixtures/leaderboard.json'
 import publicSummaries from '@fixtures/public_summaries.json'
 import { pct, r05 } from './stats.js'
 
@@ -77,15 +79,23 @@ export const api = {
       : http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) }),
   aggregate: (id, token) =>
     MOCK ? delay(personalise(aggregate, lastSubmission())) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
+  // mock: add ?new=1 to the URL hash to see a new expert who is not ranked yet
   trackRecord: (token) =>
-    MOCK ? delay(personalTrackRecord(trackRecord, lastSubmission())) : http(`/me/track-record?token=${encodeURIComponent(token)}`),
+    MOCK ? delay(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission()))
+      : http(`/me/track-record?token=${encodeURIComponent(token)}`),
+  leaderboard: (panel = 'TCD', token) =>
+    MOCK ? delay(isNewcomerDemo() ? { ...leaderboard, entries: leaderboard.entries.map((e) => ({ ...e, is_you: false })) } : leaderboard)
+      : http(`/leaderboard?panel=${panel}&token=${encodeURIComponent(token)}`),
   publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries')),
 }
+
+const isNewcomerDemo = () => window.location.hash.includes('new=1')
 
 // Demo identity: in the real app this comes from the invite link (?invite=…).
 export const DEMO_INVITE = 'inv_demo'
 export const DEMO_TOKEN = 'E01'
 export const DEMO_PSEUDONYM = 'Kestrel'
+export const demoPseudonym = () => (isNewcomerDemo() ? 'Alder' : DEMO_PSEUDONYM)
 
 const randomHex = () => [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('')
 

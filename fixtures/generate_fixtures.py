@@ -18,7 +18,10 @@ ROUND_ID = "RD-R1043-1"
 OPENED_AT = "2026-11-06T18:00:00Z"
 ROUND_CLOSES_AT = "2026-11-13T18:00:00Z"
 FORECAST_CLOSES_AT = "2027-05-06T23:59:59Z"  # 6 months after the round opens
-PROB_MAP = {"Very Low": 0.10, "Low": 0.30, "Medium": 0.50, "High": 0.70, "Very High": 0.90}
+# ACAPS rating -> probability: band midpoints (Lane A, ACAPS 2019 methodology)
+PROB_MAP = {"Very Low": 0.05, "Low": 0.22, "Medium": 0.50, "High": 0.78, "Very High": 0.95}
+MIN_RESOLVED = 5   # ranked / badge only after this many resolved forecasts (Lane A)
+SHRINK_K = 5       # shrink few-forecast scores toward the group mean (Lane A)
 
 
 def sha(s):
@@ -146,7 +149,13 @@ QUESTION_TEXT = {
 }
 
 # Kestrel's synthetic past forecasts on REAL resolved risks (outcomes from the CSV)
-TRACK_RECORD_PAST = {"R1014": 0.80, "R0094": 0.30, "R0248": 0.75, "R1028": 0.20, "R0073": 0.35}
+TRACK_RECORD_PAST = {"R1014": 0.80, "R0094": 0.30, "R0248": 0.75, "R1028": 0.20, "R0073": 0.35,
+                     "R0301": 0.85, "R0089": 0.35, "R0002": 0.60}
+NEWCOMER_PAST = {"R0120": 0.65, "R0242": 0.40}  # demo of a new expert, not yet ranked
+# other panel members' summary stats for the leaderboard: (expert_id, n_resolved, mean_brier, acaps_brier_same_questions)
+LEADERBOARD_OTHERS = [("E04", 9, 0.112, 0.221), ("E05", 11, 0.171, 0.205), ("E03", 10, 0.214, 0.219),
+                      ("E02", 12, 0.199, 0.208), ("E06", 7, 0.246, 0.214), ("E07", 6, 0.098, 0.226),
+                      ("E08", 2, 0.180, 0.200)]
 
 
 def main():
@@ -288,26 +297,64 @@ def main():
     write("post_response_201.json", {"contribution_ids": [c["id"] for c in contribs if c["author_token"] == viewer and c["version"] == 1],
                                      "version": 1})
 
-    # track record (Kestrel)
-    resolved = []
-    for rid, p in TRACK_RECORD_PAST.items():
-        rr = rows[rid]
-        outcome = rr["Status"] == "Materialised"
-        ap = PROB_MAP[rr["Probability"]]
-        resolved.append({"question_id": f"Q-{rid}-BACKTEST", "risk_id": rid,
-                         "text": f"Will this risk materialise? {rr['Risk Title'].strip()} ({rr['Country']})",
-                         "your_prob": p, "outcome": outcome, "brier": round((p - outcome) ** 2, 4),
-                         "acaps_prob": ap, "acaps_brier": round((ap - outcome) ** 2, 4), "backtest": True})
-    write("me_track_record.json", {
-        "author_token": viewer,
-        "mean_brier": round(sum(x["brier"] for x in resolved) / len(resolved), 4),
-        "acaps_mean_brier": round(sum(x["acaps_brier"] for x in resolved) / len(resolved), 4),
-        "resolved": resolved,
-        "pending": [{"question_id": q["question_id"], "title": q["title"], "title_fr": q["title_fr"], "text": q["text"],
-                     "text_fr": q["text_fr"], "your_prob": p, "closes_at": q["closes_at"]}
-                    for q, p in zip(fq, k[0])],
-        "impact": [{"risk_id": "R1043", "date": "2026-11-20",
-                    "note": "Your point on refugee–host tensions at water points was added to the R1043 rationale (synthetic example)."}]})
+    # track record + leaderboard: same shape as Lane A's analysis/leaderboard.py
+    def history(past):
+        out = []
+        for rid, p in past.items():
+            rr = rows[rid]
+            o = 1 if rr["Status"] == "Materialised" else 0
+            ap = PROB_MAP[rr["Probability"]]
+            b, ab = round((p - o) ** 2, 4), round((ap - o) ** 2, 4)
+            out.append({"question_id": f"Q-{rid}-MAT", "risk_id": rid,
+                        "text": f"Will this risk materialise within six months? {rr['Risk Title'].strip()} ({rr['Country']})",
+                        "closes_at": "2026-05-06", "outcome": o, "outcome_label": "happened" if o else "didn't happen",
+                        "your_prob": p, "brier": b, "acaps_prob": ap, "acaps_brier": ab, "beat_acaps": b < ab})
+        return out
+
+    def record_stats(h):
+        n = len(h)
+        mean = round(sum(x["brier"] for x in h) / n, 4) if n else None
+        acaps = round(sum(x["acaps_brier"] for x in h) / n, 4) if n else None
+        return {"n_resolved": n, "mean_brier": mean, "acaps_brier_same_questions": acaps,
+                "n_beat_acaps": sum(x["beat_acaps"] for x in h),
+                "super_estimator": n >= MIN_RESOLVED and mean < acaps}
+
+    kh = history(TRACK_RECORD_PAST)
+    ks = record_stats(kh)
+    pool = [(viewer, ks["n_resolved"], ks["mean_brier"], ks["acaps_brier_same_questions"])] + LEADERBOARD_OTHERS
+    ranked = [x for x in pool if x[1] >= MIN_RESOLVED]
+    group_mean = round(sum(x[2] for x in ranked) / len(ranked), 4)
+    def display(eid):
+        e = exp[eid]
+        return "Anonymous expert" if e["default_tier"] == "anonymous" else e["pseudonym"]
+    entries = sorted(({"display_name": display(e), "n_resolved": n, "mean_brier": m,
+                       "shrunk_brier": round((n * m + SHRINK_K * group_mean) / (n + SHRINK_K), 4),
+                       "acaps_brier_same_questions": a, "super_estimator": n >= MIN_RESOLVED and m < a,
+                       "is_you": e == viewer} for e, n, m, a in ranked), key=lambda x: x["shrunk_brier"])
+    for i, e in enumerate(entries):
+        e["rank"] = i + 1
+    entries = [{"rank": e["rank"], **{k: v for k, v in e.items() if k != "rank"}} for e in entries]
+    write("leaderboard.json", {"min_resolved": MIN_RESOLVED, "shrink_k": SHRINK_K, "acaps_mapping": "midpoint",
+                               "group_mean_brier": group_mean, "entries": entries,
+                               "n_not_yet_ranked": len(pool) - len(ranked)})
+    me_rank = next(e["rank"] for e in entries if e["is_you"])
+
+    def track_record(token, h, s_, rank):
+        n_ranked = len(entries)
+        return {"author_token": token, **s_, "acaps_baseline_brier": s_["acaps_brier_same_questions"],
+                "min_resolved": MIN_RESOLVED, "forecasts_until_counted": max(0, MIN_RESOLVED - s_["n_resolved"]),
+                "rank": rank, "n_ranked": n_ranked,
+                "rank_percentile": round((n_ranked - rank + 1) / n_ranked, 4) if rank else None,
+                "acaps_mapping": "midpoint", "history": h}
+
+    pending = [{"question_id": q["question_id"], "title": q["title"], "title_fr": q["title_fr"], "text": q["text"],
+                "text_fr": q["text_fr"], "your_prob": p, "closes_at": q["closes_at"]} for q, p in zip(fq, k[0])]
+    impact = [{"risk_id": "R1043", "date": "2026-11-20",
+               "note": "Your point on refugee–host tensions at water points was added to the R1043 rationale (synthetic example)."}]
+    # pending + impact are Lane C/B extras on top of Lane A's shape
+    write("me_track_record.json", {**track_record(viewer, kh, ks, me_rank), "pending": pending, "impact": impact})
+    nh = history(NEWCOMER_PAST)
+    write("me_track_record_new.json", {**track_record("E08", nh, record_stats(nh), None), "pending": pending, "impact": []})
 
     # moderator view
     forecasts_mod = []
