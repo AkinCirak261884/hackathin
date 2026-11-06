@@ -26,6 +26,10 @@ const KEY = 'gt_submission'
 export function lastSubmission() {
   try { return JSON.parse(localStorage.getItem(KEY)) } catch { return null }
 }
+// TEMPORARY demo helper: forget this browser's answers so the survey can be taken again
+export function resetDemoAnswers() {
+  try { ['gt_submission', 'gt_forecast_updates'].forEach((k) => localStorage.removeItem(k)) } catch {}
+}
 function saveSubmission(roundId, body) {
   try { localStorage.setItem(KEY, JSON.stringify({ round_id: roundId, submitted_at: new Date().toISOString(), ...body })) } catch {}
 }

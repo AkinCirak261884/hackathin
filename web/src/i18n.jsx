@@ -105,6 +105,7 @@ const STRINGS = {
     public_sub: 'What ACAPS publishes: group results only, never who said what.',
     signpost: 'Witnessed abuses?',
     synthetic: 'synthetic', mock: 'Demo data',
+    reset_demo: 'Reset my answers (demo)', reset_demo_d: 'Clears your answers in this browser so you can take the survey again.',
   },
   fr: {
     app: 'Ground Truth',
@@ -206,6 +207,7 @@ const STRINGS = {
     public_sub: 'Ce qu’ACAPS publie : résultats du groupe uniquement, jamais qui a dit quoi.',
     signpost: 'Témoin de violations ?',
     synthetic: 'synthétique', mock: 'Données de démo',
+    reset_demo: 'Effacer mes réponses (démo)', reset_demo_d: 'Efface vos réponses dans ce navigateur pour refaire la consultation.',
   },
 }
 

@@ -1,13 +1,15 @@
-import React from 'react'
-import { api } from '../api.js'
+import React, { useState } from 'react'
+import { api, MOCK, lastSubmission, resetDemoAnswers } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { Head, Chip, Loading } from '../components/ui.jsx'
 
 export default function Home() {
   const { t, date } = useT()
-  const [rounds] = useLoad(() => api.openRounds('TCD'), [])
+  const [version, setVersion] = useState(0)
+  const [rounds] = useLoad(() => api.openRounds('TCD'), [version])
   if (!rounds) return <Loading />
+  const reset = () => { resetDemoAnswers(); setVersion((v) => v + 1) }
   return (
     <section className="page">
       <Head level={1} title={t('openRounds')} sub={t('openRounds_sub')} />
@@ -22,6 +24,13 @@ export default function Home() {
           </article>
         ))}
       </div>
+      {/* TEMPORARY: demo-only reset, remove before the pilot */}
+      {MOCK && lastSubmission() && (
+        <div className="demo-reset">
+          <button className="btn ghost small-btn" onClick={reset}>↺ {t('reset_demo')}</button>
+          <span className="muted small">{t('reset_demo_d')}</span>
+        </div>
+      )}
       <p className="center"><a href="#/signpost" className="muted small">{t('signpost')}</a></p>
     </section>
   )
