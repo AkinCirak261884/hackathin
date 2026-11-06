@@ -1,0 +1,37 @@
+:root {
+  --bg: #f8fafc; --fg: #0f172a; --muted: #64748b; --card: #ffffff; --line: #e2e8f0;
+  --accent: #0f766e; --accent-fg: #ffffff; --you: #c2410c;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0b1220; --fg: #e2e8f0; --muted: #94a3b8; --card: #111a2e; --line: #1e293b; --accent: #2dd4bf; --accent-fg: #042f2e; --you: #fb923c; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+a { color: var(--accent); }
+.app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.top { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); }
+.brand { font-weight: 700; text-decoration: none; color: var(--fg); flex: 1; }
+.lang { border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 8px; padding: 4px 10px; }
+main { flex: 1; padding: 16px; }
+.bottom { display: flex; justify-content: space-around; border-top: 1px solid var(--line); padding: 10px 8px; position: sticky; bottom: 0; background: var(--bg); font-size: 14px; }
+h1 { font-size: 22px; margin: 0 0 12px; } h2 { font-size: 18px; margin: 8px 0; }
+.card { display: block; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 10px 0; }
+.meta, .muted { color: var(--muted); font-size: 13px; } .small { font-size: 14px; }
+.big { font-size: 28px; font-weight: 700; }
+.pill { font-size: 11px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--muted); }
+.btn { display: inline-block; background: var(--accent); color: var(--accent-fg); border: 0; border-radius: 10px; padding: 12px 18px; font-size: 16px; text-decoration: none; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; } .actions .btn:last-child { margin-left: auto; }
+.progress { height: 4px; background: var(--line); border-radius: 4px; margin: 6px 0 12px; } .progress div { height: 100%; background: var(--accent); border-radius: 4px; }
+.seg { display: flex; gap: 6px; margin: 4px 0 12px; } .seg button { flex: 1; padding: 10px; font-size: 18px; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 8px; }
+.seg button.on, .row.on, .tier.on { border-color: var(--accent); outline: 2px solid var(--accent); }
+.check, .tier { display: flex; gap: 10px; align-items: flex-start; }
+.row { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; padding: 12px; margin: 6px 0; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 10px; font-size: 15px; }
+.rank { width: 22px; height: 22px; border-radius: 50%; background: var(--line); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; flex: none; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+textarea { width: 100%; font: inherit; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+.strip { position: relative; height: 28px; margin: 10px 4px; border-bottom: 1px solid var(--line); }
+.iqr { position: absolute; top: 8px; height: 12px; background: color-mix(in srgb, var(--accent) 20%, transparent); border-radius: 6px; }
+.dot { position: absolute; top: 9px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--accent); opacity: .8; }
+.dot.you { background: var(--you); outline: 2px solid var(--bg); opacity: 1; }
