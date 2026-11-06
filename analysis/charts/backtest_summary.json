@@ -1,0 +1,298 @@
+{
+  "n_resolved": 99,
+  "base_rate": 0.606,
+  "acaps_mapping_used": "midpoint",
+  "acaps": {
+    "brier": 0.2133,
+    "calibration": [
+      {
+        "mean_prob": 0.05,
+        "observed": 0.3333333333333333,
+        "n": 3
+      },
+      {
+        "mean_prob": 0.22,
+        "observed": 0.42857142857142855,
+        "n": 14
+      },
+      {
+        "mean_prob": 0.5,
+        "observed": 0.4772727272727273,
+        "n": 44
+      },
+      {
+        "mean_prob": 0.78,
+        "observed": 0.8333333333333334,
+        "n": 30
+      },
+      {
+        "mean_prob": 0.95,
+        "observed": 0.875,
+        "n": 8
+      }
+    ]
+  },
+  "acaps_brier_by_mapping": {
+    "midpoint": {
+      "brier": 0.2133,
+      "probabilities": {
+        "Very Low": 0.05,
+        "Low": 0.22,
+        "Medium": 0.5,
+        "High": 0.78,
+        "Very High": 0.95
+      }
+    },
+    "edge": {
+      "brier": 0.2128,
+      "probabilities": {
+        "Very Low": 0.1,
+        "Low": 0.3,
+        "Medium": 0.5,
+        "High": 0.7,
+        "Very High": 0.9
+      }
+    }
+  },
+  "climatology_brier": 0.2388,
+  "experts": [
+    {
+      "display_name": "Anonymous expert",
+      "archetype": "sharp",
+      "anonymous": true,
+      "n": 72,
+      "brier": 0.1434,
+      "calibration": [
+        {
+          "mean_prob": 0.13333333333333333,
+          "observed": 0,
+          "n": 6
+        },
+        {
+          "mean_prob": 0.27,
+          "observed": 0.3,
+          "n": 10
+        },
+        {
+          "mean_prob": 0.48214285714285715,
+          "observed": 0.21428571428571427,
+          "n": 14
+        },
+        {
+          "mean_prob": 0.666,
+          "observed": 0.84,
+          "n": 25
+        },
+        {
+          "mean_prob": 0.8735294117647059,
+          "observed": 1,
+          "n": 17
+        }
+      ]
+    },
+    {
+      "display_name": "Birch",
+      "archetype": "sharp",
+      "anonymous": false,
+      "n": 73,
+      "brier": 0.1487,
+      "calibration": [
+        {
+          "mean_prob": 0.125,
+          "observed": 0,
+          "n": 4
+        },
+        {
+          "mean_prob": 0.28928571428571426,
+          "observed": 0.21428571428571427,
+          "n": 14
+        },
+        {
+          "mean_prob": 0.48333333333333334,
+          "observed": 0.4,
+          "n": 15
+        },
+        {
+          "mean_prob": 0.6805555555555556,
+          "observed": 0.8333333333333334,
+          "n": 18
+        },
+        {
+          "mean_prob": 0.8522727272727273,
+          "observed": 0.9545454545454546,
+          "n": 22
+        }
+      ]
+    },
+    {
+      "display_name": "Kestrel",
+      "archetype": "well_calibrated",
+      "anonymous": false,
+      "n": 74,
+      "brier": 0.1494,
+      "calibration": [
+        {
+          "mean_prob": 0.29062499999999997,
+          "observed": 0.25,
+          "n": 16
+        },
+        {
+          "mean_prob": 0.465,
+          "observed": 0.35,
+          "n": 20
+        },
+        {
+          "mean_prob": 0.6894736842105263,
+          "observed": 0.8421052631578947,
+          "n": 19
+        },
+        {
+          "mean_prob": 0.8472222222222222,
+          "observed": 1,
+          "n": 18
+        }
+      ]
+    },
+    {
+      "display_name": "Alder",
+      "archetype": "noisy",
+      "anonymous": false,
+      "n": 75,
+      "brier": 0.1776,
+      "calibration": [
+        {
+          "mean_prob": 0.11818181818181818,
+          "observed": 0.18181818181818182,
+          "n": 11
+        },
+        {
+          "mean_prob": 0.3038461538461538,
+          "observed": 0.46153846153846156,
+          "n": 13
+        },
+        {
+          "mean_prob": 0.4866666666666667,
+          "observed": 0.4666666666666667,
+          "n": 15
+        },
+        {
+          "mean_prob": 0.6849999999999999,
+          "observed": 0.7,
+          "n": 20
+        },
+        {
+          "mean_prob": 0.8375,
+          "observed": 0.9375,
+          "n": 16
+        }
+      ]
+    },
+    {
+      "display_name": "Osprey",
+      "archetype": "alarmist",
+      "anonymous": false,
+      "n": 63,
+      "brier": 0.1984,
+      "calibration": [
+        {
+          "mean_prob": 0.48750000000000004,
+          "observed": 0,
+          "n": 8
+        },
+        {
+          "mean_prob": 0.6815789473684211,
+          "observed": 0.3157894736842105,
+          "n": 19
+        },
+        {
+          "mean_prob": 0.8585714285714285,
+          "observed": 0.8571428571428571,
+          "n": 35
+        }
+      ]
+    },
+    {
+      "display_name": "Linden",
+      "archetype": "anchored",
+      "anonymous": false,
+      "n": 71,
+      "brier": 0.2176,
+      "calibration": [
+        {
+          "mean_prob": 0.06666666666666667,
+          "observed": 0.3333333333333333,
+          "n": 3
+        },
+        {
+          "mean_prob": 0.26666666666666666,
+          "observed": 0.5,
+          "n": 12
+        },
+        {
+          "mean_prob": 0.508,
+          "observed": 0.48,
+          "n": 25
+        },
+        {
+          "mean_prob": 0.7071428571428571,
+          "observed": 0.7619047619047619,
+          "n": 21
+        },
+        {
+          "mean_prob": 0.875,
+          "observed": 0.9,
+          "n": 10
+        }
+      ]
+    },
+    {
+      "display_name": "Heron",
+      "archetype": "complacent",
+      "anonymous": false,
+      "n": 70,
+      "brier": 0.2263,
+      "calibration": [
+        {
+          "mean_prob": 0.1111111111111111,
+          "observed": 0.1111111111111111,
+          "n": 9
+        },
+        {
+          "mean_prob": 0.2772727272727273,
+          "observed": 0.36363636363636365,
+          "n": 33
+        },
+        {
+          "mean_prob": 0.4431818181818182,
+          "observed": 0.8181818181818182,
+          "n": 22
+        },
+        {
+          "mean_prob": 0.6583333333333333,
+          "observed": 0.8333333333333334,
+          "n": 6
+        }
+      ]
+    },
+    {
+      "display_name": "Wren",
+      "archetype": "hedger",
+      "anonymous": false,
+      "n": 62,
+      "brier": 0.2311,
+      "calibration": [
+        {
+          "mean_prob": 0.4922222222222222,
+          "observed": 0.5333333333333333,
+          "n": 45
+        },
+        {
+          "mean_prob": 0.621875,
+          "observed": 0.875,
+          "n": 16
+        }
+      ]
+    }
+  ],
+  "note": "ACAPS baseline uses real outcomes; synthetic experts' knowledge is simulated."
+}
