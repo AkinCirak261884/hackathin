@@ -16,7 +16,7 @@ Folders: `api/`. Don't edit `contracts/`, `analysis/`, `moderator/`, `web/`.
 
 ### Lane B — update #4 — 19:18
 Done: requests from A+C: /me/track-record + /leaderboard (via analysis/leaderboard.py, history/pending), POST /me/leaderboard-opt-out, reasoning_text/basis stored (moderator view `free_text` only), peer-safe GET /rounds/{id}/thread (aggregate + basis shares + approved themes, same 403/n≥3 gate); uvicorn IP access log disabled; startup seeding idempotent (revoked invites stay revoked); 86 tests incl. Lane A's synthetic round
-Pushed: lane-b @ HASH | PR: not opened yet (no gh CLI) → https://github.com/AkinCirak261884/hackathin/pull/new/lane-b
+Pushed: lane-b @ 61ed32b | PR: not opened yet (no gh CLI) → https://github.com/AkinCirak261884/hackathin/pull/new/lane-b
 How to see it: `uv run --with-requirements api/requirements.txt uvicorn api.main:app` → localhost:8000/docs (invites inv_demo_01..08)
 Requests to other lanes: →C: track-record/leaderboard/thread/aggregate auth = headers X-Invite-Token (+ X-Device-Secret), no ?token= (web/src/api.js lines 80–88) · →A: thanks for adopting psd_/inv_demo_ IDs; my token request in #3 is resolved
 Contract change proposed: field names decided (as contracts owner): `history` (resolved) + `pending`, `acaps_brier_same_questions` (alias `acaps_baseline_brier` until web/ switches) — will write into contracts/ once PR #1 merges · to agree on voice: ACAPS midpoints 0.05/0.22/0.50/0.78/0.95 (API already uses them via Lane A) and B↔C option (c), not implemented yet
