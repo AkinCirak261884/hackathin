@@ -134,3 +134,30 @@ Short-horizon pilot questions, so a track record builds during the ~2-month Dece
 - Each has a yes/no `resolution_criterion` and a `resolution_source.type`: `conflict_event_data` (ACLED), `displacement_and_humanitarian_reports` (UNHCR / IOM DTM / OCHA), `humanitarian_access_reports`, `official_statement`, or `conflict_event_data_or_credible_reports`.
 - Valid against `contracts/schemas/common.schema.json#/$defs/question` (checked with `jsonschema`); extra fields `opens_at`, `horizon_months`, `resolution_criterion`, `resolution_source`, `threshold_status`.
 - **All thresholds are drafts** (`threshold_status: draft_check_with_alex`); the French text is a first pass and should be checked by a native speaker.
+
+## aggregate.py
+
+Group forecast for the reveal view and disagreement metrics for the moderator. Pure functions; Lane B's `api/rounds.py::aggregate()` keeps the "submit first" gate, auth and its own median/IQR/dots, and can add these alongside.
+
+```python
+from aggregate import aggregate, disagreement
+aggregate(con, question_id)     # → None if n < 3, else the dict below
+disagreement(con, question_id)  # → None if n < 3, else the dict below (moderator only)
+```
+
+- **Weighted aggregate:** each expert's latest forecast averaged in log-odds, weighted by track record: weight = 0.25 / mean Brier (coin-flipper = 1), clipped to [0.2, 5], shrunk towards the group-average weight with 5 pseudo-questions; new experts get the group average. Then multiplied by **1.5** in log-odds (`EXTREMIZE`), which counters the averaging's pull towards 50%.
+- **Out-of-sample:** weights only use questions that resolved **before** the one being aggregated (`prior_questions`: earlier `closes_at`, never itself). A test flips a question's own outcome and checks its aggregate doesn't move.
+- **Privacy:** `values` are the answers rounded to 2 decimals and shuffled. No tokens, names or per-author fields.
+- **Disagreement:** IQR and `spread`; `split` = the largest gap between neighbouring answers is ≥ 0.20 with at least 2 answers and a quarter of the group on each side; `aggregate_minus_acaps` and `vs_acaps` (`close` if within 0.10). `rating_shares` = too_low / agree / too_high per dimension if contributions carry `rating_probability` / `rating_impact` (Lane C's proposal); otherwise agree / disagree from `agree`.
+
+### Backtest (99 resolved risks, 8 synthetic experts, out-of-sample by Risk ID order)
+
+| Group forecast | Brier ↓ |
+|---|---|
+| ACAPS rating (same questions) | 0.215 |
+| Median (current) | 0.181 |
+| Weighted by track record | 0.171 |
+| **Weighted + extremized ×1.5 (default)** | **0.157** |
+| Weighted + extremized ×2.0 | 0.150 |
+
+The questions have no real close dates, so Risk ID order stands in for time. **Caveat:** the experts are synthetic and their errors are independent by construction, which flatters both averaging and extremizing (that's why ×2.0 still helps). Real experts share sources, so expect smaller gains; keep the factor mild until pilot data says otherwise. Numbers are in `backtest_summary.json` → `aggregate_backtest`.
