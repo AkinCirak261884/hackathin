@@ -13,6 +13,11 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": "Les tensions entre réfugiés et communautés hôtes autour des points d'eau à Adré ne sont pas dans l'analyse ; elles montent depuis septembre.",
+    "reasoning_text": "Our teams in Adré see new arrivals every week and two incidents near water points in October.",
+    "reasoning_basis": [
+      "field_observation",
+      "local_contacts"
+    ],
     "created_at": "2026-11-07T09:07:00Z"
   },
   {
@@ -29,6 +34,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T10:14:00Z"
   },
   {
@@ -45,6 +52,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T11:21:00Z"
   },
   {
@@ -61,6 +70,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T12:28:00Z"
   },
   {
@@ -81,6 +92,8 @@
     ],
     "ranking_other": "Affrontements intercommunautaires autour des points d'eau (Ouaddaï)",
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T13:35:00Z"
   },
   {
@@ -97,6 +110,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": "Funding cuts to refugee food rations from January would amplify every trigger.",
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T14:42:00Z"
   },
   {
@@ -113,6 +128,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T15:49:00Z"
   },
   {
@@ -129,6 +146,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T16:56:00Z"
   },
   {
@@ -145,6 +164,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T17:03:00Z"
   },
   {
@@ -165,6 +186,8 @@
     ],
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T08:10:00Z"
   },
   {
@@ -181,6 +204,10 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": "Fuel smuggling routes through Ennedi-Est are shifting north after the August strike; watch the Amdjarass airstrip.",
+    "reasoning_text": "Telegram channels close to the RSF openly discuss supply routes through Chad.",
+    "reasoning_basis": [
+      "media_osint"
+    ],
     "created_at": "2026-11-07T09:17:00Z"
   },
   {
@@ -197,6 +224,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T10:24:00Z"
   },
   {
@@ -213,6 +242,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T11:31:00Z"
   },
   {
@@ -229,6 +260,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T12:38:00Z"
   },
   {
@@ -249,6 +282,8 @@
     ],
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T13:45:00Z"
   },
   {
@@ -265,6 +300,11 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": "Le rôle des réseaux zaghawa dans l'armée tchadienne mérite plus de poids : risque de défections.",
+    "reasoning_text": "Historical pattern: proxy escalation followed Darfur offensives in 2005–2008.",
+    "reasoning_basis": [
+      "experience",
+      "reports_data"
+    ],
     "created_at": "2026-11-07T14:52:00Z"
   },
   {
@@ -281,6 +321,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T15:59:00Z"
   },
   {
@@ -297,6 +339,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T16:06:00Z"
   },
   {
@@ -313,6 +357,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T17:13:00Z"
   },
   {
@@ -333,6 +379,8 @@
     ],
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T08:20:00Z"
   },
   {
@@ -349,6 +397,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T09:27:00Z"
   },
   {
@@ -365,6 +415,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T10:34:00Z"
   },
   {
@@ -381,6 +433,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T11:41:00Z"
   },
   {
@@ -397,6 +451,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T12:48:00Z"
   },
   {
@@ -417,6 +473,8 @@
     ],
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T13:55:00Z"
   },
   {
@@ -433,6 +491,11 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": "Health: hepatitis E and cholera risk in overcrowded sites around Adré is missing from the priority needs.",
+    "reasoning_text": "Clinic data from Sila shows rising watery-diarrhoea cases since September.",
+    "reasoning_basis": [
+      "reports_data",
+      "field_observation"
+    ],
     "created_at": "2026-11-07T14:02:00Z"
   },
   {
@@ -449,6 +512,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T15:09:00Z"
   },
   {
@@ -465,6 +530,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T16:16:00Z"
   },
   {
@@ -481,6 +548,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T17:23:00Z"
   },
   {
@@ -501,6 +570,8 @@
     ],
     "ranking_other": "Choléra / hépatite E dans les sites surpeuplés",
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T08:30:00Z"
   },
   {
@@ -517,6 +588,10 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": "Les gens évitent la route du marché à cause des drones ; les femmes vont plus loin pour chercher de l'eau.",
+    "reasoning_text": "Les drones passent presque chaque nuit près de la frontière.",
+    "reasoning_basis": [
+      "field_observation"
+    ],
     "created_at": "2026-11-07T09:37:00Z"
   },
   {
@@ -533,6 +608,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T10:44:00Z"
   },
   {
@@ -549,6 +626,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T11:51:00Z"
   },
   {
@@ -565,6 +644,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T12:58:00Z"
   },
   {
@@ -585,6 +666,8 @@
     ],
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-07T13:05:00Z"
   },
   {
@@ -601,6 +684,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T14:12:00Z"
   },
   {
@@ -617,6 +702,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T15:19:00Z"
   },
   {
@@ -633,6 +720,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T16:26:00Z"
   },
   {
@@ -649,6 +738,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T17:33:00Z"
   },
   {
@@ -665,6 +756,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T08:40:00Z"
   },
   {
@@ -681,6 +774,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T09:47:00Z"
   },
   {
@@ -697,6 +792,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T10:54:00Z"
   },
   {
@@ -713,6 +810,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T11:01:00Z"
   },
   {
@@ -729,6 +828,8 @@
     "ranking": null,
     "ranking_other": null,
     "missing_text": null,
+    "reasoning_text": null,
+    "reasoning_basis": null,
     "created_at": "2026-11-08T12:08:00Z"
   }
 ]

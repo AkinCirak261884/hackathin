@@ -3,23 +3,58 @@
   "$id": "moderator-round.schema.json",
   "title": "GET /moderator/rounds/{round_id}",
   "type": "object",
-  "required": ["round", "n_invited", "n_responses", "tiers", "forecasts", "missing", "synthesis"],
+  "required": [
+    "round",
+    "n_invited",
+    "n_responses",
+    "tiers",
+    "forecasts",
+    "missing",
+    "synthesis"
+  ],
   "properties": {
-    "round": { "$ref": "round.schema.json" },
-    "n_invited": { "type": "integer" },
-    "n_responses": { "type": "integer" },
-    "tiers": { "type": "object", "additionalProperties": { "type": "integer" } },
-    "rating": { "type": "object" },
+    "round": {
+      "$ref": "round.schema.json"
+    },
+    "n_invited": {
+      "type": "integer"
+    },
+    "n_responses": {
+      "type": "integer"
+    },
+    "tiers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "rating": {
+      "type": "object"
+    },
     "forecasts": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "question_id": { "type": "string" },
-          "v1": { "type": "object" }, "v2": { "type": "object" },
-          "acaps_baseline": { "type": "number" },
-          "mean_abs_shift": { "type": "number" },
-          "by_region": { "type": "array", "description": "regions with n<3 dropped" }
+          "question_id": {
+            "type": "string"
+          },
+          "v1": {
+            "type": "object"
+          },
+          "v2": {
+            "type": "object"
+          },
+          "acaps_baseline": {
+            "type": "number"
+          },
+          "mean_abs_shift": {
+            "type": "number"
+          },
+          "by_region": {
+            "type": "array",
+            "description": "regions with n<3 dropped"
+          }
         }
       }
     },
@@ -28,24 +63,84 @@
       "items": {
         "type": "object",
         "properties": {
-          "contribution_id": { "type": "string" },
-          "shown_as": { "type": "string", "description": "real name for known tier, pseudonym, or 'Anonymous'" },
-          "tier": { "$ref": "common.schema.json#/$defs/tier" },
-          "text": { "type": "string" }
+          "contribution_id": {
+            "type": "string"
+          },
+          "shown_as": {
+            "type": "string",
+            "description": "real name for known tier, pseudonym, or 'Anonymous'"
+          },
+          "tier": {
+            "$ref": "common.schema.json#/$defs/tier"
+          },
+          "text": {
+            "type": "string"
+          }
         }
       }
     },
     "synthesis": {
       "type": "object",
       "properties": {
-        "generated_by": { "type": "string" },
+        "generated_by": {
+          "type": "string"
+        },
         "clusters": {
           "type": "array",
-          "items": { "type": "object", "properties": { "theme": { "type": "string" }, "summary": { "type": "string" }, "contribution_ids": { "type": "array", "items": { "type": "string" } } } }
+          "items": {
+            "type": "object",
+            "properties": {
+              "theme": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "contribution_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         },
-        "suggested_rating_change": { "type": ["string", "null"] }
+        "suggested_rating_change": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
-    "ranking": { "type": "array" }
+    "ranking": {
+      "type": "array"
+    },
+    "reasoning": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "contribution_id": {
+            "type": "string"
+          },
+          "shown_as": {
+            "type": "string"
+          },
+          "tier": {
+            "$ref": "common.schema.json#/$defs/tier"
+          },
+          "text": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/reasoningBasis"
+            }
+          }
+        }
+      }
+    }
   }
 }

@@ -28,12 +28,13 @@ Seed data (for B's DB and A's analysis): `experts.json`, `identity_vault.json`, 
 - `round.stage`: `blind` → `reveal` → `closed`
 - `question.kind`: `rating` (agree with ACAPS rating) · `forecast` (yes/no probability, one per trigger) · `ranking` (pick top 3)
 - `rating answer`: `too_low` · `agree` · `too_high` (for both probability and impact)
+- `reasoning_basis`: `field_observation` · `local_contacts` · `media_osint` · `reports_data` · `experience`
 - ACAPS probability → number (baseline for scoring): Very Low 0.10 · Low 0.30 · Medium 0.50 · High 0.70 · Very High 0.90
 - `version`: 1 = blind answer, 2 = revision after reveal (only one revision allowed)
 
 ## Invariants (API must enforce, tests should check)
 
-1. Public endpoints (`/public/*`) never contain `author_token`, `expert_id`, pseudonym, name or verbatim `missing_text`.
+1. Public endpoints (`/public/*`) never contain `author_token`, `expert_id`, pseudonym, name or verbatim `missing_text` / `reasoning_text`.
 2. `/aggregate` returns `403` until the caller has submitted version 1 for that round.
 3. `/aggregate` returns `suppressed: true` with no values when `n_responses < 3`. Geography breakdowns with `n < 3` are dropped.
 4. Moderator view resolves identity only for the `known` tier. `pseudonymous` shows the pseudonym and `anonymous` shows nothing.
@@ -42,7 +43,7 @@ Seed data (for B's DB and A's analysis): `experts.json`, `identity_vault.json`, 
 
 ## Differences from the data model in BOARD.md (need voice OK)
 
-- `contributions` gets `rating_probability`, `rating_impact` (enum above) instead of a single `agree`, plus `seeing` (bool: "I'm seeing this trigger") and `ranking` (array of option ids).
-- `questions` gets `kind`, `text_fr`, `acaps_baseline`, and `options` (for `ranking`).
+- `contributions` gets `rating_probability`, `rating_impact` (enum above) instead of a single `agree`, plus `seeing` (bool: "I'm seeing this trigger"), `ranking` (array of option ids), and `reasoning_text` + `reasoning_basis` (optional "why I think this" after the questions; moderator-only like `missing_text`).
+- `questions` gets `kind`, `title` / `title_fr` (short heading), `text_fr`, `acaps_baseline`, and `options` (for `ranking`).
 - `rounds` gets `closes_at` and `panel` (ISO3, e.g. `TCD`).
 - `experts` gets `macro_region` (coarse geography only) and `profile`. For synthetic experts only, it also gets `bias` (used by Lane A, never sent to the web app).

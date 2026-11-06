@@ -122,6 +122,20 @@ RANK_OPTIONS = [
      "Le manque de financement réduit l'assistance aux réfugiés dans l'est", True),
 ]
 
+TITLE_FR = {
+    "T0618": "Expansion des attaques et de l'insécurité transfrontalières",
+    "T0619": "Attaques contre des infrastructures stratégiques au Tchad",
+    "T0620": "Remobilisation par procuration et groupes armés transfrontaliers",
+}
+# why-I-think-this (optional, after the survey). basis: field_observation, local_contacts, media_osint, reports_data, experience
+REASONING = {
+    "E01": ("Our teams in Adré see new arrivals every week and two incidents near water points in October.", ["field_observation", "local_contacts"]),
+    "E03": ("Telegram channels close to the RSF openly discuss supply routes through Chad.", ["media_osint"]),
+    "E04": ("Historical pattern: proxy escalation followed Darfur offensives in 2005–2008.", ["experience", "reports_data"]),
+    "E06": ("Clinic data from Sila shows rising watery-diarrhoea cases since September.", ["reports_data", "field_observation"]),
+    "E07": ("Les drones passent presque chaque nuit près de la frontière.", ["field_observation"]),
+}
+
 QUESTION_TEXT = {
     "T0618": ("Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
               "Les attaques transfrontalières deviendront-elles durables et récurrentes, touchant plusieurs localités frontalières de l'est du Tchad et causant d'importantes victimes civiles, des déplacements ou des perturbations de l'accès humanitaire, avant le 6 mai 2027 ?"),
@@ -153,6 +167,7 @@ def main():
 
     questions = [{
         "question_id": "Q-R1043-RATING", "risk_id": "R1043", "trigger_id": None, "kind": "rating",
+        "title": "ACAPS rating", "title_fr": "L'évaluation d'ACAPS",
         "text": f"ACAPS rates this risk {r['Probability']} probability and impact {r['Impact']}/5. Do you agree?",
         "text_fr": f"ACAPS évalue ce risque à une probabilité {'élevée' if r['Probability'] == 'High' else r['Probability']} et un impact de {r['Impact']}/5. Êtes-vous d'accord ?",
         "closes_at": ROUND_CLOSES_AT, "acaps_baseline": PROB_MAP[r["Probability"]], "outcome": None,
@@ -161,11 +176,13 @@ def main():
         en, fr = QUESTION_TEXT[t["trigger_id"]]
         questions.append({
             "question_id": f"Q-R1043-{t['trigger_id']}", "risk_id": "R1043", "trigger_id": t["trigger_id"],
-            "kind": "forecast", "text": en, "text_fr": fr, "closes_at": FORECAST_CLOSES_AT,
+            "kind": "forecast", "title": t["title"], "title_fr": TITLE_FR[t["trigger_id"]],
+            "text": en, "text_fr": fr, "closes_at": FORECAST_CLOSES_AT,
             "acaps_baseline": None, "outcome": None,
         })
     questions.append({
         "question_id": "Q-TCD-TOP3", "risk_id": "R1043", "trigger_id": None, "kind": "ranking",
+        "title": "Top 3 risks in Chad", "title_fr": "Top 3 des risques au Tchad",
         "text": "What are the three biggest risks in Chad that might worsen humanitarian outcomes in the next six months?",
         "text_fr": "Quels sont les trois plus grands risques au Tchad susceptibles d'aggraver la situation humanitaire dans les six prochains mois ?",
         "closes_at": ROUND_CLOSES_AT, "acaps_baseline": None, "outcome": None,
@@ -200,14 +217,16 @@ def main():
         row = {"id": f"C-{n:04d}", "round_id": ROUND_ID, "question_id": qid, "author_token": token_of[eid],
                "tier": exp[eid]["default_tier"], "version": version, "prob": None, "seeing": None,
                "rating_probability": None, "rating_impact": None, "ranking": None, "ranking_other": None,
-               "missing_text": None, "created_at": f"2026-11-0{7 if version == 1 else 8}T{8 + n % 10:02d}:{n * 7 % 60:02d}:00Z"}
+               "missing_text": None, "reasoning_text": None, "reasoning_basis": None, "created_at": f"2026-11-0{7 if version == 1 else 8}T{8 + n % 10:02d}:{n * 7 % 60:02d}:00Z"}
         row.update(fields)
         contribs.append(row)
         return row["id"]
 
     missing_ids = {}
     for eid, (probs, rp, ri, seeing, ranking, other, missing) in ANSWERS.items():
-        missing_ids[eid] = add(eid, 1, "Q-R1043-RATING", rating_probability=rp, rating_impact=ri, missing_text=missing)
+        why, basis = REASONING.get(eid, (None, None))
+        missing_ids[eid] = add(eid, 1, "Q-R1043-RATING", rating_probability=rp, rating_impact=ri, missing_text=missing,
+                               reasoning_text=why, reasoning_basis=basis)
         for q, p in zip(fq, probs):
             add(eid, 1, q["question_id"], prob=p, seeing=q["trigger_id"] in seeing)
         add(eid, 1, "Q-TCD-TOP3", ranking=ranking, ranking_other=other)
@@ -251,7 +270,7 @@ def main():
     write(f"aggregate_{ROUND_ID}.json", {
         "round_id": ROUND_ID, "n_responses": len(ANSWERS), "suppressed": False, "reason": None,
         "rating": {"probability": rating_counts(1), "impact": rating_counts(2),
-                   "you": {"probability": ANSWERS[viewer][1], "impact": ANSWERS[viewer][2]}},
+                   "you": {"probability": ANSWERS[viewer][1], "impact": ANSWERS[viewer][2], "ranking": ANSWERS[viewer][4]}},
         "forecasts": agg_forecasts, "ranking": ranking_points(), "can_revise": True})
     write("aggregate_suppressed.json", {
         "round_id": ROUND_ID, "n_responses": 2, "suppressed": True,
@@ -262,6 +281,7 @@ def main():
     k = ANSWERS[viewer]
     write("post_response_request.json", {
         "invite_token": exp[viewer]["invite_token"], "tier": "known", "version": 1, "missing_text": k[6],
+        "reasoning_text": REASONING[viewer][0], "reasoning_basis": REASONING[viewer][1],
         "answers": [{"question_id": "Q-R1043-RATING", "rating_probability": k[1], "rating_impact": k[2]}]
         + [{"question_id": q["question_id"], "prob": p, "seeing": q["trigger_id"] in k[3]} for q, p in zip(fq, k[0])]
         + [{"question_id": "Q-TCD-TOP3", "ranking": k[4], "ranking_other": k[5]}]})
@@ -283,7 +303,8 @@ def main():
         "mean_brier": round(sum(x["brier"] for x in resolved) / len(resolved), 4),
         "acaps_mean_brier": round(sum(x["acaps_brier"] for x in resolved) / len(resolved), 4),
         "resolved": resolved,
-        "pending": [{"question_id": q["question_id"], "text": q["text"], "your_prob": p, "closes_at": q["closes_at"]}
+        "pending": [{"question_id": q["question_id"], "title": q["title"], "title_fr": q["title_fr"], "text": q["text"],
+                     "text_fr": q["text_fr"], "your_prob": p, "closes_at": q["closes_at"]}
                     for q, p in zip(fq, k[0])],
         "impact": [{"risk_id": "R1043", "date": "2026-11-20",
                     "note": "Your point on refugee–host tensions at water points was added to the R1043 rationale (synthetic example)."}]})
@@ -330,6 +351,8 @@ def main():
             ],
             "suggested_rating_change": "Keep probability High and impact 4. Consider adding Health and WASH to priority needs. Experts are split on T0620 (proxy mobilisation).",
         },
+        "reasoning": [{"contribution_id": missing_ids[e], "shown_as": shown_as(e), "tier": exp[e]["default_tier"],
+                       "text": REASONING[e][0], "basis": REASONING[e][1]} for e in ANSWERS if e in REASONING],
         "ranking": ranking_points(),
         "ranking_other": [a[5] for a in ANSWERS.values() if a[5]],
     })
@@ -349,6 +372,8 @@ def main():
         assert token_of[e[0]] not in dump and (e[1] == "-" or e[1] not in dump), f"public summary leaks {e[0]}"
     for a in ANSWERS.values():
         assert not a[6] or a[6] not in dump, "public summary contains verbatim free text"
+    for why, _ in REASONING.values():
+        assert why not in dump, "public summary contains verbatim reasoning"
     write("public_summaries.json", pub)
 
     print(f"wrote fixtures for {ROUND_ID}: {len(contribs)} contributions, {len(experts)} experts")

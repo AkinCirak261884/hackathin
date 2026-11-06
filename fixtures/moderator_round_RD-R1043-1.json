@@ -56,6 +56,8 @@
         "risk_id": "R1043",
         "trigger_id": null,
         "kind": "rating",
+        "title": "ACAPS rating",
+        "title_fr": "L'évaluation d'ACAPS",
         "text": "ACAPS rates this risk High probability and impact 4/5. Do you agree?",
         "text_fr": "ACAPS évalue ce risque à une probabilité élevée et un impact de 4/5. Êtes-vous d'accord ?",
         "closes_at": "2026-11-13T18:00:00Z",
@@ -67,6 +69,8 @@
         "risk_id": "R1043",
         "trigger_id": "T0618",
         "kind": "forecast",
+        "title": "Expansion of cross-border attacks and insecurity",
+        "title_fr": "Expansion des attaques et de l'insécurité transfrontalières",
         "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
         "text_fr": "Les attaques transfrontalières deviendront-elles durables et récurrentes, touchant plusieurs localités frontalières de l'est du Tchad et causant d'importantes victimes civiles, des déplacements ou des perturbations de l'accès humanitaire, avant le 6 mai 2027 ?",
         "closes_at": "2027-05-06T23:59:59Z",
@@ -78,6 +82,8 @@
         "risk_id": "R1043",
         "trigger_id": "T0619",
         "kind": "forecast",
+        "title": "Attacks on strategic infrastructure in Chad",
+        "title_fr": "Attaques contre des infrastructures stratégiques au Tchad",
         "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
         "text_fr": "Des attaques viseront-elles directement des infrastructures stratégiques au Tchad (aéroports, installations militaires, postes frontières ou grands corridors de transport), causant d'importantes perturbations, avant le 6 mai 2027 ?",
         "closes_at": "2027-05-06T23:59:59Z",
@@ -89,6 +95,8 @@
         "risk_id": "R1043",
         "trigger_id": "T0620",
         "kind": "forecast",
+        "title": "Renewed proxy mobilisation and cross-border armed group activity",
+        "title_fr": "Remobilisation par procuration et groupes armés transfrontaliers",
         "text": "Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
         "text_fr": "Des groupes armés, milices ou acteurs par procuration opérant de part et d'autre de la frontière Tchad–Soudan participeront-ils activement à des hostilités transfrontalières, causant une violence durable, des représailles ou une insécurité territoriale dans l'est du Tchad, avant le 6 mai 2027 ?",
         "closes_at": "2027-05-06T23:59:59Z",
@@ -100,6 +108,8 @@
         "risk_id": "R1043",
         "trigger_id": null,
         "kind": "ranking",
+        "title": "Top 3 risks in Chad",
+        "title_fr": "Top 3 des risques au Tchad",
         "text": "What are the three biggest risks in Chad that might worsen humanitarian outcomes in the next six months?",
         "text_fr": "Quels sont les trois plus grands risques au Tchad susceptibles d'aggraver la situation humanitaire dans les six prochains mois ?",
         "closes_at": "2026-11-13T18:00:00Z",
@@ -404,6 +414,56 @@
     ],
     "suggested_rating_change": "Keep probability High and impact 4. Consider adding Health and WASH to priority needs. Experts are split on T0620 (proxy mobilisation)."
   },
+  "reasoning": [
+    {
+      "contribution_id": "C-0001",
+      "shown_as": "Synthetic Expert 01",
+      "tier": "known",
+      "text": "Our teams in Adré see new arrivals every week and two incidents near water points in October.",
+      "basis": [
+        "field_observation",
+        "local_contacts"
+      ]
+    },
+    {
+      "contribution_id": "C-0011",
+      "shown_as": "Osprey",
+      "tier": "pseudonymous",
+      "text": "Telegram channels close to the RSF openly discuss supply routes through Chad.",
+      "basis": [
+        "media_osint"
+      ]
+    },
+    {
+      "contribution_id": "C-0016",
+      "shown_as": "Birch",
+      "tier": "pseudonymous",
+      "text": "Historical pattern: proxy escalation followed Darfur offensives in 2005–2008.",
+      "basis": [
+        "experience",
+        "reports_data"
+      ]
+    },
+    {
+      "contribution_id": "C-0026",
+      "shown_as": "Wren",
+      "tier": "pseudonymous",
+      "text": "Clinic data from Sila shows rising watery-diarrhoea cases since September.",
+      "basis": [
+        "reports_data",
+        "field_observation"
+      ]
+    },
+    {
+      "contribution_id": "C-0031",
+      "shown_as": "Anonymous",
+      "tier": "anonymous",
+      "text": "Les drones passent presque chaque nuit près de la frontière.",
+      "basis": [
+        "field_observation"
+      ]
+    }
+  ],
   "ranking": [
     {
       "option_id": "R1043",

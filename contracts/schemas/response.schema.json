@@ -3,26 +3,91 @@
   "$id": "response.schema.json",
   "title": "POST /rounds/{round_id}/responses (request body)",
   "type": "object",
-  "required": ["invite_token", "tier", "version", "answers"],
+  "required": [
+    "invite_token",
+    "tier",
+    "version",
+    "answers"
+  ],
   "properties": {
-    "invite_token": { "type": "string", "description": "proves panel membership; NOT stored on anonymous contributions" },
-    "tier": { "$ref": "common.schema.json#/$defs/tier" },
-    "anon_token": { "type": "string", "description": "required when tier=anonymous: sha256(device_secret), hex" },
-    "version": { "enum": [1, 2] },
-    "missing_text": { "type": ["string", "null"], "maxLength": 1000 },
+    "invite_token": {
+      "type": "string",
+      "description": "proves panel membership; NOT stored on anonymous contributions"
+    },
+    "tier": {
+      "$ref": "common.schema.json#/$defs/tier"
+    },
+    "anon_token": {
+      "type": "string",
+      "description": "required when tier=anonymous: sha256(device_secret), hex"
+    },
+    "version": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "missing_text": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1000
+    },
+    "reasoning_text": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1000,
+      "description": "optional 'why I think this', asked after the questions. Moderator-only, never published verbatim"
+    },
+    "reasoning_basis": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "common.schema.json#/$defs/reasoningBasis"
+      }
+    },
     "answers": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["question_id"],
+        "required": [
+          "question_id"
+        ],
         "properties": {
-          "question_id": { "type": "string" },
-          "rating_probability": { "$ref": "common.schema.json#/$defs/ratingView" },
-          "rating_impact": { "$ref": "common.schema.json#/$defs/ratingView" },
-          "prob": { "$ref": "common.schema.json#/$defs/prob" },
-          "seeing": { "type": "boolean", "description": "forecast: 'I'm seeing this trigger now'" },
-          "ranking": { "type": "array", "items": { "type": "string" }, "maxItems": 3 },
-          "ranking_other": { "type": ["string", "null"] }
+          "question_id": {
+            "type": "string"
+          },
+          "rating_probability": {
+            "$ref": "common.schema.json#/$defs/ratingView"
+          },
+          "rating_impact": {
+            "$ref": "common.schema.json#/$defs/ratingView"
+          },
+          "prob": {
+            "$ref": "common.schema.json#/$defs/prob"
+          },
+          "seeing": {
+            "type": "boolean",
+            "description": "forecast: 'I'm seeing this trigger now'"
+          },
+          "ranking": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3
+          },
+          "ranking_other": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     }

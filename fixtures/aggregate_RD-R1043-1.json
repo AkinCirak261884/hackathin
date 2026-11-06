@@ -16,7 +16,12 @@
     },
     "you": {
       "probability": "agree",
-      "impact": "agree"
+      "impact": "agree",
+      "ranking": [
+        "R1043",
+        "SYN-TCD-03",
+        "SYN-TCD-01"
+      ]
     }
   },
   "forecasts": [

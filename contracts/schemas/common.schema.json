@@ -3,69 +3,246 @@
   "$id": "common.schema.json",
   "title": "Shared definitions",
   "$defs": {
-    "tier": { "enum": ["known", "pseudonymous", "anonymous"] },
-    "stage": { "enum": ["blind", "reveal", "closed"] },
-    "ratingView": { "enum": ["too_low", "agree", "too_high"] },
-    "acapsProbability": { "enum": ["Very Low", "Low", "Medium", "High", "Very High"] },
-    "prob": { "type": "number", "minimum": 0, "maximum": 1 },
-    "isoDate": { "type": "string", "format": "date-time" },
+    "tier": {
+      "enum": [
+        "known",
+        "pseudonymous",
+        "anonymous"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "blind",
+        "reveal",
+        "closed"
+      ]
+    },
+    "ratingView": {
+      "enum": [
+        "too_low",
+        "agree",
+        "too_high"
+      ]
+    },
+    "acapsProbability": {
+      "enum": [
+        "Very Low",
+        "Low",
+        "Medium",
+        "High",
+        "Very High"
+      ]
+    },
+    "prob": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "isoDate": {
+      "type": "string",
+      "format": "date-time"
+    },
     "trigger": {
       "type": "object",
-      "required": ["trigger_id", "risk_id", "title", "description", "completion_rate", "objective"],
+      "required": [
+        "trigger_id",
+        "risk_id",
+        "title",
+        "description",
+        "completion_rate",
+        "objective"
+      ],
       "properties": {
-        "trigger_id": { "type": "string", "examples": ["T0618"] },
-        "risk_id": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "completion_rate": { "type": "number", "minimum": 0, "maximum": 1 },
-        "objective": { "type": "string", "description": "ACAPS 'objective to meet 100%'" }
+        "trigger_id": {
+          "type": "string",
+          "examples": [
+            "T0618"
+          ]
+        },
+        "risk_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "completion_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "objective": {
+          "type": "string",
+          "description": "ACAPS 'objective to meet 100%'"
+        }
       }
     },
     "risk": {
       "type": "object",
-      "required": ["risk_id", "title", "country", "iso", "probability", "impact", "level", "status", "triggers"],
+      "required": [
+        "risk_id",
+        "title",
+        "country",
+        "iso",
+        "probability",
+        "impact",
+        "level",
+        "status",
+        "triggers"
+      ],
       "properties": {
-        "risk_id": { "type": "string", "examples": ["R1043"] },
-        "title": { "type": "string" },
-        "country": { "type": "string" },
-        "iso": { "type": "string" },
-        "probability": { "$ref": "#/$defs/acapsProbability" },
-        "impact": { "type": "integer", "minimum": 1, "maximum": 5 },
-        "level": { "type": "string" },
-        "status": { "type": "string" },
-        "trend": { "type": "string" },
-        "rationale_short": { "type": "string" },
-        "expected_exposure": { "type": "string" },
-        "priority_needs": { "type": "array", "items": { "type": "string" } },
-        "triggers": { "type": "array", "items": { "$ref": "#/$defs/trigger" } }
+        "risk_id": {
+          "type": "string",
+          "examples": [
+            "R1043"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "iso": {
+          "type": "string"
+        },
+        "probability": {
+          "$ref": "#/$defs/acapsProbability"
+        },
+        "impact": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "level": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "trend": {
+          "type": "string"
+        },
+        "rationale_short": {
+          "type": "string"
+        },
+        "expected_exposure": {
+          "type": "string"
+        },
+        "priority_needs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trigger"
+          }
+        }
       }
     },
     "question": {
       "type": "object",
-      "required": ["question_id", "risk_id", "kind", "text", "text_fr", "closes_at"],
+      "required": [
+        "question_id",
+        "risk_id",
+        "kind",
+        "title",
+        "title_fr",
+        "text",
+        "text_fr",
+        "closes_at"
+      ],
       "properties": {
-        "question_id": { "type": "string" },
-        "risk_id": { "type": "string" },
-        "trigger_id": { "type": ["string", "null"] },
-        "kind": { "enum": ["rating", "forecast", "ranking"] },
-        "text": { "type": "string" },
-        "text_fr": { "type": "string" },
-        "closes_at": { "$ref": "#/$defs/isoDate" },
-        "acaps_baseline": { "type": ["number", "null"], "description": "forecast only: ACAPS-implied probability" },
-        "outcome": { "type": ["boolean", "null"] },
+        "question_id": {
+          "type": "string"
+        },
+        "risk_id": {
+          "type": "string"
+        },
+        "trigger_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "rating",
+            "forecast",
+            "ranking"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "description": "short heading shown above the question (e.g. trigger title)"
+        },
+        "title_fr": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "text_fr": {
+          "type": "string"
+        },
+        "closes_at": {
+          "$ref": "#/$defs/isoDate"
+        },
+        "acaps_baseline": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "forecast only: ACAPS-implied probability"
+        },
+        "outcome": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "options": {
           "type": "array",
           "description": "ranking only",
           "items": {
             "type": "object",
-            "required": ["option_id", "label", "label_fr", "synthetic"],
+            "required": [
+              "option_id",
+              "label",
+              "label_fr",
+              "synthetic"
+            ],
             "properties": {
-              "option_id": { "type": "string" }, "label": { "type": "string" }, "label_fr": { "type": "string" },
-              "synthetic": { "type": "boolean" }
+              "option_id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "label_fr": {
+                "type": "string"
+              },
+              "synthetic": {
+                "type": "boolean"
+              }
             }
           }
         }
       }
+    },
+    "reasoningBasis": {
+      "enum": [
+        "field_observation",
+        "local_contacts",
+        "media_osint",
+        "reports_data",
+        "experience"
+      ]
     }
   }
 }
