@@ -59,11 +59,11 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 
 ## Latest update
 
-### Lane A — update #6 — 19:12
-Done: `lane-a` merged into `main` (leaderboard available to B and C). `track_record()` now also returns `pending` (unresolved final answers, soonest deadline first, Lane C fixture shape; `title_fr`/`text_fr` null). Synthetic archetypes made realistic: only the 2 "sharp" experts know more than ACAPS → 2 of 8 earn the badge (was 6). Found: ACAPS's Very Low/Very High ratings are overconfident (5% → 33% happened, 95% → 88%), so hedging alone "beats" ACAPS. 33 unittests pass.
-Pushed: lane-a + main @ 097b609
-How to see it: `python3 analysis/backtest.py` → `analysis/charts/leaderboard.json`, `track_record_example.json` (now with `pending`)
-Requests to other lanes: →B: `leaderboard.track_record()` now includes `pending`; synthetic answers in `analysis/synthetic/responses_R1043.json` changed values again (format unchanged) · →C: `pending` items = `{question_id, title, title_fr, text, text_fr, your_prob, closes_at, submitted_at}`; resolved items are under `history` (your fixture calls it `resolved`, and `acaps_mean_brier` is `acaps_baseline_brier` here)
-Contract change proposed: (still open) ACAPS mapping midpoints 0.05/0.22/0.50/0.78/0.95 · Lane A supports option (c) for B↔C: B's IDs, token in a header (never `?token=`), anon token computed on the phone, server keeps only its HMAC, no invite→anon link stored or logged
+### Lane A — update #7 — 19:18
+Done: badge made hedging-proof. Per-label n / materialised / 90% Wilson in README + `backtest_summary.json` → `acaps_by_label` (only Low is clearly mis-rated: 43% [24–64%] vs 22%). New baseline **calibrated ACAPS** = label's historical rate, leave-one-risk-out, shrunk to midpoint (5 pseudo-risks): Brier 0.220 out-of-sample (worse than raw 0.213). A plain "lower mean" still lets a hedger win (+0.002/question), so badge = ≥5 resolved AND paired 90% lower bound of (calibrated ACAPS − you) > 0. Result: 2/8 badges (sharp only); test-hedger beats raw ACAPS on average but gets no badge. 40 unittests pass.
+Pushed: lane-a @ 4d1c1e8 (not yet merged into main)
+How to see it: `python3 analysis/backtest.py` → `analysis/charts/leaderboard.json`, `track_record_example.json`, `backtest_summary.json`
+Requests to other lanes: →C: badge baseline field = **`calibrated_acaps_baseline_brier`** (per expert) and `calibrated_acaps_prob` / `calibrated_acaps_brier` / `beat_calibrated_acaps` (per question); also `gain_vs_calibrated_acaps_lower90` (badge needs > 0). Raw `acaps_baseline_brier`, `acaps_prob`, `acaps_brier`, `beat_acaps` unchanged, now secondary. Leaderboard entries add `calibrated_acaps_brier_same_questions`, `gain_vs_calibrated_acaps_lower90` · →B: nothing to change, same functions
+Contract change proposed: badge rule as above (replaces "beat ACAPS on the same questions")
 Next: short-horizon (1–3 month) questions for the pilot (separate session)
 Blockers: none
