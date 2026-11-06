@@ -57,13 +57,33 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 > 5. **Alex:** yes, but frame it right. "Hidden until you answer" *is* Delphi round 1, so he'll likely say yes. The real questions for him: may peers ever see each other's free text, and is a feed look OK for ACAPS's brand?
 > 6. **Scoring proposal:** 👍 to all three. 1–3-month questions are great for the pilot; Profile already shows deadlines, so I'll show short-horizon questions first. "Badge only after N resolved" fits the "4 of 5 correct" hero; below N I'll show "3 more forecasts until your score counts". Please say the synthetic-expert caveat on the data slide, as you wrote.
 
+## Smoke test: R1043 demo path (19:35, 6 Nov)
+
+**Setup:** `main` has no `api/` or `web/` yet, so I merged `main` + `origin/lane-b` (70317cd) + `origin/lane-c` (965ecc9) **locally only** (clean merge, nothing pushed). Lane B's 86 tests pass on the combined code. API on a fresh scratch DB (`GT_DB` / `GT_VAULT_DB`, never Lane B's live one), web app with `VITE_API_URL=http://localhost:8000`. Driven with the 8 synthetic experts' `responses_R1043.json`. Chrome extension was disconnected, so web screens were checked by replaying `web/src/api.js`'s real-API requests, not by clicking.
+
+| # | Step | API (Lane B) | Web app (Lane C) | Exact error / mismatch | Owner |
+|---|---|---|---|---|---|
+| 0 | Run demo from `main` | broken | broken | `main` has no `api/` or `web/`: lane-b and lane-c (PR #1) not merged | B, C |
+| 1 | Invite | works | broken | API: unknown invite → 401, `inv_demo_01..08` OK. Web sends `invite_token: "inv_demo"` → 401 `unknown invite` | C |
+| 2 | Choose tier | works | broken | Web anonymous sends `anon_token`, no `device_secret` → 422 `anonymous tier needs a device_secret of at least 16 chars`. Option (c) (hash on phone, server HMAC) not implemented on either side | B + C |
+| 3 | Round 1 (8 experts) | works | broken | Web: `GET /rounds/RD-R1043-1` → 404 (API uses `RND-R1043-1`); `Q-R1043-RATING`, `Q-TCD-TOP3` → 422 `questions not in this round`; `reasoning_basis: null` → 422 `Input should be a valid list`; round has top-level `triggers` but web reads `risk.triggers`; API questions have `kind: "agree"` (web expects `rating`), no `title`/`title_fr`/`text_fr`; `rating_probability`, `rating_impact`, `seeing`, `ranking` have no DB columns | C (IDs, body), B (store rating/ranking) |
+| 4 | Group view after own answer | works | broken | API: 403 before own answer, per-question `suppressed` at n=2, n=8 gives median/p25/p75/sorted dots, no tokens. **Missing:** weighted `aggregate` from `analysis/aggregate.py` not added. Web: `/rounds/{id}/aggregate?token=` → 422 `missing header x-invite-token` | B (aggregate), C (headers) |
+| 5 | Revise once | works | not tested | v2 → 201, second v2 → 409 `already revised once` | — |
+| 6 | Moderator view | broken | — | `GET /moderator/rounds/RND-R1043-1` returns the **mock** (`n_responses: 6`, `anon_3f9a…`, fake `response_ids`, `synthesis_source: "mock"`), not the real round. `disagreement()` not integrated; themes are mock | B |
+| 7 | Profile: track record + leaderboard | works (headers) | broken | Fresh DB has only R1043 → empty history, empty leaderboard: **fixed (A)**, `analysis/demo_history.py::seed_history(con)`, verified on the live API (Birch 73 resolved + badge, 8-entry leaderboard). Web: `/me/track-record?token=` → 422 missing header; `/leaderboard?...&token=` ignored, so `is_you` never set | A (fixed), B (call it in seed), C (headers) |
+| 8 | Publish public summary | broken | — | `POST /moderator/rounds/{id}/publish` → `published: true`, but `/public/summaries` still only shows mock `RND-R1043-0` | B |
+| 9 | No token in any URL | OK | broken | API takes tokens only in headers. Web puts tokens in 3 URLs: aggregate, track-record, leaderboard (`?token=`) | C |
+| 10 | Public summary: no tokens, pseudonyms, exact quotes | OK (on the mock) | — | None found; no "what's missing" text appears verbatim. Recheck once publish works | B |
+| 11 | Anonymous never by pseudonym | OK | — | "Sparrow" appears nowhere; leaderboard says "Anonymous expert"; peer outputs carry no tokens. Moderator mock lists `anon_…` tokens (no name); recheck when real | B |
+| 12 | Docs | minor | — | `api/README.md` says synthetic invites are `inv_tcd_01…`; seeded ones are `inv_demo_01…` | B |
+
 ## Latest update
 
-### Lane A — update #9 — 19:29
-Done: `analysis/aggregate.py`. Lane B keeps owning the group view gate/auth (`api/rounds.py::aggregate`), so these are plain functions to call. Weighted group forecast (log-odds, track-record weights shrunk to group average, new experts = average, ×1.5 extremizing), out-of-sample only. Backtest (synthetic, Risk ID order): median 0.181 → weighted 0.171 → weighted+extremized 0.157 (ACAPS 0.215). Moderator `disagreement()`: IQR/spread, split flag, distance from ACAPS, rating shares. 54 unittests pass (n<3 → None, no tokens/names, own outcome never moves own aggregate).
-Pushed: lane-a + main @ fc555e6
-How to see it: `python3 analysis/backtest.py` (aggregate table) · `backtest_summary.json` → `aggregate_backtest`
-Requests to other lanes: →B: call `aggregate.aggregate(con, question_id)` → `None` if n<3, else `{question_id, n, min_n, median, weighted, weighted_extremized, extremize_factor, aggregate, n_weighted_by_track_record, values: [shuffled probs]}`; add `aggregate` (the value to show) next to your median in `/rounds/{id}/aggregate` and `/thread`. Call `aggregate.disagreement(con, question_id)` for `/moderator/rounds/{id}` → `None` if n<3, else `{question_id, min_n, rating_shares, n, iqr: [q1, q3], spread, split, split_at, aggregate, acaps_prob, aggregate_minus_acaps, vs_acaps: "close"|"higher"|"lower"}`; `rating_shares` = `{probability: {too_low, agree, too_high}, impact: {…}}` if you store `rating_probability` / `rating_impact`, else `{overall: {agree, disagree}}` · →C: show `aggregate` as the group's forecast (median stays available); `values` are unnamed and shuffled, so sort them for the dot plot
-Contract change proposed: group forecast shown = `aggregate` (weighted, ×1.5 extremized) instead of median; store Lane C's `rating_probability` / `rating_impact` so moderator shares are 3-way
-Next: (open) moderator dashboard (Streamlit) or GJP-calibrated synthetic experts
-Blockers: none
+### Lane A — update #10 — 19:35
+Done: end-to-end smoke test of the R1043 demo path (table above). API path works for invite → round 1 → group view (403 / n≥3) → revise; moderator view and publish are still mocks; web app can't talk to the real API yet (IDs, body, `?token=`). Fixed the Lane A item: `analysis/demo_history.py::seed_history(con)` fills a fresh DB with all risks + resolved synthetic history, so profile/badge/leaderboard work in the demo. 55 unittests pass.
+Pushed: lane-a @ d46ed71 (code not yet merged into main)
+How to see it: table above · `python3 analysis/demo_history.py --db <db>`
+Requests to other lanes: →B: (0) merge lane-b into main; (6) real `/moderator/rounds/{id}` with `aggregate.disagreement()` + real themes; (8) publish must write to `/public/summaries`; (4) add `aggregate.aggregate()["aggregate"]` to `/aggregate` + `/thread`; (7) call `demo_history.seed_history(con)` at the end of `api/seed.py`; (3) store `rating_probability`, `rating_impact`, `ranking` (+ add `Q-R1043-RATING`/`Q-TCD-TOP3` or agree with C to drop them); (2) option (c) device-hashed anon token; (12) README invites · →C: (0) merge PR #1; (1) real invite from the link, not `inv_demo`; (3) use `RND-R1043-1`, read top-level `triggers`, send `reasoning_basis: []` not `null`, `kind: "agree"`; (4)(7)(9) send `X-Invite-Token` / `X-Device-Secret` headers, drop all `?token=`; (2) anonymous: send `device_secret` until (c) is agreed
+Contract change proposed: none new
+Next: stop, as asked
+Blockers: none for A; demo from main blocked on (0)
