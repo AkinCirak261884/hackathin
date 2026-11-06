@@ -8,7 +8,7 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 - [x] **Question generator.** Turn each trigger's objective into a yes/no question that closes 6 months after the round opens. *Done when:* R1043 yields 3 trigger questions + 1 agree item, written to `questions`.
 - [x] **Synthetic experts.** Generate 8 experts with different biases (well calibrated, alarmist, anchored on ACAPS, noisy). *Done when:* experts and their simulated answers are in the DB and in `fixtures/`.
 - [x] **Scoring + backtest.** Brier scoring; backtest synthetic experts vs. the ACAPS baseline on resolved risks. *Done when:* tests pass and a calibration chart is saved.
-- [ ] **Leaderboard.** Super-estimator ranking by mean Brier, **only experts with ≥ N resolved forecasts qualify** (N = 10 for the backtest), shown against ACAPS's 0.213. *Done when:* a table/chart is generated from the DB.
+- [x] **Leaderboard.** Super-estimator ranking by mean Brier, **only experts with ≥ N resolved forecasts qualify** (N = 10 for the backtest), shown against ACAPS's 0.213. *Done when:* a table/chart is generated from the DB.
 - [ ] **Short-horizon questions.** Question generator also emits 1–3-month trigger questions (e.g. "…before 31 January 2027?") so a track record builds during the ~2-month December pilot. *Done when:* R1043 has at least one question closing within the pilot.
 - [ ] *(optional)* **Ground synthetic experts in real forecasters.** Tune archetype noise/bias to the Good Judgment Project data (Harvard Dataverse). *Done when:* README states the source and the fitted parameters.
 - [ ] **Moderator dashboard (Streamlit).** Spread vs. ACAPS rating, disagreement, revision shifts, triggers observed. *Done when:* `streamlit run moderator/app.py` shows R1043.
@@ -59,11 +59,11 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 
 ## Latest update
 
-### Lane A — update #4 — 17:27
-Done: Brier scoring (`scoring.py`, final version counts) + backtest on 99 resolved risks (`backtest.py`) + calibration chart `analysis/charts/calibration.svg`. Real: ACAPS Brier 0.213 vs 0.239 base rate; High (70%) → 83% materialised. Synthetic experts 0.144–0.234 (simulated, pipeline demo only). Also aligned synthetic IDs/invites/tokens with B's seed.py + trust.py. 23 unittests pass.
-Pushed: lane-a @ f9f35c0 | PR: not opened yet (no gh CLI) — https://github.com/AkinCirak261884/hackathin/compare/main...lane-a
-How to see it: `python3 analysis/backtest.py` then open `analysis/charts/calibration.svg`
-Requests to other lanes: →B: `scores` table + backtest rounds `RND-{risk}-BT` / questions `Q-{risk}-MAT` with outcomes can feed real `/me/track-record` (tokens = your psd_/anon_ format) · →C: chart + numbers for the data slide in `analysis/charts/`
-Contract change proposed: none (still pending: short `trigger_id` `T####`, from #2)
-Next: leaderboard (super estimators by Brier)
+### Lane A — update #5 — 19:00
+Done: `analysis/leaderboard.py`: per-question track record + leaderboard (≥5 resolved to rank, shrunk Brier k=5, badge = ≥5 resolved AND beats ACAPS on the same questions, "Anonymous expert", opt-out table). ACAPS mapping now band midpoints (5/22/50/78/95%, ACAPS 2019 methodology): Brier 0.2133 vs 0.2128 old edge mapping, app uses midpoint. Backtest writes only `analysis/backtest.db`. 31 unittests pass (badge, shrinkage, no invite/secret/token leaks).
+Pushed: lane-a @ 05782ac | PR: not opened yet (no gh CLI) — https://github.com/AkinCirak261884/hackathin/compare/main...lane-a
+How to see it: `python3 analysis/backtest.py` → `analysis/charts/leaderboard.json`, `track_record_example.json`, `calibration.svg`
+Requests to other lanes: →B: serve `/me/track-record` = `leaderboard.track_record(con, author_token)` and a peer leaderboard = `leaderboard.leaderboard(con, viewer_token)` (import from `analysis/leaderboard.py`, works on your DB as is: psd_/anon_ tokens, `experts`, `questions.outcome`, `risks.probability`); add your `impact` list on top; optional table `leaderboard_opt_out(author_token)` · →C: track record = `{author_token, n_resolved, mean_brier, acaps_baseline_brier, n_beat_acaps, super_estimator, min_resolved, forecasts_until_counted, rank, n_ranked, rank_percentile, history:[{question_id, text, closes_at, outcome, outcome_label, your_prob, brier, acaps_prob, acaps_brier, beat_acaps}]}`; leaderboard = `{min_resolved, entries:[{rank, display_name, n_resolved, shrunk_brier, mean_brier, acaps_brier_same_questions, super_estimator, is_you}], n_not_yet_ranked}`. Examples in `analysis/charts/`. ACAPS High is now 0.78, not 0.7 (your `acaps_baseline`)
+Contract change proposed: ACAPS probability mapping = midpoints 0.05/0.22/0.50/0.78/0.95 (BOARD.md "Scoring" says 10/30/50/70/90)
+Next: short-horizon (1–3 month) questions for the pilot
 Blockers: none
