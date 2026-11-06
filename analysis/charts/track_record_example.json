@@ -9,10 +9,21 @@
     "gain_vs_calibrated_acaps_lower90": -0.0099,
     "acaps_brier_same_questions": 0.2161,
     "n_beat_acaps": 37,
+    "gain_vs_acaps": -0.0009,
+    "gain_vs_acaps_lower90": -0.013,
     "super_estimator": false,
+    "badge_progress": {
+      "baseline": "raw_acaps",
+      "gain": -0.0009,
+      "gain_ci90": [
+        -0.013,
+        0.0112
+      ],
+      "more_forecasts_needed": null
+    },
     "calibrated_acaps_baseline_brier": 0.2231,
     "acaps_baseline_brier": 0.2161,
-    "badge_baseline": "calibrated_acaps",
+    "badge_baseline": "raw_and_calibrated_acaps",
     "min_resolved": 5,
     "forecasts_until_counted": 0,
     "rank": 3,
@@ -1174,10 +1185,21 @@
     "gain_vs_calibrated_acaps_lower90": 0.0467,
     "acaps_brier_same_questions": 0.2245,
     "n_beat_acaps": 44,
+    "gain_vs_acaps": 0.081,
+    "gain_vs_acaps_lower90": 0.0382,
     "super_estimator": true,
+    "badge_progress": {
+      "baseline": "raw_acaps",
+      "gain": 0.081,
+      "gain_ci90": [
+        0.0382,
+        0.1238
+      ],
+      "more_forecasts_needed": 0
+    },
     "calibrated_acaps_baseline_brier": 0.2325,
     "acaps_baseline_brier": 0.2245,
-    "badge_baseline": "calibrated_acaps",
+    "badge_baseline": "raw_and_calibrated_acaps",
     "min_resolved": 5,
     "forecasts_until_counted": 0,
     "rank": 1,

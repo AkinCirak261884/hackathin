@@ -2,7 +2,7 @@
   "min_resolved": 5,
   "shrink_k": 5,
   "acaps_mapping": "midpoint",
-  "badge_baseline": "calibrated_acaps",
+  "badge_baseline": "raw_and_calibrated_acaps",
   "calibration_prior": 5,
   "group_mean_brier": 0.2114,
   "entries": [
@@ -14,6 +14,7 @@
       "mean_brier": 0.1434,
       "calibrated_acaps_brier_same_questions": 0.2325,
       "gain_vs_calibrated_acaps_lower90": 0.0467,
+      "gain_vs_acaps_lower90": 0.0382,
       "acaps_brier_same_questions": 0.2245,
       "super_estimator": true,
       "is_you": false
@@ -26,6 +27,7 @@
       "mean_brier": 0.1487,
       "calibrated_acaps_brier_same_questions": 0.2317,
       "gain_vs_calibrated_acaps_lower90": 0.0397,
+      "gain_vs_acaps_lower90": 0.0349,
       "acaps_brier_same_questions": 0.2269,
       "super_estimator": true,
       "is_you": false
@@ -38,6 +40,7 @@
       "mean_brier": 0.217,
       "calibrated_acaps_brier_same_questions": 0.2231,
       "gain_vs_calibrated_acaps_lower90": -0.0099,
+      "gain_vs_acaps_lower90": -0.013,
       "acaps_brier_same_questions": 0.2161,
       "super_estimator": false,
       "is_you": false
@@ -50,6 +53,7 @@
       "mean_brier": 0.2198,
       "calibrated_acaps_brier_same_questions": 0.2205,
       "gain_vs_calibrated_acaps_lower90": -0.0464,
+      "gain_vs_acaps_lower90": -0.0574,
       "acaps_brier_same_questions": 0.2141,
       "super_estimator": false,
       "is_you": false
@@ -62,6 +66,7 @@
       "mean_brier": 0.2288,
       "calibrated_acaps_brier_same_questions": 0.2258,
       "gain_vs_calibrated_acaps_lower90": -0.0351,
+      "gain_vs_acaps_lower90": -0.0374,
       "acaps_brier_same_questions": 0.218,
       "super_estimator": false,
       "is_you": false
@@ -74,6 +79,7 @@
       "mean_brier": 0.2347,
       "calibrated_acaps_brier_same_questions": 0.234,
       "gain_vs_calibrated_acaps_lower90": -0.0142,
+      "gain_vs_acaps_lower90": -0.012,
       "acaps_brier_same_questions": 0.2298,
       "super_estimator": false,
       "is_you": false
@@ -86,6 +92,7 @@
       "mean_brier": 0.2461,
       "calibrated_acaps_brier_same_questions": 0.2247,
       "gain_vs_calibrated_acaps_lower90": -0.0672,
+      "gain_vs_acaps_lower90": -0.0746,
       "acaps_brier_same_questions": 0.216,
       "super_estimator": false,
       "is_you": false
@@ -98,6 +105,7 @@
       "mean_brier": 0.2603,
       "calibrated_acaps_brier_same_questions": 0.2138,
       "gain_vs_calibrated_acaps_lower90": -0.1075,
+      "gain_vs_acaps_lower90": -0.1115,
       "acaps_brier_same_questions": 0.2064,
       "super_estimator": false,
       "is_you": false
