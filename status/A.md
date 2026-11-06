@@ -8,8 +8,23 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 - [x] **Question generator.** Turn each trigger's objective into a yes/no question that closes 6 months after the round opens. *Done when:* R1043 yields 3 trigger questions + 1 agree item, written to `questions`.
 - [x] **Synthetic experts.** Generate 8 experts with different biases (well calibrated, alarmist, anchored on ACAPS, noisy). *Done when:* experts and their simulated answers are in the DB and in `fixtures/`.
 - [x] **Scoring + backtest.** Brier scoring; backtest synthetic experts vs. the ACAPS baseline on resolved risks. *Done when:* tests pass and a calibration chart is saved.
-- [ ] **Leaderboard.** Super-estimator ranking by Brier. *Done when:* a table/chart is generated from the DB.
+- [ ] **Leaderboard.** Super-estimator ranking by mean Brier, **only experts with ≥ N resolved forecasts qualify** (N = 10 for the backtest), shown against ACAPS's 0.213. *Done when:* a table/chart is generated from the DB.
+- [ ] **Short-horizon questions.** Question generator also emits 1–3-month trigger questions (e.g. "…before 31 January 2027?") so a track record builds during the ~2-month December pilot. *Done when:* R1043 has at least one question closing within the pilot.
+- [ ] *(optional)* **Ground synthetic experts in real forecasters.** Tune archetype noise/bias to the Good Judgment Project data (Harvard Dataverse). *Done when:* README states the source and the fitted parameters.
 - [ ] **Moderator dashboard (Streamlit).** Spread vs. ACAPS rating, disagreement, revision shifts, triggers observed. *Done when:* `streamlit run moderator/app.py` shows R1043.
+
+## Lane A proposal: scoring approach (for voice OK)
+
+**What's real and what's synthetic**
+- **Real:** the Risk Radar export, 139 ACAPS risks with ratings and outcomes. That's exactly what the brief says to test scoring on "before any expert joins". ACAPS's live Risk List is also public (HDX + ACAPS API), so the demo can show current risks, not only the archive.
+- **Not available, by design:** real expert forecasts. The brief says synthetic users only; real answers arrive with the December pilot.
+
+**Approach**
+1. **Test the algorithm on real outcomes, with ACAPS as the forecaster.** Ratings → % (Very Low 10 · Low 30 · Medium 50 · High 70 · Very High 90), Brier = (forecast − outcome)², outcome 1 = materialised. Expert score = mean Brier over their resolved questions; **leaderboard only after a minimum number of resolved forecasts**. Done: ACAPS 0.213 vs 0.239 for always guessing the 61% base rate (`analysis/charts/`).
+2. **Synthetic experts forecast the same real risks.** Their answers are generated from the real outcome plus noise and bias (bold, cautious, anchored on ACAPS…). This tests whether scoring can tell a skilled forecaster from a poor one. It is **not** evidence that experts beat ACAPS; say so on the slide.
+3. **Make the synthetic panel more plausible** by tuning its noise to real human forecasters: the Good Judgment Project data (2011–2015 ACE tournament, millions of forecasts) is public on Harvard Dataverse, dataverse.harvard.edu/dataverse/gjp. Pitch line if we do it: "our synthetic experts are calibrated on how real forecasters behave".
+
+**Problem to fix now: the pilot is shorter than the horizon.** The pilot is ~2 months and questions are 6 months, so nothing resolves during the pilot and ACAPS sees no scores. Fix: add **1–3-month trigger questions** ("Will there be an attack on X before 31 January 2027?") that resolve inside the pilot, so a track record starts building immediately. Good pitch point; check with Alex.
 
 ## Questions for other lanes
 
@@ -30,6 +45,7 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 3. Brief says "should not focus on time spent in the app". How do we keep a feed from feeling like engagement bait (no infinite scroll, no likes count, no streaks)?
 4. What do you need from A and B? Lane A's guess: B adds "same / differently" reactions + the reveal-after-submit gate (already exists for `/aggregate`); A adds the ✓/✗ + Brier per post (already in `scores`) and the badge rule.
 5. Should we check "hidden until answered" with Alex first?
+6. Also see "Lane A proposal: scoring approach" above. Anything there that changes your screens (✓/✗ + Brier per resolved post, badge only after N resolved forecasts, short 1–3-month questions)?
 
 **Lane C answer:**
 > (write here)

@@ -85,9 +85,12 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 - [ ] Are referral invites acceptable, or must ACAPS hand-pick every expert?
 - [ ] Should the app include a signpost screen for witnesses of serious violations?
 - [ ] Sanity-check the R1043 forecast questions and thresholds.
+- [ ] The pilot is ~2 months but questions run 6 months. OK to add 1–3-month trigger questions so scores exist during the pilot? (Lane A proposal in `status/A.md`)
+- [ ] Is "others' answers hidden until you've answered" (feed idea) OK for ACAPS?
 
 ## Requests between lanes
 
+- [ ] (A → B, C) Review "Lane A proposal: scoring approach" in `status/A.md` (min forecasts for leaderboard, 1–3-month questions). Agree on voice.
 - [ ] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
 - [ ] (from → to) what is needed
 
