@@ -43,4 +43,4 @@ python3 analysis/synthetic.py --out analysis/synthetic
   - `experts.json`: public profiles + archetype (no names)
   - `vault.json`: synthetic names/emails, invite tokens, device secret for the anonymous expert, expected author token
   - `responses_R1043.json`: Lane B's `POST /rounds/{id}/responses` bodies; `_author_token` is what the API should derive (not sent)
-- Anonymous tier: `author_token = "anon_" + sha256(device_secret)[:24]`.
+- IDs, invites (`inv_demo_01`…) and tokens match Lane B's `api/seed.py` / `api/trust.py`: `psd_{expert_id}`, anonymous `anon_` + sha256("groundtruth-anon-v1:" + secret)[:32].

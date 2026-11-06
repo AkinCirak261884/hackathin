@@ -50,25 +50,25 @@ ARCHETYPES = {
 }
 
 EXPERTS = [
-    # expert_id, pseudonym, profile, region, tier, lang, archetype
-    ("EXP-01", "Kestrel", "Local NGO director", "East (Abéché)", "known", "fr", "well_calibrated"),
-    ("EXP-02", "Linden", "Food security analyst", "N'Djamena", "pseudonymous", "fr", "anchored"),
-    ("EXP-03", "Osprey", "OSINT conflict analyst, active on X/Telegram", "Abroad", "pseudonymous", "en", "alarmist"),
-    ("EXP-04", "Birch", "Anticipatory-action officer", "East (Adré)", "known", "fr", "sharp"),
-    ("EXP-05", "Heron", "Academic researcher", "Abroad", "pseudonymous", "en", "complacent"),
-    ("EXP-06", "Sparrow", "Community responder near the border", "East (Adré)", "anonymous", "fr", "sharp"),
-    ("EXP-07", "Alder", "Shelter/CCCM cluster staff", "East (Ouaddaï)", "known", "fr", "noisy"),
-    ("EXP-08", "Wren", "Donor-agency methodologist", "Abroad", "pseudonymous", "en", "hedger"),
+    # expert_id, pseudonym, profile, region, tier, lang, archetype (ids/tiers/langs match api/seed.py)
+    ("EXP-TCD-01", "Kestrel", "Local NGO director", "East (Abéché)", "known", "fr", "well_calibrated"),
+    ("EXP-TCD-02", "Linden", "Food security analyst", "N'Djamena", "pseudonymous", "en", "anchored"),
+    ("EXP-TCD-03", "Osprey", "OSINT conflict analyst, active on X/Telegram", "Abroad", "pseudonymous", "en", "alarmist"),
+    ("EXP-TCD-04", "Birch", "Anticipatory-action officer", "East (Adré)", "known", "fr", "sharp"),
+    ("EXP-TCD-05", "Heron", "Academic researcher", "Abroad", "pseudonymous", "en", "complacent"),
+    ("EXP-TCD-06", "Sparrow", "Community responder near the border", "East (Adré)", "anonymous", "fr", "sharp"),
+    ("EXP-TCD-07", "Alder", "Shelter/CCCM cluster staff", "East (Ouaddaï)", "known", "fr", "noisy"),
+    ("EXP-TCD-08", "Wren", "Donor-agency methodologist", "Abroad", "pseudonymous", "en", "hedger"),
 ]
 
 # Synthetic "what's missing" answers, written to give Lane B's AI synthesis clusters to find.
 MISSING = {
-    "EXP-01": "Rainy season (June to September) will cut road access to the eastern camps; the impact rating does not reflect this.",
-    "EXP-03": "Drone use by armed actors near the border is growing and not mentioned as its own trigger.",
-    "EXP-04": "Seasonal flooding around Adré will limit humanitarian access just as new arrivals peak.",
-    "EXP-05": "Diplomatic mediation between Chad and Sudan could lower the probability; the analysis leaves this out.",
-    "EXP-06": "Sites near Adré are already overcrowded, new arrivals are sleeping outside. Congestion is a driver.",
-    "EXP-07": "Road access in the wet season and overcrowded transit sites, both missing.",
+    "EXP-TCD-01": "Rainy season (June to September) will cut road access to the eastern camps; the impact rating does not reflect this.",
+    "EXP-TCD-03": "Drone use by armed actors near the border is growing and not mentioned as its own trigger.",
+    "EXP-TCD-04": "Seasonal flooding around Adré will limit humanitarian access just as new arrivals peak.",
+    "EXP-TCD-05": "Diplomatic mediation between Chad and Sudan could lower the probability; the analysis leaves this out.",
+    "EXP-TCD-06": "Sites near Adré are already overcrowded, new arrivals are sleeping outside. Congestion is a driver.",
+    "EXP-TCD-07": "Road access in the wet season and overcrowded transit sites, both missing.",
 }
 
 
@@ -98,10 +98,11 @@ def forecast(archetype, acaps_p, truth_p, rng):
 
 
 def author_token(expert, secret):
+    # Same derivation as Lane B's api/trust.py.
     expert_id, tier = expert[0], expert[4]
     if tier == "anonymous":
-        return "anon_" + hashlib.sha256(secret.encode()).hexdigest()[:24]
-    return f"tok_{expert_id.lower().replace('-', '_')}"
+        return "anon_" + hashlib.sha256(("groundtruth-anon-v1:" + secret).encode()).hexdigest()[:32]
+    return "psd_" + expert_id
 
 
 def simulate(con, seed=SEED):
@@ -123,8 +124,8 @@ def simulate(con, seed=SEED):
         vault.append({
             "expert_id": expert_id,
             "name": f"Synthetic Expert {i:02d}",
-            "email": f"expert{i:02d}@example.org",
-            "invite_token": f"inv_{PANEL.lower()}_{i:02d}",
+            "email": f"synthetic.expert{i:02d}@example.org",
+            "invite_token": f"inv_demo_{i:02d}",
             "device_secret": secret if tier == "anonymous" else None,
             "author_token": author_token(expert, secret),
         })

@@ -1,6 +1,6 @@
 [
   {
-    "expert_id": "EXP-01",
+    "expert_id": "EXP-TCD-01",
     "pseudonym": "Kestrel",
     "profile": "Local NGO director",
     "region": "East (Abéché)",
@@ -10,17 +10,17 @@
     "archetype": "well_calibrated"
   },
   {
-    "expert_id": "EXP-02",
+    "expert_id": "EXP-TCD-02",
     "pseudonym": "Linden",
     "profile": "Food security analyst",
     "region": "N'Djamena",
     "country_panel": "TCD",
-    "lang": "fr",
+    "lang": "en",
     "default_tier": "pseudonymous",
     "archetype": "anchored"
   },
   {
-    "expert_id": "EXP-03",
+    "expert_id": "EXP-TCD-03",
     "pseudonym": "Osprey",
     "profile": "OSINT conflict analyst, active on X/Telegram",
     "region": "Abroad",
@@ -30,7 +30,7 @@
     "archetype": "alarmist"
   },
   {
-    "expert_id": "EXP-04",
+    "expert_id": "EXP-TCD-04",
     "pseudonym": "Birch",
     "profile": "Anticipatory-action officer",
     "region": "East (Adré)",
@@ -40,7 +40,7 @@
     "archetype": "sharp"
   },
   {
-    "expert_id": "EXP-05",
+    "expert_id": "EXP-TCD-05",
     "pseudonym": "Heron",
     "profile": "Academic researcher",
     "region": "Abroad",
@@ -50,7 +50,7 @@
     "archetype": "complacent"
   },
   {
-    "expert_id": "EXP-06",
+    "expert_id": "EXP-TCD-06",
     "pseudonym": "Sparrow",
     "profile": "Community responder near the border",
     "region": "East (Adré)",
@@ -60,7 +60,7 @@
     "archetype": "sharp"
   },
   {
-    "expert_id": "EXP-07",
+    "expert_id": "EXP-TCD-07",
     "pseudonym": "Alder",
     "profile": "Shelter/CCCM cluster staff",
     "region": "East (Ouaddaï)",
@@ -70,7 +70,7 @@
     "archetype": "noisy"
   },
   {
-    "expert_id": "EXP-08",
+    "expert_id": "EXP-TCD-08",
     "pseudonym": "Wren",
     "profile": "Donor-agency methodologist",
     "region": "Abroad",

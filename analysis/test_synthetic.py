@@ -65,7 +65,7 @@ class SyntheticTest(unittest.TestCase):
     def test_anonymous_token_is_unlinkable(self):
         anon = next(v for v in self.out["vault"] if v["device_secret"])
         self.assertTrue(anon["author_token"].startswith("anon_"))
-        self.assertNotIn(anon["expert_id"].lower().replace("-", "_"), anon["author_token"])
+        self.assertNotIn(anon["expert_id"], anon["author_token"])
         tokens = {t for (t,) in self.con.execute("SELECT DISTINCT author_token FROM contributions")}
         self.assertIn(anon["author_token"], tokens)
         self.assertNotIn(anon["device_secret"], tokens)
