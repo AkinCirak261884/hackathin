@@ -1,4 +1,4 @@
-{"author_token": "tok_demo_pseud_07", "n_resolved": 3, "mean_brier": 0.14,
+{"author_token": "psd_EXP-TCD-02", "n_resolved": 3, "mean_brier": 0.14,
  "acaps_baseline_brier": 0.21, "rank_percentile": 0.8,
  "history": [
   {"question_id": "Q-R0993-T0001", "your_prob": 0.7, "outcome": 1, "brier": 0.09,

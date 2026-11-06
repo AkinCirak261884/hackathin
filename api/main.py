@@ -1,4 +1,5 @@
-"""Ground Truth core API (Lane B). Stub stage: every endpoint serves mock JSON
+"""Ground Truth core API (Lane B). Responses are invite-checked and
+get a tier-based author token (api/trust.py); other data is still mock JSON
 from api/mocks/ so Lane C can build against the real URLs today.
 
 Run:  uvicorn api.main:app --reload     (from the repo root)
@@ -8,10 +9,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from api import db, seed, trust
 from api.db import init_db
 
 MOCKS = Path(__file__).parent / "mocks"
@@ -24,11 +27,19 @@ def mock(name: str) -> dict:
 @asynccontextmanager
 async def lifespan(_app):
     init_db()
+    with db.main_db() as m:
+        if m.execute("SELECT COUNT(*) FROM experts").fetchone()[0] == 0:
+            seed.seed()  # demo invites inv_demo_01..08 work out of the box
     yield
 
 
 app = FastAPI(title="Ground Truth API", version="0.1.0-stub", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+@app.exception_handler(trust.TrustError)
+def _trust_error(_req: Request, exc: trust.TrustError):
+    return JSONResponse(status_code=exc.status, content={"detail": exc.detail})
 
 
 # ---------- request models ----------
@@ -51,6 +62,11 @@ class ResponseIn(BaseModel):
 
 class PublishIn(BaseModel):
     approved_text: str
+
+
+class InviteIn(BaseModel):
+    expert_id: str
+    country_panel: str = "TCD"
 
 
 # ---------- expert / public ----------
@@ -94,7 +110,9 @@ def get_round(round_id: str):
 @app.post("/rounds/{round_id}/responses", status_code=201)
 def post_response(round_id: str, body: ResponseIn):
     _round_or_404(round_id)
+    token = trust.authenticate(body.invite_token, body.tier, body.device_secret)
     out = mock("response_created")
+    out["author_token"] = token
     out["version"] = body.version
     out["stored"] = len(body.answers)
     out["can_revise"] = body.version == 1
@@ -122,7 +140,23 @@ def public_summaries():
 @app.get("/moderator/rounds/{round_id}")
 def moderator_round(round_id: str):
     _round_or_404(round_id)
-    return mock("moderator_round")
+    out = mock("moderator_round")
+    for c in out["contributors"]:
+        c["identity"] = trust.resolve_identity(c["author_token"], c["tier"])
+    return out
+
+
+@app.post("/moderator/invites", status_code=201)
+def create_invite(body: InviteIn):
+    return {"invite_token": trust.create_invite(body.expert_id, body.country_panel),
+            "expert_id": body.expert_id, "country_panel": body.country_panel}
+
+
+@app.post("/moderator/invites/{invite_token}/revoke")
+def revoke_invite(invite_token: str):
+    if not trust.revoke_invite(invite_token):
+        raise HTTPException(404, "invite not found")
+    return {"invite_token": invite_token, "revoked": True}
 
 
 @app.post("/moderator/rounds/{round_id}/advance")

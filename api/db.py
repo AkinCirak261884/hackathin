@@ -4,12 +4,15 @@ Trust design: identities are kept in a *separate database file* (vault.db),
 so the contributions DB physically contains no names or emails. Only the
 moderator layer ever opens the vault.
 """
+import os
 import sqlite3
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent / "var"
-MAIN_DB = DATA_DIR / "groundtruth.db"
-VAULT_DB = DATA_DIR / "vault.db"
+# Lane A can build content tables first:  python analysis/ingest.py --db api/var/groundtruth.db
+# (ingest recreates the file, so only run it before real responses exist).
+MAIN_DB = Path(os.environ.get("GT_DB", DATA_DIR / "groundtruth.db"))
+VAULT_DB = Path(os.environ.get("GT_VAULT_DB", DATA_DIR / "vault.db"))
 
 MAIN_SCHEMA = """
 CREATE TABLE IF NOT EXISTS risks (
@@ -83,10 +86,19 @@ def connect(path: Path) -> sqlite3.Connection:
     return conn
 
 
-def init_db(main_path: Path = MAIN_DB, vault_path: Path = VAULT_DB) -> None:
-    with connect(main_path) as c:
+def main_db() -> sqlite3.Connection:
+    return connect(MAIN_DB)
+
+
+def vault_db() -> sqlite3.Connection:
+    """Only trust.py and the moderator layer may call this."""
+    return connect(VAULT_DB)
+
+
+def init_db(main_path: Path | None = None, vault_path: Path | None = None) -> None:
+    with connect(main_path or MAIN_DB) as c:
         c.executescript(MAIN_SCHEMA)
-    with connect(vault_path) as c:
+    with connect(vault_path or VAULT_DB) as c:
         c.executescript(VAULT_SCHEMA)
 
 

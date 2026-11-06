@@ -10,15 +10,15 @@ from api.main import app
 client = TestClient(app)
 RID = "RND-R1043-1"
 
-ANSWER = {"invite_token": "inv_demo", "tier": "anonymous", "device_secret": "s3cret",
+ANSWER = {"invite_token": "inv_demo_01", "tier": "anonymous", "device_secret": "device-secret-0123456789",
           "answers": [{"question_id": "Q-R1043-T0618", "prob": 0.6}]}
 
 EXPERT_AND_PUBLIC = [
     ("get", "/rounds/open?panel=TCD", None),
     ("get", f"/rounds/{RID}", None),
     ("post", f"/rounds/{RID}/responses", ANSWER),
-    ("get", f"/rounds/{RID}/aggregate?token=tok_demo_pseud_07", None),
-    ("get", "/me/track-record?token=tok_demo_pseud_07", None),
+    ("get", f"/rounds/{RID}/aggregate?token=psd_EXP-TCD-02", None),
+    ("get", "/me/track-record?token=psd_EXP-TCD-02", None),
     ("get", "/public/summaries", None),
 ]
 MODERATOR = [
