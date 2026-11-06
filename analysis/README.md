@@ -77,8 +77,8 @@ ACAPS's 2019 risk methodology ([technical brief, p. 11](https://www.acaps.org/fi
 |---|---|
 | Anonymous expert / Birch (sharp) ★ | 0.143 / 0.149 |
 | **ACAPS rating (real outcomes)** | **0.213** |
-| Calibrated ACAPS, leave-one-out (badge baseline) | 0.220 |
 | Kestrel (calibrated, no info beyond ACAPS) | 0.217 |
+| Calibrated ACAPS, leave-one-out (badge baseline) | 0.220 |
 | Osprey (alarmist) | 0.220 |
 | Alder (noisy, often misreads signals) | 0.229 |
 | Linden (anchored on ACAPS) | 0.235 |
