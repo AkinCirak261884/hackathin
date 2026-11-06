@@ -44,3 +44,30 @@ python3 analysis/synthetic.py --out analysis/synthetic
   - `vault.json`: synthetic names/emails, invite tokens, device secret for the anonymous expert, expected author token
   - `responses_R1043.json`: Lane B's `POST /rounds/{id}/responses` bodies; `_author_token` is what the API should derive (not sent)
 - IDs, invites (`inv_demo_01`…) and tokens match Lane B's `api/seed.py` / `api/trust.py`: `psd_{expert_id}`, anonymous `anon_` + sha256("groundtruth-anon-v1:" + secret)[:32].
+
+## scoring.py + backtest.py
+
+```bash
+python3 analysis/backtest.py   # rebuilds the DB, writes analysis/charts/calibration.svg + backtest_summary.json
+```
+
+- `scoring.py`: Brier score `(p − outcome)²`, using each author's **final** answer (v2 if revised). `score_db()` fills the `scores` table; `calibration()` bins forecasts into 5 equal bins.
+- `backtest.py`: for the 99 resolved risks that have a probability rating (104 resolved, 5 unrated), adds a closed round `RND-{risk}-BT` with one question `Q-{risk}-MAT` ("Will this risk materialise?", real outcome) and simulated answers from the 8 synthetic experts (~75% participation).
+- **It rebuilds the DB from scratch.** Don't point it at `api/var/groundtruth.db` once real responses exist.
+
+### Results (seeded, reproducible)
+
+| Forecaster | Brier ↓ |
+|---|---|
+| Sparrow / Birch (sharp) | 0.144 / 0.149 |
+| Kestrel (well calibrated) | 0.150 |
+| Alder (noisy) | 0.181 |
+| Osprey (alarmist) | 0.199 |
+| Linden (anchored on ACAPS) | 0.212 |
+| **ACAPS rating (real outcomes)** | **0.213** |
+| Wren (hedger) / Heron (complacent) | 0.231 / 0.234 |
+| Always the 61% base rate | 0.239 |
+
+**Real finding:** ACAPS's own ratings beat the base rate, and are well calibrated in the middle: risks rated Medium (50%) materialised 48% of the time, High (70%) 83%, Very High (90%) 88%. Low-rated risks materialised more often than rated (30% → 43%, n=14).
+
+**Not a finding:** the experts' scores. Their "knowledge" is simulated, so the table only shows the pipeline can tell a sharp forecaster from a biased one. Say this on the slide.
