@@ -55,6 +55,74 @@
     }
   },
   "climatology_brier": 0.2388,
+  "acaps_by_label": [
+    {
+      "label": "Very Low",
+      "n": 3,
+      "materialised": 1,
+      "rate": 0.333,
+      "wilson90": [
+        0.078,
+        0.746
+      ],
+      "midpoint": 0.05,
+      "calibrated": 0.156
+    },
+    {
+      "label": "Low",
+      "n": 14,
+      "materialised": 6,
+      "rate": 0.429,
+      "wilson90": [
+        0.241,
+        0.64
+      ],
+      "midpoint": 0.22,
+      "calibrated": 0.374
+    },
+    {
+      "label": "Medium",
+      "n": 44,
+      "materialised": 21,
+      "rate": 0.477,
+      "wilson90": [
+        0.358,
+        0.599
+      ],
+      "midpoint": 0.5,
+      "calibrated": 0.48
+    },
+    {
+      "label": "High",
+      "n": 30,
+      "materialised": 25,
+      "rate": 0.833,
+      "wilson90": [
+        0.695,
+        0.916
+      ],
+      "midpoint": 0.78,
+      "calibrated": 0.826
+    },
+    {
+      "label": "Very High",
+      "n": 8,
+      "materialised": 7,
+      "rate": 0.875,
+      "wilson90": [
+        0.589,
+        0.972
+      ],
+      "midpoint": 0.95,
+      "calibrated": 0.904
+    }
+  ],
+  "calibrated_acaps": {
+    "prior_pseudo_risks": 5,
+    "brier_leave_one_out": 0.2197,
+    "brier_in_sample_leaky": 0.2046,
+    "note": "Leave-one-out is the honest score and the one the badge uses; in-sample lets each risk set its own baseline."
+  },
   "experts": [
     {
       "display_name": "Anonymous expert",

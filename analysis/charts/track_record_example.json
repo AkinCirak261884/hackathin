@@ -3,10 +3,27 @@
     "author_token": "psd_EXP-TCD-01",
     "n_resolved": 74,
     "mean_brier": 0.217,
+    "calibrated_acaps_brier_same_questions": 0.2231,
+    "n_beat_calibrated_acaps": 39,
+    "gain_vs_calibrated_acaps": 0.0061,
+    "gain_vs_calibrated_acaps_lower90": -0.0099,
     "acaps_brier_same_questions": 0.2161,
     "n_beat_acaps": 37,
+    "gain_vs_acaps": -0.0009,
+    "gain_vs_acaps_lower90": -0.013,
     "super_estimator": false,
+    "badge_progress": {
+      "baseline": "raw_acaps",
+      "gain": -0.0009,
+      "gain_ci90": [
+        -0.013,
+        0.0112
+      ],
+      "more_forecasts_needed": null
+    },
+    "calibrated_acaps_baseline_brier": 0.2231,
     "acaps_baseline_brier": 0.2161,
+    "badge_baseline": "raw_and_calibrated_acaps",
     "min_resolved": 5,
     "forecasts_until_counted": 0,
     "rank": 3,
@@ -24,7 +41,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0018-MAT",
@@ -36,7 +56,10 @@
         "brier": 0.0025,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0030-MAT",
@@ -48,7 +71,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0033-MAT",
@@ -60,7 +86,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0073-MAT",
@@ -72,7 +101,10 @@
         "brier": 0.5625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0078-MAT",
@@ -84,7 +116,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0089-MAT",
@@ -96,7 +131,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0090-MAT",
@@ -108,7 +146,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0094-MAT",
@@ -120,7 +161,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0105-MAT",
@@ -132,7 +176,10 @@
         "brier": 0.5625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0108-MAT",
@@ -144,7 +191,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0116-MAT",
@@ -156,7 +206,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0120-MAT",
@@ -168,7 +221,10 @@
         "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0134-MAT",
@@ -180,7 +236,10 @@
         "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0190-MAT",
@@ -192,7 +251,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0200-MAT",
@@ -204,7 +266,10 @@
         "brier": 0.64,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0242-MAT",
@@ -216,7 +281,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0274-MAT",
@@ -228,7 +296,10 @@
         "brier": 0.4225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0296-MAT",
@@ -240,7 +311,10 @@
         "brier": 0.5625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0301-MAT",
@@ -252,7 +326,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0332-MAT",
@@ -264,7 +341,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0349-MAT",
@@ -276,7 +356,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0357-MAT",
@@ -288,7 +371,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0365-MAT",
@@ -300,7 +386,10 @@
         "brier": 0.5625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0369-MAT",
@@ -312,7 +401,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0371-MAT",
@@ -324,7 +416,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0387-MAT",
@@ -336,7 +431,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0462-MAT",
@@ -348,7 +446,10 @@
         "brier": 0.64,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0463-MAT",
@@ -360,7 +461,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0492-MAT",
@@ -372,7 +476,10 @@
         "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0510-MAT",
@@ -384,7 +491,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0522-MAT",
@@ -396,7 +506,10 @@
         "brier": 0.09,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0525-MAT",
@@ -408,7 +521,10 @@
         "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0546-MAT",
@@ -420,7 +536,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0549-MAT",
@@ -432,7 +551,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0552-MAT",
@@ -444,7 +566,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0553-MAT",
@@ -456,7 +581,10 @@
         "brier": 0.09,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0952-MAT",
@@ -468,7 +596,10 @@
         "brier": 0.01,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0954-MAT",
@@ -480,7 +611,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0957-MAT",
@@ -492,7 +626,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0960-MAT",
@@ -504,7 +641,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0970-MAT",
@@ -516,7 +656,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0977-MAT",
@@ -528,7 +671,10 @@
         "brier": 0.01,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0982-MAT",
@@ -540,7 +686,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0985-MAT",
@@ -552,7 +701,10 @@
         "brier": 0.64,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0990-MAT",
@@ -564,7 +716,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0993-MAT",
@@ -576,7 +731,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0995-MAT",
@@ -588,7 +746,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0996-MAT",
@@ -600,7 +761,10 @@
         "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0999-MAT",
@@ -612,7 +776,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1001-MAT",
@@ -624,7 +791,10 @@
         "brier": 0.49,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1002-MAT",
@@ -636,7 +806,10 @@
         "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1003-MAT",
@@ -648,7 +821,10 @@
         "brier": 0.9025,
         "acaps_prob": 0.05,
         "acaps_brier": 0.9025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.0357,
+        "calibrated_acaps_brier": 0.9298,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1007-MAT",
@@ -660,7 +836,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1008-MAT",
@@ -672,7 +851,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1011-MAT",
@@ -684,7 +866,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1012-MAT",
@@ -696,7 +881,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1015-MAT",
@@ -708,7 +896,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1016-MAT",
@@ -720,7 +911,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1017-MAT",
@@ -732,7 +926,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1018-MAT",
@@ -744,7 +941,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1019-MAT",
@@ -756,7 +956,10 @@
         "brier": 0.0025,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1020-MAT",
@@ -768,7 +971,10 @@
         "brier": 0.7225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1023-MAT",
@@ -780,7 +986,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1025-MAT",
@@ -792,7 +1001,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1026-MAT",
@@ -804,7 +1016,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1027-MAT",
@@ -816,7 +1031,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1028-MAT",
@@ -828,7 +1046,10 @@
         "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1029-MAT",
@@ -840,7 +1061,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1030-MAT",
@@ -852,7 +1076,10 @@
         "brier": 0.01,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1033-MAT",
@@ -864,7 +1091,10 @@
         "brier": 0.04,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1039-MAT",
@@ -876,7 +1106,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1041-MAT",
@@ -888,7 +1121,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1056-MAT",
@@ -900,7 +1136,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       }
     ],
     "pending": [
@@ -940,10 +1179,27 @@
     "author_token": "anon_c4ebf7c61aa31fc2807eb4e48fa7e2b8",
     "n_resolved": 72,
     "mean_brier": 0.1434,
+    "calibrated_acaps_brier_same_questions": 0.2325,
+    "n_beat_calibrated_acaps": 48,
+    "gain_vs_calibrated_acaps": 0.089,
+    "gain_vs_calibrated_acaps_lower90": 0.0467,
     "acaps_brier_same_questions": 0.2245,
     "n_beat_acaps": 44,
+    "gain_vs_acaps": 0.081,
+    "gain_vs_acaps_lower90": 0.0382,
     "super_estimator": true,
+    "badge_progress": {
+      "baseline": "raw_acaps",
+      "gain": 0.081,
+      "gain_ci90": [
+        0.0382,
+        0.1238
+      ],
+      "more_forecasts_needed": 0
+    },
+    "calibrated_acaps_baseline_brier": 0.2325,
     "acaps_baseline_brier": 0.2245,
+    "badge_baseline": "raw_and_calibrated_acaps",
     "min_resolved": 5,
     "forecasts_until_counted": 0,
     "rank": 1,
@@ -961,7 +1217,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0031-MAT",
@@ -973,7 +1232,10 @@
         "brier": 0.36,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0078-MAT",
@@ -985,7 +1247,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0089-MAT",
@@ -997,7 +1262,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0090-MAT",
@@ -1009,7 +1277,10 @@
         "brier": 0.09,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0105-MAT",
@@ -1021,7 +1292,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0106-MAT",
@@ -1033,7 +1307,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0107-MAT",
@@ -1045,7 +1322,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.05,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.1786,
+        "calibrated_acaps_brier": 0.0319,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0108-MAT",
@@ -1057,7 +1337,10 @@
         "brier": 0.64,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0116-MAT",
@@ -1069,7 +1352,10 @@
         "brier": 0.4225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0120-MAT",
@@ -1081,7 +1367,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0134-MAT",
@@ -1093,7 +1382,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0190-MAT",
@@ -1105,7 +1397,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0200-MAT",
@@ -1117,7 +1412,10 @@
         "brier": 0.16,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0248-MAT",
@@ -1129,7 +1427,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0254-MAT",
@@ -1141,7 +1442,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0274-MAT",
@@ -1153,7 +1457,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0296-MAT",
@@ -1165,7 +1472,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0303-MAT",
@@ -1177,7 +1487,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0332-MAT",
@@ -1189,7 +1502,10 @@
         "brier": 0.04,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0345-MAT",
@@ -1201,7 +1517,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0349-MAT",
@@ -1213,7 +1532,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0357-MAT",
@@ -1225,7 +1547,10 @@
         "brier": 0.25,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0365-MAT",
@@ -1237,7 +1562,10 @@
         "brier": 0.01,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0369-MAT",
@@ -1249,7 +1577,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0371-MAT",
@@ -1261,7 +1592,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0387-MAT",
@@ -1273,7 +1607,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0462-MAT",
@@ -1285,7 +1622,10 @@
         "brier": 0.36,
         "acaps_prob": 0.22,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3389,
+        "calibrated_acaps_brier": 0.4371,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0463-MAT",
@@ -1297,7 +1637,10 @@
         "brier": 0.0025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0492-MAT",
@@ -1309,7 +1652,10 @@
         "brier": 0.01,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0510-MAT",
@@ -1321,7 +1667,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0512-MAT",
@@ -1333,7 +1682,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0522-MAT",
@@ -1345,7 +1697,10 @@
         "brier": 0.0025,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0525-MAT",
@@ -1357,7 +1712,10 @@
         "brier": 0.04,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0529-MAT",
@@ -1369,7 +1727,10 @@
         "brier": 0.5625,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0542-MAT",
@@ -1381,7 +1742,10 @@
         "brier": 0.4225,
         "acaps_prob": 0.95,
         "acaps_brier": 0.9025,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.9792,
+        "calibrated_acaps_brier": 0.9588,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0546-MAT",
@@ -1393,7 +1757,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0549-MAT",
@@ -1405,7 +1772,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0552-MAT",
@@ -1417,7 +1787,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0952-MAT",
@@ -1429,7 +1802,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0954-MAT",
@@ -1441,7 +1817,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0960-MAT",
@@ -1453,7 +1832,10 @@
         "brier": 0.01,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0961-MAT",
@@ -1465,7 +1847,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0970-MAT",
@@ -1477,7 +1862,10 @@
         "brier": 0.01,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0976-MAT",
@@ -1489,7 +1877,10 @@
         "brier": 0.09,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0977-MAT",
@@ -1501,7 +1892,10 @@
         "brier": 0.04,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0978-MAT",
@@ -1513,7 +1907,10 @@
         "brier": 0.0025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0982-MAT",
@@ -1525,7 +1922,10 @@
         "brier": 0.16,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0985-MAT",
@@ -1537,7 +1937,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0990-MAT",
@@ -1549,7 +1952,10 @@
         "brier": 0.09,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R0993-MAT",
@@ -1561,7 +1967,10 @@
         "brier": 0.4225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0998-MAT",
@@ -1573,7 +1982,10 @@
         "brier": 0.09,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R0999-MAT",
@@ -1585,7 +1997,10 @@
         "brier": 0.2025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1002-MAT",
@@ -1597,7 +2012,10 @@
         "brier": 0.04,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1007-MAT",
@@ -1609,7 +2027,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1008-MAT",
@@ -1621,7 +2042,10 @@
         "brier": 0.16,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1012-MAT",
@@ -1633,7 +2057,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1013-MAT",
@@ -1645,7 +2072,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1015-MAT",
@@ -1657,7 +2087,10 @@
         "brier": 0.09,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1017-MAT",
@@ -1669,7 +2102,10 @@
         "brier": 0.01,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1018-MAT",
@@ -1681,7 +2117,10 @@
         "brier": 0.0225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1019-MAT",
@@ -1693,7 +2132,10 @@
         "brier": 0.01,
         "acaps_prob": 0.95,
         "acaps_brier": 0.0025,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8958,
+        "calibrated_acaps_brier": 0.0109,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1020-MAT",
@@ -1705,7 +2147,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.78,
         "acaps_brier": 0.6084,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.85,
+        "calibrated_acaps_brier": 0.7225,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1021-MAT",
@@ -1717,7 +2162,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1025-MAT",
@@ -1729,7 +2177,10 @@
         "brier": 0.3025,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1027-MAT",
@@ -1741,7 +2192,10 @@
         "brier": 0.36,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1028-MAT",
@@ -1753,7 +2207,10 @@
         "brier": 0.4225,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1029-MAT",
@@ -1765,7 +2222,10 @@
         "brier": 0.0625,
         "acaps_prob": 0.22,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.3944,
+        "calibrated_acaps_brier": 0.1556,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1030-MAT",
@@ -1777,7 +2237,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1039-MAT",
@@ -1789,7 +2252,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.78,
         "acaps_brier": 0.0484,
-        "beat_acaps": false
+        "beat_acaps": false,
+        "calibrated_acaps_prob": 0.8206,
+        "calibrated_acaps_brier": 0.0322,
+        "beat_calibrated_acaps": false
       },
       {
         "question_id": "Q-R1041-MAT",
@@ -1801,7 +2267,10 @@
         "brier": 0.1225,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4896,
+        "calibrated_acaps_brier": 0.2397,
+        "beat_calibrated_acaps": true
       },
       {
         "question_id": "Q-R1056-MAT",
@@ -1813,7 +2282,10 @@
         "brier": 0.09,
         "acaps_prob": 0.5,
         "acaps_brier": 0.25,
-        "beat_acaps": true
+        "beat_acaps": true,
+        "calibrated_acaps_prob": 0.4688,
+        "calibrated_acaps_brier": 0.2822,
+        "beat_calibrated_acaps": true
       }
     ],
     "pending": [

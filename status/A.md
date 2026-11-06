@@ -9,7 +9,7 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 - [x] **Synthetic experts.** Generate 8 experts with different biases (well calibrated, alarmist, anchored on ACAPS, noisy). *Done when:* experts and their simulated answers are in the DB and in `fixtures/`.
 - [x] **Scoring + backtest.** Brier scoring; backtest synthetic experts vs. the ACAPS baseline on resolved risks. *Done when:* tests pass and a calibration chart is saved.
 - [x] **Leaderboard.** Super-estimator ranking by mean Brier, **only experts with ≥ N resolved forecasts qualify** (N = 10 for the backtest), shown against ACAPS's 0.213. *Done when:* a table/chart is generated from the DB.
-- [ ] **Short-horizon questions.** Question generator also emits 1–3-month trigger questions (e.g. "…before 31 January 2027?") so a track record builds during the ~2-month December pilot. *Done when:* R1043 has at least one question closing within the pilot.
+- [x] **Short-horizon questions.** Question generator also emits 1–3-month trigger questions (e.g. "…before 31 January 2027?") so a track record builds during the ~2-month December pilot. *Done when:* R1043 has at least one question closing within the pilot.
 - [ ] *(optional)* **Ground synthetic experts in real forecasters.** Tune archetype noise/bias to the Good Judgment Project data (Harvard Dataverse). *Done when:* README states the source and the fitted parameters.
 - [ ] **Moderator dashboard (Streamlit).** Spread vs. ACAPS rating, disagreement, revision shifts, triggers observed. *Done when:* `streamlit run moderator/app.py` shows R1043.
 
@@ -59,11 +59,11 @@ Folders: `analysis/`, `moderator/`. Don't edit `contracts/`, `api/`, `web/`.
 
 ## Latest update
 
-### Lane A — update #7 — 19:18
-Done: badge made hedging-proof. Per-label n / materialised / 90% Wilson in README + `backtest_summary.json` → `acaps_by_label` (only Low is clearly mis-rated: 43% [24–64%] vs 22%). New baseline **calibrated ACAPS** = label's historical rate, leave-one-risk-out, shrunk to midpoint (5 pseudo-risks): Brier 0.220 out-of-sample (worse than raw 0.213). A plain "lower mean" still lets a hedger win (+0.002/question), so badge = ≥5 resolved AND paired 90% lower bound of (calibrated ACAPS − you) > 0. Result: 2/8 badges (sharp only); test-hedger beats raw ACAPS on average but gets no badge. 40 unittests pass.
-Pushed: lane-a @ 4d1c1e8 (not yet merged into main)
-How to see it: `python3 analysis/backtest.py` → `analysis/charts/leaderboard.json`, `track_record_example.json`, `backtest_summary.json`
-Requests to other lanes: →C: badge baseline field = **`calibrated_acaps_baseline_brier`** (per expert) and `calibrated_acaps_prob` / `calibrated_acaps_brier` / `beat_calibrated_acaps` (per question); also `gain_vs_calibrated_acaps_lower90` (badge needs > 0). Raw `acaps_baseline_brier`, `acaps_prob`, `acaps_brier`, `beat_acaps` unchanged, now secondary. Leaderboard entries add `calibrated_acaps_brier_same_questions`, `gain_vs_calibrated_acaps_lower90` · →B: nothing to change, same functions
-Contract change proposed: badge rule as above (replaces "beat ACAPS on the same questions")
-Next: short-horizon (1–3 month) questions for the pilot (separate session)
+### Lane A — update #8 — 19:25
+Done: (1) badge now needs a clear gain (paired 90% lower bound > 0) vs BOTH raw and calibrated ACAPS; (2) `badge_progress` in the track record; (3) draft `analysis/questions/short_horizon.json`: 9 questions (R1043 ×5, R1066/Lac ×4) from the triggers, opening 1 Dec 2026, closing 31 Jan–1 Mar 2027, each with `resolution_criterion` + `resolution_source.type`; valid against Lane C's `common.schema.json` question. Still 2/8 badges. 46 unittests pass.
+Pushed: lane-a + main @ 50ff2ea
+How to see it: `python3 analysis/backtest.py` → `analysis/charts/track_record_example.json` (`badge_progress`); questions in `analysis/questions/short_horizon.json`
+Requests to other lanes: →C: new track-record object **`badge_progress`** = `{baseline: "raw_acaps"|"calibrated_acaps", gain, gain_ci90: [lo, hi], more_forecasts_needed}` (`0` = earned, `null` = gain ≤ 0); also `gain_vs_acaps`, `gain_vs_acaps_lower90` (per expert and in leaderboard entries) · →B: load `short_horizon.json` questions into a pilot round when ready (extra fields `opens_at`, `horizon_months`, `resolution_criterion`, `resolution_source`, `threshold_status`); thresholds + French need Alex / native-speaker check
+Contract change proposed: badge = ≥5 resolved AND lower90 gain > 0 vs raw AND calibrated ACAPS; question extra fields above
+Next: (open) moderator dashboard (Streamlit) or GJP-calibrated synthetic experts
 Blockers: none
