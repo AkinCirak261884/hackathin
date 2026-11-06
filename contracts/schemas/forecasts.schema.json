@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "forecasts.schema.json",
+  "title": "Forecasts tab: GET /forecasts/open?panel=TCD (array of openForecast) and POST /forecasts/{question_id}",
+  "$defs": {
+    "group": {
+      "type": ["object", "null"],
+      "description": "null until the caller has a forecast on this question AND n >= 3",
+      "properties": { "n": { "type": "integer", "minimum": 3 }, "median": { "type": "number" }, "p25": { "type": "number" }, "p75": { "type": "number" } }
+    },
+    "openForecast": {
+      "type": "object",
+      "required": ["question_id", "risk_id", "title", "title_fr", "text", "text_fr", "closes_at", "horizon", "your_prob", "group"],
+      "properties": {
+        "question_id": { "type": "string" }, "risk_id": { "type": "string" }, "trigger_id": { "type": ["string", "null"] },
+        "title": { "type": "string" }, "title_fr": { "type": "string" }, "text": { "type": "string" }, "text_fr": { "type": "string" },
+        "closes_at": { "type": "string", "format": "date-time" },
+        "horizon": { "enum": ["short", "6m"], "description": "short = resolves within 1-3 months (pilot-sized)" },
+        "synthetic": { "type": "boolean" },
+        "your_prob": { "type": ["number", "null"] },
+        "your_updated_at": { "type": ["string", "null"] },
+        "n_updates": { "type": "integer" },
+        "group": { "$ref": "#/$defs/group" }
+      }
+    },
+    "updateRequest": {
+      "type": "object",
+      "required": ["invite_token", "tier", "prob"],
+      "properties": {
+        "invite_token": { "type": "string" },
+        "tier": { "$ref": "common.schema.json#/$defs/tier" },
+        "anon_token": { "type": "string" },
+        "prob": { "$ref": "common.schema.json#/$defs/prob" }
+      }
+    },
+    "updateReply": {
+      "type": "object",
+      "required": ["question_id", "your_prob", "your_updated_at", "group"],
+      "properties": {
+        "question_id": { "type": "string" }, "your_prob": { "type": "number" }, "your_updated_at": { "type": "string" },
+        "n_updates": { "type": "integer" }, "group": { "$ref": "#/$defs/group" }
+      }
+    }
+  },
+  "type": "array",
+  "items": { "$ref": "#/$defs/openForecast" }
+}

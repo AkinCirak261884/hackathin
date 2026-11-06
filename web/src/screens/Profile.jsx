@@ -5,6 +5,7 @@ import { useT } from '../i18n.jsx'
 import { asPct, recordSummary, verdict } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
 import { RecordHero, BrierCompare, ProbMeter, VerdictBadge, Leaderboard } from '../components/charts.jsx'
+import SubTabs from '../components/SubTabs.jsx'
 
 // Track record + leaderboard follow Lane A's analysis/leaderboard.py output (contracts/schemas/track-record, leaderboard).
 export default function Profile() {
@@ -17,6 +18,7 @@ export default function Profile() {
 
   return (
     <section className="page">
+      <SubTabs current="record" />
       <div className="profile-head">
         <div className="avatar" aria-hidden="true">{demoPseudonym()[0]}</div>
         <div>
@@ -53,6 +55,7 @@ export default function Profile() {
       </div>
 
       <Head title={t('latest')} sub={t('latest_sub')} />
+      <a className="btn ghost small-btn inline-link" href="#/forecasts">{t('go_forecasts')} →</a>
       <div className="list">
         {tr.pending.map((p) => (
           <article key={p.question_id} className="card item">

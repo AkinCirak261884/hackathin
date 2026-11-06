@@ -6,6 +6,8 @@ import postReply from '@fixtures/post_response_201.json'
 import trackRecord from '@fixtures/me_track_record.json'
 import trackRecordNew from '@fixtures/me_track_record_new.json'
 import leaderboard from '@fixtures/leaderboard.json'
+import forecastsOpen from '@fixtures/forecasts_open_TCD.json'
+import hiddenGroups from '@fixtures/_mock_hidden_groups.json'
 import publicSummaries from '@fixtures/public_summaries.json'
 import { pct, r05 } from './stats.js'
 
@@ -28,6 +30,37 @@ export function lastSubmission() {
 }
 function saveSubmission(roundId, body) {
   try { localStorage.setItem(KEY, JSON.stringify({ round_id: roundId, submitted_at: new Date().toISOString(), ...body })) } catch {}
+}
+
+// mock-only: forecast updates made in the Forecasts tab, { question_id: { prob, at, n } }
+const FKEY = 'gt_forecast_updates'
+function forecastUpdates() {
+  try { return JSON.parse(localStorage.getItem(FKEY)) || {} } catch { return {} }
+}
+function saveForecastUpdate(qid, prob) {
+  const all = forecastUpdates()
+  all[qid] = { prob, at: new Date().toISOString(), n: (all[qid]?.n || 0) + 1 }
+  try { localStorage.setItem(FKEY, JSON.stringify(all)) } catch {}
+  return all[qid]
+}
+// Your current forecast for a question: latest update > survey submission > fixture
+function myForecast(qid, fallback) {
+  const u = forecastUpdates()[qid]
+  if (u) return { prob: u.prob, at: u.at, updated: true }
+  const sub = lastSubmission()
+  const a = sub?.answers.find((x) => x.question_id === qid)
+  if (a?.prob != null) return { prob: a.prob, at: sub.submitted_at, updated: false }
+  return fallback
+}
+
+function personalForecasts(list) {
+  return list.map((f) => {
+    const mine = myForecast(f.question_id, f.your_prob == null ? null : { prob: f.your_prob, at: f.your_updated_at })
+    if (!mine) return f
+    const extra = forecastUpdates()[f.question_id]?.n || 0
+    return { ...f, your_prob: mine.prob, your_updated_at: mine.at, n_updates: (f.n_updates || 0) + extra,
+      group: f.group || hiddenGroups[f.question_id] || null }
+  })
 }
 
 // The demo user is Kestrel (E01). Swap Kestrel's fixture answers for what the user actually entered.
@@ -63,10 +96,12 @@ function personalise(agg, sub) {
 }
 
 function personalTrackRecord(tr, sub) {
-  if (!sub) return tr
+  if (!sub && !Object.keys(forecastUpdates()).length) return tr
   const t = clone(tr)
-  const byQ = Object.fromEntries(sub.answers.map((x) => [x.question_id, x]))
-  t.pending = t.pending.map((p) => ({ ...p, your_prob: byQ[p.question_id]?.prob ?? p.your_prob, submitted_at: sub.submitted_at }))
+  t.pending = t.pending.map((p) => {
+    const mine = myForecast(p.question_id, null)
+    return mine ? { ...p, your_prob: mine.prob, submitted_at: mine.at } : p
+  })
   return t
 }
 
@@ -86,6 +121,12 @@ export const api = {
   leaderboard: (panel = 'TCD', token) =>
     MOCK ? delay(isNewcomerDemo() ? { ...leaderboard, entries: leaderboard.entries.map((e) => ({ ...e, is_you: false })) } : leaderboard)
       : http(`/leaderboard?panel=${panel}&token=${encodeURIComponent(token)}`),
+  forecastsOpen: (panel = 'TCD', token) =>
+    MOCK ? delay(personalForecasts(forecastsOpen)) : http(`/forecasts/open?panel=${panel}&token=${encodeURIComponent(token)}`),
+  updateForecast: (qid, body) =>
+    MOCK
+      ? (saveForecastUpdate(qid, body.prob), delay(personalForecasts(forecastsOpen).find((f) => f.question_id === qid)))
+      : http(`/forecasts/${qid}`, { method: 'POST', body: JSON.stringify(body) }),
   publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries')),
 }
 
