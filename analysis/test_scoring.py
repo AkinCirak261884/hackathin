@@ -70,6 +70,15 @@ class BacktestTest(unittest.TestCase):
         sharp = {r["display_name"] for r in self.summary["experts"] if r["archetype"] == "sharp"}
         self.assertLessEqual(set(badges), sharp)
 
+    def test_label_table(self):
+        rows = {r["label"]: r for r in self.summary["acaps_by_label"]}
+        self.assertEqual(sum(r["n"] for r in rows.values()), 99)
+        self.assertEqual((rows["High"]["n"], rows["High"]["materialised"]), (30, 25))
+        lo, hi = rows["Low"]["wilson90"]
+        self.assertGreater(lo, rows["Low"]["midpoint"])  # Low is the one label clearly under-rated
+        c = self.summary["calibrated_acaps"]
+        self.assertGreater(c["brier_leave_one_out"], c["brier_in_sample_leaky"])
+
     def test_chart_renders(self):
         svg = calibration_svg(self.summary)
         self.assertTrue(svg.startswith("<svg") and svg.rstrip().endswith("</svg>"))
