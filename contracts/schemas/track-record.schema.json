@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "track-record.schema.json",
+  "title": "GET /me/track-record. Shape = Lane A analysis/leaderboard.py track_record(), plus pending + impact",
+  "type": "object",
+  "required": ["author_token", "n_resolved", "mean_brier", "acaps_baseline_brier", "n_beat_acaps", "super_estimator",
+               "min_resolved", "forecasts_until_counted", "rank", "n_ranked", "rank_percentile", "history"],
+  "properties": {
+    "author_token": { "type": "string" },
+    "n_resolved": { "type": "integer" },
+    "mean_brier": { "type": ["number", "null"] },
+    "acaps_brier_same_questions": { "type": ["number", "null"] },
+    "acaps_baseline_brier": { "type": ["number", "null"], "description": "ACAPS Brier on the same questions" },
+    "n_beat_acaps": { "type": "integer" },
+    "super_estimator": { "type": "boolean", "description": "n_resolved >= min_resolved AND mean_brier < ACAPS on same questions" },
+    "min_resolved": { "type": "integer" },
+    "forecasts_until_counted": { "type": "integer" },
+    "rank": { "type": ["integer", "null"], "description": "null until n_resolved >= min_resolved" },
+    "n_ranked": { "type": "integer" },
+    "rank_percentile": { "type": ["number", "null"] },
+    "acaps_mapping": { "const": "midpoint" },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question_id", "text", "outcome", "your_prob", "brier", "acaps_prob", "acaps_brier", "beat_acaps"],
+        "properties": {
+          "question_id": { "type": "string" }, "risk_id": { "type": "string" }, "text": { "type": "string" },
+          "closes_at": { "type": "string" },
+          "outcome": { "enum": [0, 1] }, "outcome_label": { "type": "string" },
+          "your_prob": { "type": "number" }, "brier": { "type": "number" },
+          "acaps_prob": { "type": "number" }, "acaps_brier": { "type": "number" },
+          "beat_acaps": { "type": "boolean" }
+        }
+      }
+    },
+    "pending": { "type": "array", "description": "open questions with your latest forecast (Lane C/B extra)", "items": { "type": "object" } },
+    "impact": {
+      "type": "array",
+      "description": "what your input changed in ACAPS analysis (Lane B extra)",
+      "items": { "type": "object", "properties": { "risk_id": { "type": "string" }, "date": { "type": "string" }, "note": { "type": "string" } } }
+    }
+  }
+}

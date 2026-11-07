@@ -1,0 +1,42 @@
+[
+  {
+    "expert_id": "E01",
+    "name": "Synthetic Expert 01",
+    "email": "expert01@example.org"
+  },
+  {
+    "expert_id": "E02",
+    "name": "Synthetic Expert 02",
+    "email": "expert02@example.org"
+  },
+  {
+    "expert_id": "E03",
+    "name": "Synthetic Expert 03",
+    "email": "expert03@example.org"
+  },
+  {
+    "expert_id": "E04",
+    "name": "Synthetic Expert 04",
+    "email": "expert04@example.org"
+  },
+  {
+    "expert_id": "E05",
+    "name": "Synthetic Expert 05",
+    "email": "expert05@example.org"
+  },
+  {
+    "expert_id": "E06",
+    "name": "Synthetic Expert 06",
+    "email": "expert06@example.org"
+  },
+  {
+    "expert_id": "E07",
+    "name": "Synthetic Expert 07",
+    "email": "expert07@example.org"
+  },
+  {
+    "expert_id": "E08",
+    "name": "Synthetic Expert 08",
+    "email": "expert08@example.org"
+  }
+]

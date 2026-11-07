@@ -1,0 +1,498 @@
+{
+  "round": {
+    "round_id": "RD-R1043-1",
+    "panel": "TCD",
+    "stage": "reveal",
+    "opened_at": "2026-11-06T18:00:00Z",
+    "closes_at": "2026-11-13T18:00:00Z",
+    "risk": {
+      "risk_id": "R1043",
+      "title": "Escalating cross-border insecurity linked to the Sudan conflict increases protection risks and humanitarian needs in eastern Chad",
+      "country": "Chad",
+      "iso": "TCD",
+      "probability": "High",
+      "impact": 4,
+      "level": "High",
+      "status": "Active",
+      "trend": "Deteriorated",
+      "rationale_short": "Since early 2026, the conflict in Sudan has evolved from a humanitarian crisis affecting Chad into a direct security threat to eastern border areas. Repeated drone strikes, cross-border incursions, and clashes involving fighters aligned with the Rapid Support Forces (RSF) and Sudanese Armed Forces (SAF) have already caused casualties on Chadian territory, including around Tine and other border regions.",
+      "expected_exposure": ">500,000",
+      "priority_needs": [
+        "Protection",
+        "Food security",
+        "Livelihoods",
+        "Health"
+      ],
+      "triggers": [
+        {
+          "trigger_id": "T0618",
+          "risk_id": "R1043",
+          "title": "Expansion of cross-border attacks and insecurity",
+          "description": "Additional drone strikes, shelling, or armed incursions near the Chad–Sudan border, particularly around Adré, Tina, and other eastern border localities, increase civilian casualties, trigger further displacement into Chad, and constrain humanitarian operations in already fragile border areas. Continued insecurity may also disrupt cross-border trade and movement routes relied upon by refugees and host communities",
+          "completion_rate": 0.4,
+          "objective": "cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement, or humanitarian access disruptions."
+        },
+        {
+          "trigger_id": "T0619",
+          "risk_id": "R1043",
+          "title": "Attacks on strategic infrastructure in Chad",
+          "description": "Threats by Sudanese actors against Chadian airports, border facilities, military positions, or transport infrastructure may materialise into direct attacks on strategic assets in eastern Chad. Any strike against airports such as Amdjarass, military installations, or critical transport corridors would increase the risk of direct confrontation between Chad and Sudanese armed actors, disrupt humanitarian and commercial operations, and further destabilise border regions",
+          "completion_rate": 0.1,
+          "objective": "attacks directly target strategic infrastructure in Chad, including airports, military facilities, border posts, or major transport corridors, causing significant disruption to civilian, humanitarian, or commercial activities."
+        },
+        {
+          "trigger_id": "T0620",
+          "risk_id": "R1043",
+          "title": "Renewed proxy mobilisation and cross-border armed group activity",
+          "description": "Historical patterns of proxy warfare between Chad and Sudan may re-emerge through the mobilisation, arming, or support of rebel groups and allied militias operating along the border. Increased involvement of SAF-aligned groups, RSF-linked actors, Darfuri armed factions, or Chadian rebel networks could expand the conflict beyond isolated border incidents and increase the likelihood of retaliatory attacks on Chadian territory.",
+          "completion_rate": 0.2,
+          "objective": "armed groups, militias, or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, resulting in sustained violence, retaliatory attacks, or territorial insecurity in eastern Chad."
+        }
+      ]
+    },
+    "questions": [
+      {
+        "question_id": "Q-R1043-RATING",
+        "risk_id": "R1043",
+        "trigger_id": null,
+        "kind": "rating",
+        "title": "ACAPS rating",
+        "title_fr": "L'évaluation d'ACAPS",
+        "text": "ACAPS rates this risk High probability and impact 4/5. Do you agree?",
+        "text_fr": "ACAPS évalue ce risque à une probabilité élevée et un impact de 4/5. Êtes-vous d'accord ?",
+        "closes_at": "2026-11-13T18:00:00Z",
+        "acaps_baseline": 0.78,
+        "outcome": null
+      },
+      {
+        "question_id": "Q-R1043-T0618",
+        "risk_id": "R1043",
+        "trigger_id": "T0618",
+        "kind": "forecast",
+        "title": "Expansion of cross-border attacks and insecurity",
+        "title_fr": "Expansion des attaques et de l'insécurité transfrontalières",
+        "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
+        "text_fr": "Les attaques transfrontalières deviendront-elles durables et récurrentes, touchant plusieurs localités frontalières de l'est du Tchad et causant d'importantes victimes civiles, des déplacements ou des perturbations de l'accès humanitaire, avant le 6 mai 2027 ?",
+        "closes_at": "2027-05-06T23:59:59Z",
+        "acaps_baseline": null,
+        "outcome": null
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "risk_id": "R1043",
+        "trigger_id": "T0619",
+        "kind": "forecast",
+        "title": "Attacks on strategic infrastructure in Chad",
+        "title_fr": "Attaques contre des infrastructures stratégiques au Tchad",
+        "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
+        "text_fr": "Des attaques viseront-elles directement des infrastructures stratégiques au Tchad (aéroports, installations militaires, postes frontières ou grands corridors de transport), causant d'importantes perturbations, avant le 6 mai 2027 ?",
+        "closes_at": "2027-05-06T23:59:59Z",
+        "acaps_baseline": null,
+        "outcome": null
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "risk_id": "R1043",
+        "trigger_id": "T0620",
+        "kind": "forecast",
+        "title": "Renewed proxy mobilisation and cross-border armed group activity",
+        "title_fr": "Remobilisation par procuration et groupes armés transfrontaliers",
+        "text": "Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
+        "text_fr": "Des groupes armés, milices ou acteurs par procuration opérant de part et d'autre de la frontière Tchad–Soudan participeront-ils activement à des hostilités transfrontalières, causant une violence durable, des représailles ou une insécurité territoriale dans l'est du Tchad, avant le 6 mai 2027 ?",
+        "closes_at": "2027-05-06T23:59:59Z",
+        "acaps_baseline": null,
+        "outcome": null
+      },
+      {
+        "question_id": "Q-TCD-TOP3",
+        "risk_id": "R1043",
+        "trigger_id": null,
+        "kind": "ranking",
+        "title": "Top 3 risks in Chad",
+        "title_fr": "Top 3 des risques au Tchad",
+        "text": "What are the three biggest risks in Chad that might worsen humanitarian outcomes in the next six months?",
+        "text_fr": "Quels sont les trois plus grands risques au Tchad susceptibles d'aggraver la situation humanitaire dans les six prochains mois ?",
+        "closes_at": "2026-11-13T18:00:00Z",
+        "acaps_baseline": null,
+        "outcome": null,
+        "options": [
+          {
+            "option_id": "R1043",
+            "label": "Cross-border insecurity from the Sudan conflict (eastern Chad)",
+            "label_fr": "Insécurité transfrontalière liée au conflit soudanais (est du Tchad)",
+            "synthetic": false
+          },
+          {
+            "option_id": "R0233",
+            "label": "Protests and violent clashes with security forces in urban areas",
+            "label_fr": "Manifestations et affrontements violents avec les forces de sécurité en zone urbaine",
+            "synthetic": false
+          },
+          {
+            "option_id": "SYN-TCD-01",
+            "label": "Lean-season food insecurity worsens as refugee arrivals rise",
+            "label_fr": "L'insécurité alimentaire de soudure s'aggrave avec l'afflux de réfugiés",
+            "synthetic": true
+          },
+          {
+            "option_id": "SYN-TCD-02",
+            "label": "Rainy-season flooding in N'Djamena and the south",
+            "label_fr": "Inondations de saison des pluies à N'Djamena et dans le sud",
+            "synthetic": true
+          },
+          {
+            "option_id": "SYN-TCD-03",
+            "label": "Funding shortfalls force cuts to refugee assistance in the east",
+            "label_fr": "Le manque de financement réduit l'assistance aux réfugiés dans l'est",
+            "synthetic": true
+          }
+        ]
+      }
+    ]
+  },
+  "n_invited": 8,
+  "n_responses": 7,
+  "tiers": {
+    "known": 2,
+    "pseudonymous": 4,
+    "anonymous": 1
+  },
+  "rating": {
+    "probability": {
+      "too_low": 2,
+      "agree": 4,
+      "too_high": 1
+    },
+    "impact": {
+      "too_low": 1,
+      "agree": 5,
+      "too_high": 1
+    },
+    "acaps": {
+      "probability": "High",
+      "impact": 4
+    }
+  },
+  "forecasts": [
+    {
+      "question_id": "Q-R1043-T0618",
+      "trigger_id": "T0618",
+      "acaps_completion_rate": 0.4,
+      "v1": {
+        "n": 7,
+        "median": 0.65,
+        "p25": 0.575,
+        "p75": 0.775,
+        "values": [
+          0.45,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.85,
+          0.9
+        ]
+      },
+      "v2": {
+        "n": 7,
+        "median": 0.65,
+        "p25": 0.6,
+        "p75": 0.75,
+        "values": [
+          0.55,
+          0.6,
+          0.6,
+          0.65,
+          0.7,
+          0.8,
+          0.85
+        ]
+      },
+      "n_revised": 3,
+      "mean_abs_shift": 0.083,
+      "seeing_count": 5,
+      "by_region": [
+        {
+          "macro_region": "East",
+          "n": 3,
+          "median": 0.65
+        },
+        {
+          "macro_region": "Abroad",
+          "n": 3,
+          "median": 0.6
+        }
+      ],
+      "by_region_dropped": [
+        "N'Djamena"
+      ]
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "trigger_id": "T0619",
+      "acaps_completion_rate": 0.1,
+      "v1": {
+        "n": 7,
+        "median": 0.35,
+        "p25": 0.25,
+        "p75": 0.425,
+        "values": [
+          0.15,
+          0.2,
+          0.3,
+          0.35,
+          0.4,
+          0.45,
+          0.55
+        ]
+      },
+      "v2": {
+        "n": 7,
+        "median": 0.3,
+        "p25": 0.225,
+        "p75": 0.35,
+        "values": [
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.3,
+          0.4,
+          0.45
+        ]
+      },
+      "n_revised": 3,
+      "mean_abs_shift": 0.117,
+      "seeing_count": 1,
+      "by_region": [
+        {
+          "macro_region": "East",
+          "n": 3,
+          "median": 0.35
+        },
+        {
+          "macro_region": "Abroad",
+          "n": 3,
+          "median": 0.4
+        }
+      ],
+      "by_region_dropped": [
+        "N'Djamena"
+      ]
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "trigger_id": "T0620",
+      "acaps_completion_rate": 0.2,
+      "v1": {
+        "n": 7,
+        "median": 0.45,
+        "p25": 0.4,
+        "p75": 0.65,
+        "values": [
+          0.35,
+          0.35,
+          0.45,
+          0.45,
+          0.6,
+          0.7,
+          0.75
+        ]
+      },
+      "v2": {
+        "n": 7,
+        "median": 0.45,
+        "p25": 0.375,
+        "p75": 0.6,
+        "values": [
+          0.35,
+          0.35,
+          0.4,
+          0.45,
+          0.6,
+          0.6,
+          0.6
+        ]
+      },
+      "n_revised": 3,
+      "mean_abs_shift": 0.1,
+      "seeing_count": 4,
+      "by_region": [
+        {
+          "macro_region": "East",
+          "n": 3,
+          "median": 0.6
+        },
+        {
+          "macro_region": "Abroad",
+          "n": 3,
+          "median": 0.45
+        }
+      ],
+      "by_region_dropped": [
+        "N'Djamena"
+      ]
+    }
+  ],
+  "missing": [
+    {
+      "contribution_id": "C-0001",
+      "shown_as": "Synthetic Expert 01",
+      "tier": "known",
+      "text": "Les tensions entre réfugiés et communautés hôtes autour des points d'eau à Adré ne sont pas dans l'analyse ; elles montent depuis septembre."
+    },
+    {
+      "contribution_id": "C-0006",
+      "shown_as": "Synthetic Expert 02",
+      "tier": "known",
+      "text": "Funding cuts to refugee food rations from January would amplify every trigger."
+    },
+    {
+      "contribution_id": "C-0011",
+      "shown_as": "Osprey",
+      "tier": "pseudonymous",
+      "text": "Fuel smuggling routes through Ennedi-Est are shifting north after the August strike; watch the Amdjarass airstrip."
+    },
+    {
+      "contribution_id": "C-0016",
+      "shown_as": "Birch",
+      "tier": "pseudonymous",
+      "text": "Le rôle des réseaux zaghawa dans l'armée tchadienne mérite plus de poids : risque de défections."
+    },
+    {
+      "contribution_id": "C-0026",
+      "shown_as": "Wren",
+      "tier": "pseudonymous",
+      "text": "Health: hepatitis E and cholera risk in overcrowded sites around Adré is missing from the priority needs."
+    },
+    {
+      "contribution_id": "C-0031",
+      "shown_as": "Anonymous",
+      "tier": "anonymous",
+      "text": "Les gens évitent la route du marché à cause des drones ; les femmes vont plus loin pour chercher de l'eau."
+    }
+  ],
+  "synthesis": {
+    "generated_by": "mock (Claude API in Lane B, moderator side only)",
+    "clusters": [
+      {
+        "theme": "Refugee–host tensions and water access",
+        "summary": "Two field experts in the East report rising tensions and longer, riskier trips to water points.",
+        "contribution_ids": [
+          "C-0001",
+          "C-0031"
+        ]
+      },
+      {
+        "theme": "Health risks in overcrowded sites",
+        "summary": "Disease outbreak risk (hepatitis E, cholera) around Adré is absent from priority needs.",
+        "contribution_ids": [
+          "C-0026"
+        ]
+      },
+      {
+        "theme": "Shifting smuggling routes and infrastructure",
+        "summary": "Fuel routes moving north after the August strike; Amdjarass airstrip flagged (relates to T0619).",
+        "contribution_ids": [
+          "C-0011"
+        ]
+      },
+      {
+        "theme": "Security-force cohesion",
+        "summary": "Zaghawa networks in the army raise defection risk (relates to T0620).",
+        "contribution_ids": [
+          "C-0016"
+        ]
+      },
+      {
+        "theme": "Funding cuts",
+        "summary": "Ration cuts from January would amplify all triggers.",
+        "contribution_ids": [
+          "C-0006"
+        ]
+      }
+    ],
+    "suggested_rating_change": "Keep probability High and impact 4. Consider adding Health and WASH to priority needs. Experts are split on T0620 (proxy mobilisation)."
+  },
+  "reasoning": [
+    {
+      "contribution_id": "C-0001",
+      "shown_as": "Synthetic Expert 01",
+      "tier": "known",
+      "text": "Our teams in Adré see new arrivals every week and two incidents near water points in October.",
+      "basis": [
+        "field_observation",
+        "local_contacts"
+      ]
+    },
+    {
+      "contribution_id": "C-0011",
+      "shown_as": "Osprey",
+      "tier": "pseudonymous",
+      "text": "Telegram channels close to the RSF openly discuss supply routes through Chad.",
+      "basis": [
+        "media_osint"
+      ]
+    },
+    {
+      "contribution_id": "C-0016",
+      "shown_as": "Birch",
+      "tier": "pseudonymous",
+      "text": "Historical pattern: proxy escalation followed Darfur offensives in 2005–2008.",
+      "basis": [
+        "experience",
+        "reports_data"
+      ]
+    },
+    {
+      "contribution_id": "C-0026",
+      "shown_as": "Wren",
+      "tier": "pseudonymous",
+      "text": "Clinic data from Sila shows rising watery-diarrhoea cases since September.",
+      "basis": [
+        "reports_data",
+        "field_observation"
+      ]
+    },
+    {
+      "contribution_id": "C-0031",
+      "shown_as": "Anonymous",
+      "tier": "anonymous",
+      "text": "Les drones passent presque chaque nuit près de la frontière.",
+      "basis": [
+        "field_observation"
+      ]
+    }
+  ],
+  "ranking": [
+    {
+      "option_id": "R1043",
+      "points": 18,
+      "first_choice": 5
+    },
+    {
+      "option_id": "SYN-TCD-01",
+      "points": 12,
+      "first_choice": 2
+    },
+    {
+      "option_id": "SYN-TCD-03",
+      "points": 9,
+      "first_choice": 0
+    },
+    {
+      "option_id": "R0233",
+      "points": 2,
+      "first_choice": 0
+    },
+    {
+      "option_id": "SYN-TCD-02",
+      "points": 1,
+      "first_choice": 0
+    }
+  ],
+  "ranking_other": [
+    "Affrontements intercommunautaires autour des points d'eau (Ouaddaï)",
+    "Choléra / hépatite E dans les sites surpeuplés"
+  ]
+}

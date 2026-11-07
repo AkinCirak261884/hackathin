@@ -1,0 +1,95 @@
+{
+  "round_id": "RD-R0993-P",
+  "n_responses": 7,
+  "suppressed": false,
+  "reason": null,
+  "rating": {
+    "probability": {
+      "too_low": 3,
+      "agree": 4,
+      "too_high": 0
+    },
+    "impact": {
+      "too_low": 1,
+      "agree": 5,
+      "too_high": 1
+    },
+    "you": {
+      "probability": "agree",
+      "impact": "agree",
+      "ranking": []
+    }
+  },
+  "forecasts": [
+    {
+      "question_id": "Q-R0993-T0482",
+      "n": 7,
+      "median": 0.65,
+      "p25": 0.55,
+      "p75": 0.75,
+      "values": [
+        0.45,
+        0.5,
+        0.6,
+        0.65,
+        0.7,
+        0.8,
+        0.85
+      ],
+      "acaps_baseline": 0.5,
+      "seeing_count": 4,
+      "you": 0.6
+    }
+  ],
+  "ranking": [],
+  "can_revise": false,
+  "comments": [
+    {
+      "comment_id": "CM-P01",
+      "display_name": "Osprey",
+      "tier": "pseudonymous",
+      "text": "Russia kept hitting gas production sites during the pause; the pattern pointed to a big strike once it ended.",
+      "basis": [
+        "media_osint"
+      ],
+      "is_you": false,
+      "record": {
+        "correct": 6,
+        "resolved": 10
+      },
+      "forecasts": {
+        "Q-R0993-T0482": 0.85
+      }
+    },
+    {
+      "comment_id": "CM-P02",
+      "display_name": "Heron",
+      "tier": "pseudonymous",
+      "text": "In past years strikes on the grid clustered before the heating season.",
+      "basis": [
+        "experience",
+        "reports_data"
+      ],
+      "is_you": false,
+      "record": {
+        "correct": 5,
+        "resolved": 8
+      },
+      "forecasts": {
+        "Q-R0993-T0482": 0.65
+      }
+    },
+    {
+      "comment_id": "CM-P03",
+      "display_name": "Anonymous expert",
+      "tier": "anonymous",
+      "text": "Les coupures ont repris dès la fin avril dans notre ville.",
+      "basis": [
+        "field_observation"
+      ],
+      "is_you": false,
+      "record": null,
+      "forecasts": null
+    }
+  ]
+}

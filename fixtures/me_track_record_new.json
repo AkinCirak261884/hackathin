@@ -1,0 +1,73 @@
+{
+  "author_token": "E08",
+  "n_resolved": 2,
+  "mean_brier": 0.1412,
+  "acaps_brier_same_questions": 0.25,
+  "n_beat_acaps": 2,
+  "super_estimator": false,
+  "acaps_baseline_brier": 0.25,
+  "min_resolved": 5,
+  "forecasts_until_counted": 3,
+  "rank": null,
+  "n_ranked": 7,
+  "rank_percentile": null,
+  "acaps_mapping": "midpoint",
+  "history": [
+    {
+      "question_id": "Q-R0120-MAT",
+      "risk_id": "R0120",
+      "text": "Will this risk materialise within six months? Growing inflation and an economic crisis in Sudan result in high food insecurity levels (Sudan)",
+      "closes_at": "2026-05-06",
+      "outcome": 1,
+      "outcome_label": "happened",
+      "your_prob": 0.65,
+      "brier": 0.1225,
+      "acaps_prob": 0.5,
+      "acaps_brier": 0.25,
+      "beat_acaps": true
+    },
+    {
+      "question_id": "Q-R0242-MAT",
+      "risk_id": "R0242",
+      "text": "Will this risk materialise within six months? An increase in security incidents lead to displacement in Niono circle. (Mali)",
+      "closes_at": "2026-05-06",
+      "outcome": 0,
+      "outcome_label": "didn't happen",
+      "your_prob": 0.4,
+      "brier": 0.16,
+      "acaps_prob": 0.5,
+      "acaps_brier": 0.25,
+      "beat_acaps": true
+    }
+  ],
+  "pending": [
+    {
+      "question_id": "Q-R1043-T0618",
+      "title": "Expansion of cross-border attacks and insecurity",
+      "title_fr": "Expansion des attaques et de l'insécurité transfrontalières",
+      "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
+      "text_fr": "Les attaques transfrontalières deviendront-elles durables et récurrentes, touchant plusieurs localités frontalières de l'est du Tchad et causant d'importantes victimes civiles, des déplacements ou des perturbations de l'accès humanitaire, avant le 6 mai 2027 ?",
+      "your_prob": 0.65,
+      "closes_at": "2027-05-06T23:59:59Z"
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "title": "Attacks on strategic infrastructure in Chad",
+      "title_fr": "Attaques contre des infrastructures stratégiques au Tchad",
+      "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
+      "text_fr": "Des attaques viseront-elles directement des infrastructures stratégiques au Tchad (aéroports, installations militaires, postes frontières ou grands corridors de transport), causant d'importantes perturbations, avant le 6 mai 2027 ?",
+      "your_prob": 0.2,
+      "closes_at": "2027-05-06T23:59:59Z"
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "title": "Renewed proxy mobilisation and cross-border armed group activity",
+      "title_fr": "Remobilisation par procuration et groupes armés transfrontaliers",
+      "text": "Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
+      "text_fr": "Des groupes armés, milices ou acteurs par procuration opérant de part et d'autre de la frontière Tchad–Soudan participeront-ils activement à des hostilités transfrontalières, causant une violence durable, des représailles ou une insécurité territoriale dans l'est du Tchad, avant le 6 mai 2027 ?",
+      "your_prob": 0.45,
+      "closes_at": "2027-05-06T23:59:59Z"
+    }
+  ],
+  "impact": []
+}
