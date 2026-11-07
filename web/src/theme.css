@@ -334,3 +334,8 @@ dialog.sheet::backdrop { background: rgb(0 0 0 / .55); }
   dialog.sheet { width: 100vw; max-height: 88dvh; margin: auto 0 0; border-radius: var(--radius) var(--radius) 0 0; border-bottom: 0; }
   .sheet-head h2 { font-size: 16px; }
 }
+
+/* ---------- "Update my forecast" page (screens/Update.jsx) ---------- */
+.update-page > .card, .update-page > article.card { margin-bottom: 16px; }
+.update-page > .head { margin-top: 24px; }
+.up-first { margin: 10px 0 4px; font-size: 14px; font-weight: 600; color: var(--fg2); }

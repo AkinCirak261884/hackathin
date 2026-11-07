@@ -321,7 +321,6 @@ function CountryNow({ c }) {
 // Step 2, option B: peer reasons without numbers, then keep or revise once. First answer stays the scored one.
 function ReasonsFirst({ round, agg, just, rec, onDecided }) {
   const { t } = useT()
-  const [revising, setRevising] = useState(false)
   const [busy, setBusy] = useState(false)
   const keep = async () => { setBusy(true); await api.keepAnswers(round.round_id); onDecided('kept') }
   return (
@@ -340,62 +339,14 @@ function ReasonsFirst({ round, agg, just, rec, onDecided }) {
         <PanelAdditions agg={agg} />
       </>}
       <article className="card decide-card">
-        {!revising ? (
-          <>
-            <Head title={t('rv_q')} sub={t('rv_q_sub')} />
-            <div className="decide-actions">
-              <button className="btn ghost" disabled={busy} onClick={keep}>{t('rv_keep')}</button>
-              <button className="btn" disabled={busy} onClick={() => setRevising(true)}>{t('rv_update')}</button>
-            </div>
-          </>
-        ) : (
-          <RevisePanel round={round} onCancel={() => setRevising(false)} onSaved={() => onDecided('revised')} />
-        )}
+        <Head title={t('rv_q')} sub={t('rv_q_sub')} />
+        <div className="decide-actions">
+          <button className="btn ghost" disabled={busy} onClick={keep}>{t('rv_keep')}</button>
+          {/* its own page (screens/Update.jsx): the round, the full questions and your first answers again */}
+          <a className="btn" href={`#/update/${round.round_id}`}>{t('rv_update')}</a>
+        </div>
       </article>
     </section>
-  )
-}
-
-function RevisePanel({ round, onCancel, onSaved }) {
-  const { t, tx } = useT()
-  const first = lastSubmission(round.round_id)
-  const qs = round.questions.filter((q) => q.kind === 'forecast')
-  const start = Object.fromEntries(qs.map((q) => [q.question_id, first?.answers.find((x) => x.question_id === q.question_id)?.prob ?? 0.5]))
-  const [prob, setProb] = useState(start)
-  const [reason, setReason] = useState('')
-  const [busy, setBusy] = useState(false)
-  const changed = qs.filter((q) => prob[q.question_id] !== start[q.question_id])
-  const save = async () => {
-    setBusy(true)
-    await api.revise(round.round_id, { answers: changed.map((q) => ({ question_id: q.question_id, prob: prob[q.question_id] })), reason: reason.trim() })
-    onSaved()
-  }
-  return (
-    <div className="revise">
-      <Head title={t('rv_update')} sub={t('rv_once')} />
-      {qs.map((q) => {
-        const p = prob[q.question_id]
-        return (
-          <div key={q.question_id} className="revise-q">
-            <span className="q-title">{tx(q, 'title')}</span>
-            <div className="prob-read">
-              <span className="big">{asPct(p)}</span>
-              <span className="muted">{t(likelihoodKey(p))}</span>
-              <span className="muted small revise-first">{t('rv_first', asPct(start[q.question_id]))}</span>
-            </div>
-            <input type="range" min="0" max="100" step="5" value={Math.round(p * 100)} aria-label={tx(q, 'title')}
-              onChange={(e) => setProb({ ...prob, [q.question_id]: e.target.value / 100 })} />
-          </div>
-        )
-      })}
-      <label className="field-label" htmlFor="rv-reason">{t('rv_reason')} <span className="muted">· {t('optional')}</span></label>
-      <textarea id="rv-reason" rows="2" maxLength={1000} value={reason} placeholder={t('rv_reason_ph')} onChange={(e) => setReason(e.target.value)} />
-      <div className="decide-actions">
-        <button className="btn ghost" disabled={busy} onClick={onCancel}>{t('back')}</button>
-        <button className="btn" disabled={busy || changed.length === 0} onClick={save}>{t('rv_save')}</button>
-      </div>
-      {changed.length === 0 && <p className="muted small">{t('rv_nochange')}</p>}
-    </div>
   )
 }
 
