@@ -21,9 +21,11 @@ const MAIN_ROUND = round.round_id
 export const MAIN_ROUND_ID = MAIN_ROUND
 export const PRACTICE_ROUND_ID = practiceRound.round_id
 const delay = (v) => new Promise((r) => setTimeout(() => r(clone(v)), 120))
+// Secrets travel in headers, never in the URL (URLs end up in server logs and browser history). Matches Lane B's API.
+const auth = () => ({ headers: { 'X-Invite-Token': DEMO_INVITE } })
 
-async function http(path, opts) {
-  const res = await fetch(BASE + path, { headers: { 'Content-Type': 'application/json' }, ...opts })
+async function http(path, opts = {}) {
+  const res = await fetch(BASE + path, { ...opts, headers: { 'Content-Type': 'application/json', ...opts.headers } })
   if (!res.ok) throw Object.assign(new Error(`${res.status} ${path}`), { status: res.status })
   return res.json()
 }
@@ -159,13 +161,13 @@ function personalTrackRecord(tr, sub) {
 
 export const api = {
   openRounds: (panel = 'TCD') =>
-    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : http(`/rounds/open?panel=${panel}`),
+    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : http(`/rounds/open?panel=${panel}`, auth()),
   round: (id) => (MOCK ? delay(ROUNDS[id] || round) : http(`/rounds/${id}`)),
   submit: (id, body) =>
     MOCK ? (saveSubmission(id, body), delay({ ...postReply, version: body.version }))
       : http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) }),
   aggregate: (id, token) =>
-    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
+    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : http(`/rounds/${id}/aggregate`, auth()),
   // keep = no second version; revise = POST version 2 with only the changed forecasts + "what changed your mind?"
   keepAnswers: async (id) => { saveRevision(id, { decision: 'kept' }) },
   revise: async (id, { answers, reason }) => {
@@ -178,7 +180,7 @@ export const api = {
   // mock: add ?new=1 to the URL hash to see a new expert who is not ranked yet
   trackRecord: (token) =>
     MOCK ? delay(withGroups(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission())))
-      : http(`/me/track-record?token=${encodeURIComponent(token)}`),
+      : http('/me/track-record', auth()),
   publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries')),
   // Latest published ACAPS risks for a panel. Lane B proxies the ACAPS API server-side (token never reaches the browser).
   // Shape: { source: 'live' | 'snapshot', panel, updated_at?, risks: [{ risk_id, title, country, probability, impact, risk_level, trend, ... }] }
@@ -190,7 +192,7 @@ const withGroups = (tr) => ({ ...tr, history: tr.history.map(withGroup) })
 const isNewcomerDemo = () => window.location.hash.includes('new=1')
 
 // Demo identity: in the real app this comes from the invite link (?invite=…).
-export const DEMO_INVITE = 'inv_demo'
+export const DEMO_INVITE = 'inv_demo_01' // Lane B seeds inv_demo_01 … inv_demo_08
 export const DEMO_TOKEN = 'E01'
 export const DEMO_PSEUDONYM = 'Kestrel'
 export const demoPseudonym = () => (isNewcomerDemo() ? 'Alder' : DEMO_PSEUDONYM)
