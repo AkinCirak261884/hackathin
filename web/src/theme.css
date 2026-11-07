@@ -297,3 +297,8 @@ a.card { color: inherit; text-decoration: none; cursor: pointer; }
 .cp-off { margin-top: 16px; border-left: 3px solid var(--sand); }
 .cp-off p { margin: 6px 0 0; }
 .own-source { margin-top: 10px; }
+
+/* expert's own additions in the likelihood step */
+.own-q { border-style: dashed; }
+.own-risk-prob { margin: 4px 0 8px; }
+.own-risk-prob .q-sub { margin: 0 0 4px; }
