@@ -124,7 +124,8 @@ function FullReveal({ round, agg, tr, just, roundId }) {
         <Comments comments={agg.comments || []} round={round} />
         <PanelAdditions agg={agg} />
       </>}
-      <MyAnswers round={round} agg={agg} />
+      {/* your own answer is only kept in the window that gave it; elsewhere the group view opens without it */}
+      {MOCK || lastSubmission(roundId) ? <MyAnswers round={round} agg={agg} /> : <p className="note">{t('reveal_elsewhere')}</p>}
       {/* TEMPORARY: demo-only, so a presenter can run the check-in again straight from the results */}
       {MOCK && (
         <div className="demo-reset">

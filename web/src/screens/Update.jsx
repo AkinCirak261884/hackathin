@@ -19,7 +19,7 @@ export function NotInThisWindow({ roundId, title }) {
   if (r && (r.elsewhere || r.answered)) return (
     <section className="page">
       <Head level={1} title={title} sub={t('up_elsewhere')} />
-      <a className="btn ghost" href="#/">{t('back')}</a>
+      <a className="btn" href={`#/reveal/${roundId}`}>{t('see_group')}</a>
     </section>
   )
   return (

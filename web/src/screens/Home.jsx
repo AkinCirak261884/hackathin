@@ -7,7 +7,7 @@ import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 // What the round's button does: start, update after the reveal (in the window that answered), or see the group.
 // No button, a note instead: answered elsewhere (anonymous, other window/device), or first answers already closed.
 function roundAction(r, t) {
-  if (r.elsewhere) return { note: 'answered_elsewhere' }
+  if (r.elsewhere) return { href: `#/reveal/${r.round_id}`, label: t('see_group'), cls: 'answered', note: 'answered_elsewhere' }
   if (!r.answered && !MOCK && r.stage === 'reveal') return { note: 'submit_closed' }
   if (!r.answered) return { href: `#/pulse/${r.round_id}`, label: t('start'), cls: '' }
   const decided = r.decided || !!revisionOf(r.round_id)?.decision
@@ -40,9 +40,10 @@ export default function Home() {
             {r.demo && <p className="q-sub">{t('demo_off_card')}</p>}
             {(() => {
               const act = roundAction(r, t)
-              return act.href
-                ? <a className={`btn block ${act.cls}`} href={act.href}>{act.label}</a>
-                : <p className="note round-note">{t(act.note)}</p>
+              return <>
+                {act.note && <p className="note round-note">{t(act.note)}</p>}
+                {act.href && <a className={`btn block ${act.cls}`} href={act.href}>{act.label}</a>}
+              </>
             })()}
           </article>
         ))}
