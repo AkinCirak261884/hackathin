@@ -224,6 +224,13 @@ def _caller(invite_token: str, device_secret: Optional[str]) -> list[str]:
     return tokens
 
 
+def _invite_answered(round_id: str, invite_token: str) -> bool:
+    """The double-submit guard's record: this invite gave a first answer (which one is never stored)."""
+    with db.vault_db() as v:
+        return bool(v.execute("SELECT 1 FROM round_participation WHERE round_id = ? AND invite_token = ? AND version = 1",
+                              (round_id, invite_token)).fetchone())
+
+
 def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
     """Collective view only (team decision, 7 Nov): the caller never gets their own answers back,
     only the group's numbers (which include their answer once n >= 3)."""
@@ -233,11 +240,14 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
     with db.main_db() as m:
         latest = _rows(m, round_id, v1_only=False)
         mine = [r for r in latest if r["author_token"] in candidates]
-        if not mine:
+        # Answered from another window/device (anonymous, without this device's secret): the invite did answer, so
+        # the group view opens (answer-first still holds), but nothing here is linked to that answer: no "you",
+        # no revision from this window.
+        elsewhere = not mine and _invite_answered(round_id, invite_token)
+        if not mine and not elsewhere:
             raise RoundError(403, "submit your own answer first")
-        my_token = mine[0]["author_token"]
-        revised = m.execute("SELECT 1 FROM contributions WHERE round_id = ? AND author_token = ? "
-                            "AND version = 2 LIMIT 1", (round_id, my_token)).fetchone()
+        revised = bool(mine) and m.execute("SELECT 1 FROM contributions WHERE round_id = ? AND author_token = ? "
+                                           "AND version = 2 LIMIT 1", (round_id, mine[0]["author_token"])).fetchone()
         questions = _round_questions(m, rnd)
         v1_only = stage == "reveal"
         rows = [] if stage == "blind" else _rows(m, round_id, v1_only)
@@ -258,7 +268,8 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
             "view": {"blind": "locked", "reveal": "round_1", "closed": "final"}[stage],
             "suppressed": all(q["suppressed"] for q in out_q),
             "questions": out_q, "triggers_observed": triggers,
-            "can_revise": stage == "reveal" and not revised}
+            "can_revise": stage == "reveal" and not revised and not elsewhere,
+            "answered_elsewhere": elsewhere}
 
 
 def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
