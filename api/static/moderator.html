@@ -212,12 +212,24 @@ function splitSection(s, qText) {
   ];
 }
 
-function commentsBox(c) {
+// Peer comments: the automatic rule's decision, plus the moderator's own switch (only ever stricter: off, or back
+// to automatic; never forced on where the rule says off).
+function commentsBox(c, id) {
   if (!c) return null;
+  const set = async (off) => {
+    if (off && !confirm(`Turn peer comments off for ${id}?\n\nExperts in this round won't see each other's reasons or additions; what they write goes to you only.`)) return;
+    try { await api(`/moderator/rounds/${encodeURIComponent(id)}/comments`, { method: "POST", body: JSON.stringify({ off }) }); openRound(id); }
+    catch (e) { $("roundView").prepend(err(e.message)); }
+  };
+  const btn = c.moderator_off
+    ? el("button", { class: "ghost", onclick: () => set(false) }, c.auto_enabled ? "Turn back on (automatic)" : "Back to automatic")
+    : c.enabled ? el("button", { class: "ghost", onclick: () => set(true) }, "Turn comments off") : null;
   return el("div", { class: `comments ${c.enabled ? "on" : "off"}` },
     el("div", { class: "row" }, el("b", {}, "Peer comments"), el("span", { class: c.enabled ? "pill ok" : "pill warn" }, c.enabled ? "ON" : "OFF"),
-      c.n_orgs != null ? el("span", { class: "small muted" }, `${c.n_orgs} organisations · threshold ${c.min_orgs}`) : null),
+      c.moderator_off ? el("span", { class: "small muted" }, "turned off by you") : c.n_orgs != null ? el("span", { class: "small muted" }, `${c.n_orgs} organisations · threshold ${c.min_orgs}`) : null,
+      el("span", { style: "flex:1" }), btn),
     el("div", { class: "small" }, c.reason),
+    c.moderator_off ? el("div", { class: "small muted" }, `Automatic rule: ${c.auto_enabled ? "on" : "off"}.`) : null,
     c.source ? el("div", { class: "small muted" }, "Source: ", el("a", { href: c.source.url, target: "_blank", rel: "noopener noreferrer" }, c.source.title), ` (as of ${c.source.as_of}, ${c.source.licence})`) : null);
 }
 
@@ -264,7 +276,7 @@ async function openRound(id) {
         el("div", {}, el("dt", {}, "ACAPS rating"), el("dd", {}, `${m.acaps_rating.probability || "–"} · impact ${m.acaps_rating.impact ?? "–"}`)),
         el("div", {}, el("dt", {}, "Agree with rating"), el("dd", {}, pct(m.agree_share)))),
       m.stage === "blind" ? el("p", { class: "note" }, "Blind stage: experts can't see the group yet. Advance to reveal once at least 3 have answered.") : null,
-      commentsBox(m.comments),
+      commentsBox(m.comments, id),
 
       el("h3", {}, "Questions · round 1 vs final"),
       el("p", { class: "small muted" }, "Dots = answers, band = middle half (p25–p75), orange line = median. You see from n = 1; experts only from n = 3."),

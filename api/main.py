@@ -243,6 +243,17 @@ def revoke_invite(invite_token: str):
     return {"invite_token": invite_token, "revoked": True}
 
 
+class CommentsIn(BaseModel):
+    off: bool
+
+
+@app.post("/moderator/rounds/{round_id}/comments")
+def set_comments(round_id: str, body: CommentsIn):
+    """Moderator turns peer comments off for this round ({"off": true}) or back to the automatic rule ({"off": false}).
+    Never forces them on where the 3W / area-size rule says off."""
+    return rounds.set_comments_off(round_id, body.off)
+
+
 @app.post("/moderator/rounds/{round_id}/advance")
 def advance(round_id: str, body: Optional[AdvanceIn] = None):
     """blind -> reveal (needs n >= 3) -> closed. Never backwards."""

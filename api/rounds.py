@@ -287,11 +287,58 @@ def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None
 
 
 def round_comments(round_id: str) -> dict:
-    """Peer comments on/off for this round, from OCHA 3W presence in the affected area."""
+    """Peer comments on/off for this round: the automatic rule (comments_policy), unless the moderator turned them off."""
     rnd = get_round(round_id)
     with db.main_db() as m:
         risk = _risk(m, rnd["risk_id"])
-    return comments_policy.decide(risk)
+        off = comments_off(m, round_id)
+    return with_moderator(comments_policy.decide(risk), off)
+
+
+# ---------- moderator override: peer comments off for one round ----------
+# Only ever stricter than the automatic rule: the moderator can turn comments off (and back to automatic),
+# never force them on where the rule says off.
+_SETTINGS_DDL = ("CREATE TABLE IF NOT EXISTS round_settings (round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),"
+                 " comments_off INTEGER NOT NULL DEFAULT 0, updated_at TEXT)")
+_settings_ready: set = set()
+
+
+def _ensure_settings(m) -> None:
+    """The hosted DB gets schema changes only from `python -m api.seed`, so this table is created on first use."""
+    where = db.DATABASE_URL or str(db.MAIN_DB)
+    if where in _settings_ready:
+        return
+    if not db.DATABASE_URL:
+        m.execute(_SETTINGS_DDL)
+    elif not m.execute("SELECT 1 FROM information_schema.tables WHERE table_schema = current_schema()"
+                       " AND table_name = 'round_settings'").fetchone():
+        m.execute(_SETTINGS_DDL)
+        m.execute("ALTER TABLE round_settings ENABLE ROW LEVEL SECURITY")  # same lock-down as pg.init: RLS, no policies
+    _settings_ready.add(where)
+
+
+def comments_off(m, round_id: str) -> bool:
+    _ensure_settings(m)
+    r = m.execute("SELECT comments_off FROM round_settings WHERE round_id = ?", (round_id,)).fetchone()
+    return bool(r and r["comments_off"])
+
+
+def with_moderator(decision: dict, off: bool) -> dict:
+    if not off:
+        return {**decision, "moderator_off": False}
+    return {**decision, "enabled": False, "basis": "moderator", "moderator_off": True,
+            "auto_enabled": decision.get("enabled"),
+            "reason": "the ACAPS moderator turned peer comments off for this round"}
+
+
+def set_comments_off(round_id: str, off: bool) -> dict:
+    get_round(round_id)  # 404 if unknown
+    with db.main_db() as m:
+        _ensure_settings(m)
+        m.execute("DELETE FROM round_settings WHERE round_id = ?", (round_id,))
+        m.execute("INSERT INTO round_settings (round_id, comments_off, updated_at) VALUES (?,?,?)",
+                  (round_id, int(off), datetime.now(timezone.utc).isoformat()))
+    return round_comments(round_id)
 
 
 # ---------- expert-facing round info ----------
@@ -374,6 +421,7 @@ def round_detail(round_id: str) -> dict:
         triggers = [dict(t) for t in m.execute(
             f"SELECT trigger_id, title, description, completion_rate FROM triggers WHERE risk_id = ? AND trigger_id IN "
             f"({','.join('?' * len(tids))}) ORDER BY trigger_id", (rnd["risk_id"], *tids))] if tids else []
+        off = comments_off(m, round_id)
     for q in questions:
         q["kind"] = "agree" if q["trigger_id"] is None else "forecast"
         q.pop("outcome", None)  # never reveal resolution data through the round card
@@ -381,7 +429,7 @@ def round_detail(round_id: str) -> dict:
             "opened_at": rnd["opened_at"], "risk_title": risk.get("title"),
             "risk": {**{k: risk.get(k) for k in ("risk_id", "country", "probability", "impact", "level", "status")},
                      **_radar_extra(rnd["risk_id"])},
-            "triggers": triggers, "questions": questions, "comments": comments_policy.decide(risk)}
+            "triggers": triggers, "questions": questions, "comments": with_moderator(comments_policy.decide(risk), off)}
 
 
 # ---------- moderator view ----------
@@ -403,7 +451,8 @@ def moderator_free_text(round_id: str) -> list[dict]:
 def demo_reset(round_id: str) -> dict:
     """TEMPORARY demo-only (main.py gates it on GT_DEMO_RESET=1): the round back to 'blind' with no answers,
     so the pitch demo can start again. Deletes this round's answers, "I'm seeing this" ticks, AI-synthesis
-    cache, published summary and "this invite already answered" rows. Other rounds are untouched."""
+    cache, published summary and "this invite already answered" rows, and puts peer comments back to automatic.
+    Other rounds are untouched."""
     get_round(round_id)  # 404 if unknown
     with db.main_db() as m, db.vault_db() as v:
         n = m.execute("SELECT COUNT(DISTINCT author_token) FROM contributions WHERE round_id = ?",
@@ -411,6 +460,8 @@ def demo_reset(round_id: str) -> dict:
         for table in ("contributions", "observed_triggers", "syntheses", "summaries"):
             m.execute(f"DELETE FROM {table} WHERE round_id = ?", (round_id,))
         m.execute("UPDATE rounds SET stage = 'blind', closed_at = NULL WHERE round_id = ?", (round_id,))
+        _ensure_settings(m)
+        m.execute("DELETE FROM round_settings WHERE round_id = ?", (round_id,))  # comments back to automatic
         v.execute("DELETE FROM round_participation WHERE round_id = ?", (round_id,))
     return {"round_id": round_id, "stage": "blind", "removed_responses": n}
 
@@ -456,6 +507,7 @@ def moderator_view(round_id: str) -> dict:
         authors = m.execute("SELECT author_token, MAX(tier) tier FROM contributions WHERE round_id = ?"
                             " GROUP BY author_token ORDER BY MIN(id)", (round_id,)).fetchall()
         split = basis_split(m, round_id, questions, final)
+        off = comments_off(m, round_id)
     v1_by = {(r["author_token"], r["question_id"]): r for r in v1}
     shifts = []
     for qid in questions:
@@ -480,5 +532,5 @@ def moderator_view(round_id: str) -> dict:
         "contributors": [{"author_token": a["author_token"], "tier": a["tier"],
                           "identity": trust.resolve_identity(a["author_token"], a["tier"])} for a in authors],
         "free_text": moderator_free_text(round_id),
-        "comments": comments_policy.decide(risk),
+        "comments": with_moderator(comments_policy.decide(risk), off),
     }
