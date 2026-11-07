@@ -3,7 +3,7 @@ import { api, DEMO_TOKEN } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, recordSummary, verdict } from '../stats.js'
-import { Head, Loading } from '../components/ui.jsx'
+import { Head, Loading, LoadError } from '../components/ui.jsx'
 import { RecordHero, BrierCompare, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 
 const short = (text) => text.split('? ')[1] || text
@@ -34,7 +34,8 @@ export function PastCard({ r }) {
 // #/record: every resolved forecast behind the "x of y correct" card
 export function RecordPage() {
   const { t } = useT()
-  const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  const [tr, trErr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  if (trErr) return <LoadError error={trErr} />
   if (!tr) return <Loading />
   const rec = recordSummary(tr.history)
   const nocall = rec.verdicts.filter((v) => v === 'nocall').length
@@ -79,9 +80,10 @@ function useBaseline(available) {
 // #/accuracy: the Brier score card broken down question by question, against a baseline the expert picks
 export function AccuracyPage() {
   const { t } = useT()
-  const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  const [tr, trErr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
   const available = tr ? Object.keys(BASELINES).filter((k) => tr.history.length && tr.history.every((r) => r[BASELINES[k].brier] != null)) : ['acaps']
   const [vs, setVs] = useBaseline(available)
+  if (trErr) return <LoadError error={trErr} />
   if (!tr) return <Loading />
   const b = BASELINES[vs]
   const h = tr.history, n = h.length

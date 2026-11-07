@@ -3,14 +3,15 @@ import { api, DEMO_TOKEN, demoPseudonym } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, recordSummary } from '../stats.js'
-import { Head, Chip, Loading } from '../components/ui.jsx'
+import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 import { RecordHero, BrierCompare, ProbMeter } from '../components/charts.jsx'
 import { PastCard } from './Record.jsx'
 
 // Track record follows Lane A's analysis/leaderboard.py track_record() output (contracts/schemas/track-record).
 export default function Profile() {
   const { t, tx, date } = useT()
-  const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  const [tr, trErr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  if (trErr) return <LoadError error={trErr} />
   if (!tr) return <Loading />
   const rec = recordSummary(tr.history)
   const counted = tr.forecasts_until_counted === 0
@@ -18,9 +19,9 @@ export default function Profile() {
   return (
     <section className="page">
       <div className="profile-head">
-        <div className="avatar" aria-hidden="true">{demoPseudonym()[0]}</div>
+        {demoPseudonym() && <div className="avatar" aria-hidden="true">{demoPseudonym()[0]}</div>}
         <div>
-          <Head level={1} title={`${t('profile')} · ${demoPseudonym()}`} sub={t('profile_sub')} />
+          <Head level={1} title={demoPseudonym() ? `${t('profile')} · ${demoPseudonym()}` : t('profile')} sub={t('profile_sub')} />
           <div className="chips">
             {tr.super_estimator && <span className="badge-star" title={t('super_est_d')}>{t('super_est')}</span>}
           </div>

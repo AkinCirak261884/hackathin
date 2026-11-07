@@ -13,11 +13,11 @@ Folders: `web/`, `pitch/`. Don't edit `contracts/`, `api/`, `analysis/`, `modera
 
 ## Latest update
 
-### Lane C — update #8 — 15:02
-Done: web ↔ API mismatches owned by C (status/A.md W1, W2, W3, W6, W8, W9, W10, W12, W14): adapters in web/src/api.js map Lane B's responses onto the contract shapes, so screens are unchanged. Tested end to end against lane-b @ 1e6a58d with a fresh DB: open rounds → round → anonymous submit → locked → moderator reveal → group view → one revision → track record → public. Anonymous: phone sends sha256(secret) as device_secret, raw secret never leaves the phone (closes W7 on our side, no API change). Reveal shows "waiting for the moderator" while locked; agree share instead of 3-way bars; moderator-approved themes instead of verbatim peer comments when on the API (W11).
-Pushed: lane-c | PR: see BOARD.md integration log
-How to see it: VITE_API_URL=http://localhost:8000 npm run dev (with B's API running); demo mode unchanged
-Requests to other lanes: →A/B: track record lists the revised forecast as pending; we score the blind (v1) answer, please confirm. →B: rationale/trend/exposure on GET /rounds/{id} (W3), 3-way rating + ranking fields (W4/W5), closes_at on open rounds (W2)
+### Lane C — update #9 — 16:58
+Done: hosted the stack (see BOARD integration log): live site on the API + Supabase with personal invite links; Supabase/Postgres port of the API (PR #3 for B, 111/111 tests on Postgres, moderator key on /moderator/*). Peers no longer see track records (agreed with B). Clear error pages instead of endless loading. Checked every page of both sites in headless Chrome.
+Pushed: lane-c, merged to main (PRs #4, #5) | PR #3 open for B
+How to see it: https://groundtruth-acaps.vercel.app (pitch) · https://groundtruth-acaps-live.vercel.app/#/?invite=inv_demo_02 (live)
+Requests to other lanes: →B: review PR #3; remove or lock GET /leaderboard. →A/B: confirm v1 (blind) is the scored version
 Contract change proposed: none
-Next: backup demo video; moderator slide with A/B
-Blockers: none for C
+Next: backup demo video; moderator slide
+Blockers: none

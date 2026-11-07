@@ -3,13 +3,14 @@ import { api, DEMO_TOKEN, MAIN_ROUND_ID, lastSubmission } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, verdict } from '../stats.js'
-import { Head, Chip, Loading } from '../components/ui.jsx'
+import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 import { BrierCompare, VerdictBadge } from '../components/charts.jsx'
 
 // One forecast in detail, opened from the profile's "Latest" / "Past predictions" lists: #/guess/<question_id>
 export default function Guess({ questionId }) {
   const { t, tx, date } = useT()
-  const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  const [tr, trErr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  if (trErr) return <LoadError error={trErr} />
   if (!tr) return <Loading />
 
   const past = tr.history.find((r) => r.question_id === questionId)

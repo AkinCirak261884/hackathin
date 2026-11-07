@@ -4,7 +4,7 @@ import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, likelihoodKey } from '../stats.js'
 import TierPicker from '../components/TierPicker.jsx'
-import { Head, Chip, Loading, Icon } from '../components/ui.jsx'
+import { Head, Chip, Loading, Icon, LoadError } from '../components/ui.jsx'
 import { ProbMeter } from '../components/charts.jsx'
 
 const PRESETS = [0.1, 0.3, 0.5, 0.7, 0.9]
@@ -16,14 +16,14 @@ function RiskSummary({ risk }) {
     <div className="risk">
       <div className="chips">
         <Chip>{risk.risk_id}</Chip><Chip>{risk.country}</Chip>
-        <Chip tone="hot">{risk.level}</Chip><Chip>{risk.trend}</Chip>
+        {risk.level && <Chip tone="hot">{risk.level}</Chip>}{risk.trend && <Chip>{risk.trend}</Chip>}
       </div>
       <h3>{risk.title}</h3>
-      <p className="small muted">{risk.rationale_short}</p>
+      {risk.rationale_short && <p className="small muted">{risk.rationale_short}</p>}
       <dl className="facts">
         <div><dt>{t('probability')}</dt><dd>{risk.probability}</dd></div>
         <div><dt>{t('impact')}</dt><dd>{risk.impact}/5</dd></div>
-        <div><dt>Exposure</dt><dd>{risk.expected_exposure}</dd></div>
+        {risk.expected_exposure && <div><dt>Exposure</dt><dd>{risk.expected_exposure}</dd></div>}
       </dl>
     </div>
   )
@@ -31,7 +31,7 @@ function RiskSummary({ risk }) {
 
 export default function Pulse({ roundId = 'RD-R1043-1' }) {
   const { t, tx, date } = useT()
-  const [round] = useLoad(() => api.round(roundId), [roundId])
+  const [round, roundErr] = useLoad(() => api.round(roundId), [roundId])
   const [step, setStep] = useState(0)
   const [busy, setBusy] = useState(false)
   const [a, setA] = useState({
@@ -39,6 +39,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
     missing: '', why: '', basis: [], tier: 'anonymous',
   })
   const set = (patch) => setA((s) => ({ ...s, ...patch }))
+  if (roundErr) return <LoadError error={roundErr} />
   if (!round) return <Loading />
 
   const { risk, questions } = round
