@@ -139,14 +139,30 @@ def test_fallback_groups_similar_answers(answers):
     assert grouped["response_ids"] == answers[:2]  # the two rainy-season/road answers
 
 
-def test_synthesis_never_reaches_peers(answers):
-    fake = FakeClient({"clusters": [{"label": "L", "summary": "MODERATOR-ONLY-SUMMARY",
+def test_synthesis_reaches_peers_only_after_reveal_and_never_public(answers):
+    # Decision 7 Nov (team owner, B offline): panel experts see the AI summary in the group view after the
+    # reveal. It must still never appear while blind, in /aggregate, or on the public page.
+    fake = FakeClient({"clusters": [{"label": "L", "summary": "PANEL-SUMMARY",
                                      "response_ids": [answers[0]]}], "identifying_details": []})
+    synthesis.run(RID, client=fake)
+    h = {"X-Invite-Token": "inv_demo_01"}
+    assert "PANEL-SUMMARY" not in client.get(f"/rounds/{RID}/thread", headers=h).text  # blind
+    with db.main_db() as m:
+        m.execute("UPDATE rounds SET stage = 'reveal' WHERE round_id = ?", (RID,))
+    for url in (f"/rounds/{RID}/aggregate", "/public/summaries"):
+        assert "PANEL-SUMMARY" not in client.get(url, headers=h).text
+    t = client.get(f"/rounds/{RID}/thread", headers=h).json()
+    if t["comments"]["enabled"] and not t.get("suppressed"):
+        assert t["summary"]["source"] == "ai" and t["summary"]["themes"][0]["summary"] == "PANEL-SUMMARY"
+
+
+def test_identifying_answers_never_reach_peers(answers):
+    fake = FakeClient({"clusters": [{"label": "L", "summary": "FLAGGED-SUMMARY", "response_ids": [answers[0]]}],
+                       "identifying_details": [{"response_id": answers[0], "reason": "names a village chief"}]})
     synthesis.run(RID, client=fake)
     with db.main_db() as m:
         m.execute("UPDATE rounds SET stage = 'reveal' WHERE round_id = ?", (RID,))
-    for url in (f"/rounds/{RID}/thread", f"/rounds/{RID}/aggregate", "/public/summaries"):
-        assert "MODERATOR-ONLY-SUMMARY" not in client.get(url, headers={"X-Invite-Token": "inv_demo_01"}).text
+    assert "FLAGGED-SUMMARY" not in client.get(f"/rounds/{RID}/thread", headers={"X-Invite-Token": "inv_demo_01"}).text
 
 
 @pytest.mark.skipif(not (seed.SYNTH_DIR / "responses_R1043.json").exists(), reason="Lane A data not present")

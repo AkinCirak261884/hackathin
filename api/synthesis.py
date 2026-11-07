@@ -87,7 +87,8 @@ def input_hash(items: list[dict]) -> str:
 _STOP = set("""the and for that this with from have will are was were been being not but they their there
 which would could should about into more than also only very much such these those other some when what
 where while because does doing done over under after before between during ACAPS acaps risk rating
-analysis missing impact probability les des une pour dans avec sont mais plus pas que qui sur est""".split())
+analysis missing impact probability les des une pour dans avec sont mais plus pas que qui sur est
+seeing list bigger""".split())  # last line: words from the web app's addition prefixes
 
 
 def _words(text: str) -> list[str]:
@@ -247,3 +248,43 @@ def run(round_id: str, force: bool = False, client=None) -> dict:
 def _fallback(reason: str, items: list[dict]) -> dict:
     return {"synthesis_source": "fallback", "fallback_reason": reason, "model": None,
             "missing_clusters": fallback_clusters(items), "identifying_details": []}
+
+
+# ---------- peer view of expert additions (decided 7 Nov by Lane C with the team owner, B offline) ----------
+# Experts can add developments ACAPS hasn't listed and their own top-3 risk. The web app sends them inside
+# missing_text with these prefixes. Peers see them after the reveal: no authors, no tiers, no order, only
+# when the round's group view is unlocked (n >= 3) and Lane B's comments policy allows peer text; answers
+# the AI flagged as identifying are left out. Plus a summary: the moderator-run AI synthesis if cached,
+# else the free keyword grouping (labelled as such).
+_SIGNAL = re.compile(r"^Seeing, not on ACAPS's list( \(may be bigger than this risk\))?: (.+)$")
+_RISK = "Risk missing from the top-3 list: "
+
+
+def peer_additions(round_id: str) -> dict:
+    items = items_for(round_id)
+    hit = cached(round_id)
+    flagged = {d["response_id"] for d in (hit or {}).get("identifying_details", [])}
+    seen, adds = set(), []
+    for it in items:
+        if it["response_id"] in flagged:
+            continue
+        for line in it["text"].splitlines():
+            m = _SIGNAL.match(line.strip())
+            if m:
+                item = {"kind": "signal", "bigger": bool(m.group(1)), "text": m.group(2).strip()[:200]}
+            elif line.strip().startswith(_RISK):
+                item = {"kind": "risk", "bigger": False, "text": line.strip()[len(_RISK):].strip()[:120]}
+            else:
+                continue
+            key = (item["kind"], item["text"].lower())
+            if item["text"] and key not in seen:
+                seen.add(key)
+                adds.append(item)
+    adds.sort(key=lambda a: (a["kind"], not a["bigger"], a["text"].lower()))  # stable, says nothing about who/when
+    if hit and hit.get("synthesis_source") == "claude":
+        source, clusters = "ai", hit.get("missing_clusters", [])
+    else:
+        source, clusters = "keywords", fallback_clusters(items) if items else []
+    summary = [{"label": c["label"], "summary": c["summary"], "n": c["n"]} for c in clusters
+               if not set(c.get("response_ids", [])) & flagged]
+    return {"additions": adds, "summary": {"source": source, "themes": summary} if summary else None}
