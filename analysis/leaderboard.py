@@ -91,6 +91,7 @@ def resolved_answers(con):
         cal_b = brier(cal_p, outcome) if cal_p is not None else None
         by_token.setdefault(token, []).append({
             "question_id": qid,
+            "risk_id": risk_id,
             "text": text,
             "closes_at": closes_at,
             "outcome": outcome,
@@ -103,8 +104,22 @@ def resolved_answers(con):
             "calibrated_acaps_prob": round(cal_p, 4) if cal_p is not None else None,
             "calibrated_acaps_brier": round(cal_b, 4) if cal_b is not None else None,
             "beat_calibrated_acaps": (b < cal_b) if cal_b is not None else None,
+            "verdict": verdict(prob, outcome),
         })
     return by_token
+
+
+def verdict(prob, outcome):
+    """Same rule as Lane C's web/src/stats.js: right side of 50% = correct; exactly 50% = no call."""
+    if prob == 0.5:
+        return "nocall"
+    return "correct" if (prob > 0.5) == bool(outcome) else "wrong"
+
+
+def record(history):
+    """{correct, resolved, no_call}: the "7 of 8 correct" line; resolved excludes no-calls."""
+    v = [h["verdict"] for h in history]
+    return {"correct": v.count("correct"), "resolved": len(v) - v.count("nocall"), "no_call": v.count("nocall")}
 
 
 def _has(con, table, column=None):
@@ -262,6 +277,7 @@ def track_record(con, author_token):
         "n_ranked": len(ranked),
         "rank_percentile": round(1 - (rank - 1) / len(ranked), 3) if rank else None,
         "acaps_mapping": APP_MAPPING,
+        "record": record(history),
         "history": history,
         "pending": pending_answers(con, author_token),
     }

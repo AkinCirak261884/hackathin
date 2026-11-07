@@ -46,17 +46,22 @@ def add_backtest(con, vault, seed=SEED):
     rng = random.Random(seed)
     tokens = {v["expert_id"]: v["author_token"] for v in vault}
     risks = resolved_risks(con)
+    links = con.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='round_questions'").fetchone()
     acaps_pairs = []  # (label, outcome)
     for risk_id, title, probability, outcome in risks:
         qid, rid = f"Q-{risk_id}-MAT", f"RND-{risk_id}-BT"
         acaps_p = ACAPS_PROB[probability]
         acaps_pairs.append((probability, outcome))
-        con.execute("INSERT OR REPLACE INTO rounds VALUES (?, ?, 'closed', ?)", (rid, risk_id, OPENED))
+        # Named columns: Lane B's rounds/questions tables carry extra columns (with defaults).
+        con.execute("INSERT OR REPLACE INTO rounds (round_id, risk_id, stage, opened_at) VALUES (?, ?, 'closed', ?)",
+                    (rid, risk_id, OPENED))
         con.execute(
             "INSERT OR REPLACE INTO questions (question_id, risk_id, trigger_id, text, closes_at, outcome)"
             " VALUES (?, ?, NULL, ?, ?, ?)",
             (qid, risk_id, f"Will this risk materialise within six months? {title}", OPENED, outcome),
         )
+        if links:  # Lane B's round → question link table
+            con.execute("INSERT OR IGNORE INTO round_questions (round_id, question_id) VALUES (?, ?)", (rid, qid))
         # One shared, noisy "ground truth" per risk, so experts' errors are correlated like real ones.
         truth = sigmoid((SIGNAL if outcome else -SIGNAL) + rng.gauss(0, 1.0))
         for expert_id, *_rest, tier, _lang, archetype in EXPERTS:

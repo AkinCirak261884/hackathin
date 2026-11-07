@@ -117,6 +117,7 @@ track_record(con, author_token)          # → GET /me/track-record (served only
 leaderboard(con, viewer_token=None)      # → peer-visible board: display names, no tokens
 ```
 
+- **`record`:** `{correct, resolved, no_call}` for Lane C's "7 of 8 correct" line, and a per-question `verdict` (`correct` / `wrong` / `nocall`): same rule as `web/src/stats.js`, right side of 50% is correct, exactly 50% is no call. History items also carry `risk_id`.
 - **`pending`:** the author's final answers on unresolved questions, soonest deadline first, in Lane C's fixture shape (`question_id, title, title_fr, text, text_fr, your_prob, closes_at, submitted_at`; French fields are `null` until questions carry translations).
 - **Ranked only after 5 resolved forecasts** (`MIN_RESOLVED`); below that, `forecasts_until_counted` says how many more are needed.
 - **Rank by shrunk mean Brier:** `(n·mean + 5·group_mean) / (n + 5)` (`SHRINK_K = 5`), so a few lucky calls can't top the board.
@@ -161,3 +162,7 @@ disagreement(con, question_id)  # → None if n < 3, else the dict below (modera
 | Weighted + extremized ×2.0 | 0.150 |
 
 The questions have no real close dates, so Risk ID order stands in for time. **Caveat:** the experts are synthetic and their errors are independent by construction, which flatters both averaging and extremizing (that's why ×2.0 still helps). Real experts share sources, so expect smaller gains; keep the factor mild until pilot data says otherwise. Numbers are in `backtest_summary.json` → `aggregate_backtest`.
+
+## demo_history.py
+
+A fresh Lane B database only has the open R1043 round, so the profile, badge and leaderboard are empty in the demo. `seed_history(con, demo=True)` (or `python3 analysis/demo_history.py --demo --db <path>`) adds all 139 risks and the synthetic backtest history (closed rounds `RND-{risk}-BT`, questions `Q-{risk}-MAT` with real outcomes, the 8 synthetic experts' answers under the same `psd_` / `anon_` tokens Lane B's API derives). Idempotent; leaves existing rows alone. **Demo-only:** refuses without `demo=True` / `--demo`, and refuses any database holding a non-synthetic expert (an `experts` row outside the panel, or any author token that isn't one of the panel's). It stays in `analysis/`; Lane B decides whether `api/seed.py` calls it. Verified against Lane B's running API in the smoke test: Birch shows 73 resolved forecasts and a badge, the leaderboard lists 8 experts with "Anonymous expert" for the anonymous one.
