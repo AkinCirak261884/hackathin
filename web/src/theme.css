@@ -141,10 +141,15 @@ input[type=range] { accent-color: var(--accent); }
 .demo-reset { border-color: var(--line-strong); border-radius: var(--radius); background: transparent; }
 
 /* ---------- motion (respectful) ---------- */
+/* "backwards", not "both": a transform animation that keeps filling turns the element into the containing block
+   for position: fixed children, so the survey's Back/Next bar sat over the end of each step instead of the screen
+   bottom (hiding the Impact buttons, "Known to ACAPS", the comments note). The survey only fades, never moves. */
 @media (prefers-reduced-motion: no-preference) {
-  main > * { animation: gt-rise .35s var(--ease) both; }
+  main > * { animation: gt-rise .35s var(--ease) backwards; }
+  main > .pulse { animation-name: gt-fade; }
 }
 @keyframes gt-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes gt-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ---------- hover: the only place green shading appears ---------- */
 @media (hover: hover) {
