@@ -24,13 +24,13 @@
 
 | Time | Beat |
 |---|---|
-| 0:00–0:25 | **Hook.** The people closest to a crisis sense it shifting first, and that knowledge disappears in informal chats. |
-| 0:25–1:35 | **Live demo on a phone, R1043 Chad, in French:** 3-minute pulse → anonymity tier → group reveal → revise. |
+| 0:00–0:20 | **Hook.** The people closest to a crisis sense it shifting first, and that knowledge disappears in informal chats. |
+| 0:20–1:35 | **Live demo on a phone, R1043 Chad:** check-in → anonymity tier → reasons first → revise once → group view → track record. |
 | 1:35–2:00 | **Moderator view:** agreement vs ACAPS rating, region split (n<3 hidden), "what's missing" clusters, publish. |
-| 2:00–2:25 | **Does it work?** Backtest on 104 resolved risks; Brier vs ACAPS baseline; super-estimator board (Lane A numbers). |
+| 2:00–2:25 | **Does it work?** ACAPS's ratings on 99 resolved risks: Brier 0.213 vs 0.239 for always saying the base rate (Lane A backtest). |
 | 2:25–2:45 | **Trust:** invite-only, 3 tiers, min-3 rule, no verbatim text, no IP logging. Witnesses get signposted to ICC/eyeWitness, not taken in. |
 | 2:45–3:00 | **Pilot:** one link, no account, experts see the impact of their input. Ready for December. |
 
 ## Demo script
 
-TODO (Sat evening): exact clicks, fallback video path, who holds the phone.
+See [demo-script.md](demo-script.md): exact taps and lines, roles, setup checklist, fallbacks, likely judge questions, backup video.
