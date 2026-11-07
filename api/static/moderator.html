@@ -247,9 +247,16 @@ async function openRound(id) {
       catch (e) { v.prepend(err(e.message)); synthBtn.disabled = false; synthBtn.textContent = "Run AI synthesis"; }
     } }, "Run AI synthesis");
 
+    // TEMPORARY demo-only: shown only when the API runs with GT_DEMO_RESET=1. Remove before the pilot.
+    const resetBtn = m.demo_reset ? el("button", { class: "ghost", onclick: async () => {
+      if (!confirm(`Reset ${id} for the demo?\n\nDeletes all ${m.n_responses} answers in this round and puts it back to "blind". This can't be undone.`)) return;
+      try { await api(`/moderator/rounds/${encodeURIComponent(id)}/demo-reset`, { method: "POST" }); await loadRounds(); openRound(id); }
+      catch (e) { v.prepend(err(e.message)); }
+    } }, "Reset round (demo)") : null;
+
     const ftById = Object.fromEntries((m.free_text || []).map((f) => [f.response_id, f]));
     v.replaceChildren(
-      el("div", { class: "row" }, el("h2", { style: "margin:0;flex:1" }, `${id} · ${m.risk_id}`), el("span", { class: STAGE_PILL[m.stage] }, m.stage), advanceBtn),
+      el("div", { class: "row" }, el("h2", { style: "margin:0;flex:1" }, `${id} · ${m.risk_id}`), el("span", { class: STAGE_PILL[m.stage] }, m.stage), advanceBtn, resetBtn),
       el("p", { class: "small" }, pub.risk_title || ""),
       el("dl", { class: "facts" },
         el("div", {}, el("dt", {}, "Responses"), el("dd", {}, m.n_responses)),

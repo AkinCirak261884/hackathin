@@ -396,6 +396,21 @@ def moderator_free_text(round_id: str) -> list[dict]:
             for r in rows]
 
 
+def demo_reset(round_id: str) -> dict:
+    """TEMPORARY demo-only (main.py gates it on GT_DEMO_RESET=1): the round back to 'blind' with no answers,
+    so the pitch demo can start again. Deletes this round's answers, "I'm seeing this" ticks, AI-synthesis
+    cache, published summary and "this invite already answered" rows. Other rounds are untouched."""
+    get_round(round_id)  # 404 if unknown
+    with db.main_db() as m, db.vault_db() as v:
+        n = m.execute("SELECT COUNT(DISTINCT author_token) FROM contributions WHERE round_id = ?",
+                      (round_id,)).fetchone()[0]
+        for table in ("contributions", "observed_triggers", "syntheses", "summaries"):
+            m.execute(f"DELETE FROM {table} WHERE round_id = ?", (round_id,))
+        m.execute("UPDATE rounds SET stage = 'blind', closed_at = NULL WHERE round_id = ?", (round_id,))
+        v.execute("DELETE FROM round_participation WHERE round_id = ?", (round_id,))
+    return {"round_id": round_id, "stage": "blind", "removed_responses": n}
+
+
 FIELD_BASES = ("field_observation", "local_contacts")
 
 

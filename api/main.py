@@ -206,7 +206,21 @@ def moderator_round(round_id: str):
     out.update({k: syn.get(k) for k in ("missing_clusters", "synthesis_source", "fallback_reason", "model",
                                        "identifying_details", "coordination_flags")})
     out["synthesis_generated_at"] = syn.get("generated_at")
+    out["demo_reset"] = demo_reset_on()
     return out
+
+
+# TEMPORARY demo-only: GT_DEMO_RESET=1 lets the moderator put a round back to the start for the pitch demo.
+# Off by default (button hidden, endpoint 404), so a pilot deployment never has it. Remove before the pilot.
+def demo_reset_on() -> bool:
+    return os.environ.get("GT_DEMO_RESET") == "1"
+
+
+@app.post("/moderator/rounds/{round_id}/demo-reset")
+def demo_reset(round_id: str):
+    if not demo_reset_on():
+        raise HTTPException(404, "demo reset is off (set GT_DEMO_RESET=1 on a demo deployment)")
+    return rounds.demo_reset(round_id)
 
 
 @app.post("/moderator/rounds/{round_id}/synthesis")
