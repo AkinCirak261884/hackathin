@@ -5,6 +5,9 @@ import { useT } from '../i18n.jsx'
 import { asPct, r05, recordSummary, verdict } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
 import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter, VerdictBadge } from '../components/charts.jsx'
+import acapsUKR from '../mock/acaps_country_UKR.json' // public ACAPS snapshot, see _note in the file
+
+const ACAPS_COUNTRY = { UKR: acapsUKR }
 
 export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const { t, tx, date } = useT()
@@ -41,6 +44,7 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
       )}
       <Head level={1} title={t('reveal')} sub={t('reveal_sub', n)} />
       {round.practice && round.outcome && <PracticeOutcome round={round} agg={agg} />}
+      {ACAPS_COUNTRY[round.risk.iso] && <CountryNow c={ACAPS_COUNTRY[round.risk.iso]} />}
 
       <div className="grid">
         <article className="card chart-card">
@@ -209,6 +213,41 @@ function PracticeOutcome({ round, agg }) {
         </div>
       )}
       <p className="muted small">{t('practice_scored')}</p>
+    </article>
+  )
+}
+
+// Country context from ACAPS, shown only after answering (on the reveal screen), so later events
+// can't give away a practice question's outcome. Energy-related events are tagged.
+function CountryNow({ c }) {
+  const { t, date } = useT()
+  const k = c.crisis
+  return (
+    <article className="card country-now">
+      <Head eyebrow={<><Chip>{c.country}</Chip><Chip>{k.crisis_id}</Chip></>} title={t('cn_title', c.country)} sub={t('cn_sub')} />
+      <dl className="facts">
+        <div><dt>{t('cn_severity')}</dt><dd>{k.severity.toFixed(1)} · {k.severity_label}</dd></div>
+        <div><dt>{t('cn_access')}</dt><dd>{k.access_constraints.toFixed(1)}</dd></div>
+        <div><dt>{t('cn_updated')}</dt><dd>{date(k.updated_at)}</dd></div>
+      </dl>
+      <dl className="facts">
+        {c.key_figures.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd><span className="muted small">{f.source}, {date(f.date)}</span></div>)}
+      </dl>
+      <h3 className="q-title">{t('cn_events')}</h3>
+      <ul className="cn-events">
+        {c.events.map((e) => (
+          <li key={e.date + e.text.slice(0, 12)}>
+            <span className="muted small">{date(e.date)}</span>{e.energy && <> <Chip tone="hot">{t('cn_energy')}</Chip></>}
+            <div className="small">{e.text}</div>
+          </li>
+        ))}
+      </ul>
+      <h3 className="q-title">{t('cn_reports')}</h3>
+      <ul className="cn-events">
+        {c.reports.map((x) => <li key={x.url}><a href={x.url} target="_blank" rel="noopener noreferrer">{x.title}</a> <span className="muted small">· {date(x.date)}</span></li>)}
+      </ul>
+      <p className="muted small">{t('cn_needs')}: {c.priority_needs.join(', ')}</p>
+      <p className="note">{t('cn_source')} <a href={c.source_url} target="_blank" rel="noopener noreferrer">acaps.org</a> · {date(c.fetched_at)}</p>
     </article>
   )
 }

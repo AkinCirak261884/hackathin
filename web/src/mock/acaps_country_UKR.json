@@ -1,0 +1,37 @@
+{
+  "_note": "Snapshot of public ACAPS data, paraphrased, used under ACAPS' terms of use. Source page fetched 2026-11-07. Replace with the ACAPS API (api.acaps.org) when available.",
+  "iso": "UKR",
+  "country": "Ukraine",
+  "source_url": "https://www.acaps.org/en/countries/ukraine",
+  "fetched_at": "2026-11-07",
+  "crisis": {
+    "crisis_id": "UKR002",
+    "name": "Conflict in Ukraine",
+    "drivers": "Conflict/Violence",
+    "severity": 9.1,
+    "severity_label": "Very High",
+    "access_constraints": 9.0,
+    "scale": "INFORM Severity Index (0–10)",
+    "updated_at": "2026-10-27"
+  },
+  "key_figures": [
+    { "label": "People in need (2025)", "value": "12.7M", "source": "OCHA", "date": "2025-01-14" },
+    { "label": "Internally displaced", "value": "3.7M+", "source": "IOM", "date": "2025-04-17" },
+    { "label": "Refugees abroad", "value": "5.6M", "source": "UNHCR", "date": "2025-07-14" }
+  ],
+  "priority_needs": ["Protection", "WASH", "Health", "Shelter & NFIs", "Livelihoods"],
+  "events": [
+    { "date": "2026-08-05", "energy": true, "text": "Strikes on infrastructure in Crimea since late May: over 70% of an estimated 2.5–3M residents hit by power cuts; water in the largest cities limited to 1–2 hours a day." },
+    { "date": "2026-06-19", "energy": false, "text": "Donetsk region's last maternity hospital (Sloviansk) closed after a nearby airstrike on 8 June." },
+    { "date": "2026-06-15", "energy": false, "text": "Attacks on 24 May, 2 June and 15 June used over 1,860 drones and 230 missiles; 41,000 Kyiv residents sheltered in the metro on 2 June." },
+    { "date": "2026-06-09", "energy": false, "text": "Kostiantynivka: about 2,500 remaining residents rely on two working wells." },
+    { "date": "2026-05-18", "energy": false, "text": "Oleshky (occupied Kherson oblast, ~2,000 residents) cut off by mined roads; last food delivery 17 February." },
+    { "date": "2026-04-23", "energy": false, "text": "Front line within 15 km of Sloviansk–Kramatorsk; over 600 people evacuated from Sloviansk in late March." },
+    { "date": "2026-01-20", "energy": true, "text": "Strikes on 19 January left 5,600+ Kyiv high-rises without power, heating or water; first national energy emergency declared. Grid ran a ~40% capacity deficit (11 of 18 GW)." }
+  ],
+  "reports": [
+    { "date": "2026-10-15", "title": "May–August 2026 humanitarian access update", "url": "https://www.acaps.org/fileadmin/Data_Product/Main_media/20261015_ACAPS_Ukraine_May-August_2026_humanitarian_access_update_.pdf" },
+    { "date": "2026-09-23", "title": "Scenarios for the 2026–2027 cold season", "url": "https://www.acaps.org/fileadmin/Data_Product/Main_media/20260923_ACAPS_Ukraine_-_Scenarios_for_the_2026-2027_cold_season__.pdf" },
+    { "date": "2026-08-06", "title": "Developments in Donetska oblast's 'Fortress Belt'", "url": "https://www.acaps.org/fileadmin/Data_Product/Main_media/20260806_ACAPS_Ukraine_-_Developments_in_Donetska_oblast_s__Fortress_Belt____.pdf" }
+  ]
+}

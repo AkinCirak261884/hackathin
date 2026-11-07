@@ -297,3 +297,11 @@ textarea:focus, input:focus-visible, button:focus-visible, a:focus-visible { out
 .outcome { margin: 0 0 16px; border-width: 1.5px; }
 .outcome.yes { border-color: color-mix(in srgb, var(--div-high) 45%, var(--line)); }
 .outcome-score { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0 6px; font-size: 14px; font-weight: 600; }
+
+/* ACAPS country context card (reveal screen) */
+.country-now .facts + .facts { margin-top: 8px; }
+.country-now .facts dd { overflow-wrap: anywhere; }
+.cn-events { list-style: none; padding: 0; margin: 6px 0 12px; display: grid; gap: 10px; }
+.cn-events li { border-left: 3px solid var(--accent); padding-left: 10px; }
+.cn-events a { color: var(--accent); }
+@media (max-width: 420px) { .country-now .facts { grid-template-columns: 1fr 1fr; } }
