@@ -13,11 +13,11 @@ Folders: `web/`, `pitch/`. Don't edit `contracts/`, `api/`, `analysis/`, `modera
 
 ## Latest update
 
-### Lane C — update #7 — 14:22
-Done: Delphi step 2 (option B, reasons first). After submitting, experts read peer reasons without numbers, then keep or update once (sliders start at the first answer, optional "what changed your mind?"). Numbers unlock after the decision. First answer stays the scored one; detail page and "Check my answers" show first → updated. Practice round skips the step (outcome is shown).
-Pushed: lane-c | PR: https://github.com/AkinCirak261884/hackathin/pull/1
-How to see it: cd web && npm run dev → Check-ins → reset demo → answer Chad check-in → step 2
-Requests to other lanes: →B: revision arrives as POST version 2 with only changed forecasts + reasoning_text (no contract change). →A: score version 1; v1→v2 shift per question is available for the moderator view
+### Lane C — update #8 — 15:02
+Done: web ↔ API mismatches owned by C (status/A.md W1, W2, W3, W6, W8, W9, W10, W12, W14): adapters in web/src/api.js map Lane B's responses onto the contract shapes, so screens are unchanged. Tested end to end against lane-b @ 1e6a58d with a fresh DB: open rounds → round → anonymous submit → locked → moderator reveal → group view → one revision → track record → public. Anonymous: phone sends sha256(secret) as device_secret, raw secret never leaves the phone (closes W7 on our side, no API change). Reveal shows "waiting for the moderator" while locked; agree share instead of 3-way bars; moderator-approved themes instead of verbatim peer comments when on the API (W11).
+Pushed: lane-c | PR: see BOARD.md integration log
+How to see it: VITE_API_URL=http://localhost:8000 npm run dev (with B's API running); demo mode unchanged
+Requests to other lanes: →A/B: track record lists the revised forecast as pending; we score the blind (v1) answer, please confirm. →B: rationale/trend/exposure on GET /rounds/{id} (W3), 3-way rating + ranking fields (W4/W5), closes_at on open rounds (W2)
 Contract change proposed: none
-Next: pitch draft + demo script in pitch/
-Blockers: in real-API mode step 2 needs the first answer kept locally (only done in mock today), to agree with B
+Next: backup demo video; moderator slide with A/B
+Blockers: none for C

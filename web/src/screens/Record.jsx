@@ -110,7 +110,7 @@ export function AccuracyPage() {
       <div className="grid two">
         <article className="card">
           <Head title={t('acc_overall')} sub={t('acc_overall_sub', n)} />
-          {n > 0 && <BrierCompare you={tr.mean_brier} acaps={baseMean} vs={vs} />}
+          {n > 0 && tr.mean_brier != null ? <BrierCompare you={tr.mean_brier} acaps={baseMean} vs={vs} /> : <p className="muted small">{t('brier_none')}</p>}
           <p className="takeaway">{t(vs === 'group' ? 'beat_group_n' : 'beat_acaps_n', nBeat, n)}</p>
           <p className="muted small">
             {!counted ? t('not_ranked', tr.forecasts_until_counted)
