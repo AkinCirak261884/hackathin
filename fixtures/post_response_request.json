@@ -1,0 +1,42 @@
+{
+  "invite_token": "inv_9ca58217a5a2",
+  "tier": "known",
+  "version": 1,
+  "missing_text": "Les tensions entre réfugiés et communautés hôtes autour des points d'eau à Adré ne sont pas dans l'analyse ; elles montent depuis septembre.",
+  "reasoning_text": "Our teams in Adré see new arrivals every week and two incidents near water points in October.",
+  "reasoning_basis": [
+    "field_observation",
+    "local_contacts"
+  ],
+  "answers": [
+    {
+      "question_id": "Q-R1043-RATING",
+      "rating_probability": "agree",
+      "rating_impact": "agree"
+    },
+    {
+      "question_id": "Q-R1043-T0618",
+      "prob": 0.65,
+      "seeing": true
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "prob": 0.2,
+      "seeing": false
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "prob": 0.45,
+      "seeing": true
+    },
+    {
+      "question_id": "Q-TCD-TOP3",
+      "ranking": [
+        "R1043",
+        "SYN-TCD-03",
+        "SYN-TCD-01"
+      ],
+      "ranking_other": "Affrontements intercommunautaires autour des points d'eau (Ouaddaï)"
+    }
+  ]
+}

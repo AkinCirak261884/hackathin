@@ -23,7 +23,8 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
 - v1 once per invite per round; v2 once, after v1, same tier. Closed round → 409.
 - `GET /rounds/{id}/aggregate` with headers `X-Invite-Token` (+ `X-Device-Secret` for anonymous).
   403 until you submitted; each question `suppressed` until n ≥ 3 distinct authors (latest version
-  counts); dots sorted; free text never included.
+  counts); dots sorted; free text never included. Collective view only: the caller never gets
+  their own answers back (no `your_answers`), only group numbers (team decision 7 Nov).
 - Lane A data: if `analysis/synthetic/` exists, the seed uses that panel (invites `inv_tcd_01…`), and
   `responses_R1043.json` posts cleanly (test `test_lane_a_synthetic_round_posts_cleanly`).
 
@@ -70,3 +71,27 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
   as data and instructions inside them are ignored; output validated (unknown ids dropped, one cluster per answer);
   summaries must not contain identifying details; copy-paste/coordinated answers are flagged locally. Nothing is
   published from here — the moderator approves text in the publish flow.
+
+## Comments on/off from OCHA 3W presence (`api/comments_policy.py`)
+
+Team decision (7 Nov): with few organisations in the affected area, a comment is easy to trace
+back and easy to steer, so comments are off there.
+
+- `GET /rounds/{id}`, `/rounds/{id}/thread` and `GET /moderator/rounds/{id}` carry
+  `comments: {enabled, n_orgs, min_orgs, areas, area_basis, reason, source}`.
+- Affected area = provinces/states/oblasts named in the risk title, or a region ("eastern Chad",
+  "Darfur"), else the whole country. `n_orgs` = distinct organisations there (one org in two areas counts once).
+- `enabled` when `n_orgs >= COMMENTS_MIN_ORGS` (env, default 30). No 3W data for the country → off.
+- Data: `api/data/presence_3w.json`, built from OCHA 3W/5W on HDX (CC BY; Chad Sep 2026, Sudan Jan–Jul
+  2026, Ukraine Jan–Sep 2026). Rebuild: `uv run --with openpyxl python -m api.build_presence_3w <dir>`.
+- Examples: R1043 eastern Chad 146 orgs → on · R1051 West Kordofan 17 → off · R0248 East Darfur 19 → off.
+
+## Moderator page + key (`/ui/moderator`)
+
+- Open `http://localhost:8000/ui/moderator`. The page holds no data; it calls `/moderator/*` with the key.
+  Shows rounds (all stages), advance button, round-1 vs final distributions, revision shifts, comments
+  on/off + reason, "what's missing" groups + "Run AI synthesis", free text, contributors, leaderboard.
+- `GT_MODERATOR_KEY` set (hosted) → every `/moderator/*` call needs `X-Moderator-Key` (same code as PR #3).
+  Unset = local dev and tests.
+- Leaderboard is moderator-only: `GET /moderator/leaderboard`. The old `GET /leaderboard` returns 410.
+- `GET /moderator/rounds` lists every round with stage and n.

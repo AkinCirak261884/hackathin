@@ -29,13 +29,13 @@ Also answer the brief's example question: *"top three risks in Chad over the nex
 |---|---|---|---|
 | **A — data & scoring** | ___ | `analysis/`, `moderator/` | Risk Radar ingest, trigger → question generator, synthetic experts, Brier scoring, backtest, leaderboard, Streamlit moderator dashboard |
 | **B — backend & trust** | ___ | `api/` | DB schema, core API, identity vault, anonymity tiers, min-3 suppression, round stages, AI synthesis (moderator side only), publish flow |
-| **C — expert app & pitch** | ___ | `web/`, `pitch/` | Expert pulse app (mobile), anonymity tier picker, group reveal, track record, public summary page, EN/FR, pitch deck, demo script |
+| **C — expert app & pitch** | AkinCirak261884 | `web/`, `pitch/` | Expert pulse app (mobile), anonymity tier picker, group reveal, track record, public summary page, EN/FR, pitch deck, demo script |
 
 Shared, changed only after voice agreement: `contracts/`, `fixtures/`, `BOARD.md` decisions section.
 
 ## Decisions & contracts (change only after voice agreement)
 
-- **Stack:** `api/` = FastAPI + SQLite · `moderator/` = Streamlit (reads the DB directly) · `analysis/` = Python · `web/` = ___ (plain HTML/JS or React, Lane C decides)
+- **Stack:** `api/` = FastAPI + SQLite · `moderator/` = Streamlit (reads the DB directly) · `analysis/` = Python · `web/` = React 18 + Vite (Lane C decided)
 - **Branches:** `lane-a`, `lane-b`, `lane-c` → merge to `main` via small PRs, at least every 2–3 hours
 - **Commit prefix:** `[A]`, `[B]`, `[C]`
 - **Triggers → questions:** each trigger's "objective to meet 100%" becomes a yes/no question resolving 6 months after the round opens. R1043 = 3 trigger questions + 1 "do you agree with ACAPS's rating?" item.
@@ -49,6 +49,7 @@ Shared, changed only after voice agreement: `contracts/`, `fixtures/`, `BOARD.md
 - **Access:** invite-only. Each expert gets a personal invite token from the moderator. Rate-limit and revoke per token. The invite is the anti-spam and anti-misinformation layer, not metadata about the person. Possible extension: referral invites (an expert vouches, the moderator approves).
 - **Out of scope (on purpose):** open public reporting and war-crime evidence intake. Witness knowledge reaches ACAPS through panel experts ("what's missing" field). Add a static signpost screen that links to dedicated secure channels (e.g. OHCHR, ICC OTP, eyeWitness to Atrocities). Explain on one slide.
 - **Groupthink:** round 1 is blind. Group view (median, spread, one dot per answer) unlocks only after your own submit. One revision allowed; both versions stored.
+- **Track records (agreed 7 Nov, B + C):** each expert sees only their own record, privately. Peers never see anyone's record: comments show reasons only, and there is no public or peer leaderboard. The moderator sees all records to weigh views.
 - **Scoring:** Brier per answer. Moderator aggregate = median, later a track-record-weighted mean. Backtest baseline = ACAPS ratings mapped to Very Low 10% / Low 30% / Medium 50% / High 70% / Very High 90%, scored on resolved risks.
 
 ### Data model
@@ -104,13 +105,25 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 
 ## Requests between lanes
 
+- [ ] (C → A, B) Review draft `contracts/` + `fixtures/` (PR from `lane-c`). `contracts/README.md` lists 4 small additions to the data model above. Agree on voice, then freeze.
 - [ ] (A → B, C) **Smoke test results: see "⚠️ For the team call" at the top and `status/A.md` → "Smoke test" / "Web ↔ API mismatches" (owner per item).**
 - [ ] (A → B, C) Review "Lane A proposal: scoring approach" in `status/A.md` (min forecasts for leaderboard, 1–3-month questions). Agree on voice.
 - [x] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
 - [ ] (B → C) **Track record: tap the ✓ ✗ – chips to open the forecast history** (user feedback: "you only see checkmarks"). `RecordHero` in `web/src/components/charts.jsx` (`#/me`): make each `vchip` a button; tapping it opens/scrolls to that forecast's card (the question text, your % vs ACAPS %, happened/not, Brier). Also add a "Show history" toggle under the row. No API change needed: chip `i` = `/me/track-record` `history[i]`, which already has `question_id, risk_id, text, your_prob, acaps_prob, outcome, verdict, brier`. Use `question_id` as the anchor id; add `aria-label` per chip (it's `aria-hidden` today).
 - [ ] (B → C, FYI) **Lane B committed on lane-c at your team's request** (2918647): Ukraine practice reveal (`#/reveal/RD-R0993-P`) now shows an "Ukraine now, according to ACAPS" card (INFORM severity 9.1, access 9.0, 2026 events, latest reports). Data: `web/src/mock/acaps_country_UKR.json` (paraphrased public ACAPS page, fetched 7 Nov). Only touches `Reveal.jsx`, `i18n.jsx` (cn_* keys), `styles.css` (appended). Pull before your next commit; revert freely if it clashes.
+- [ ] (C → A) Track record `history[]`: please add `group_median_prob` (panel median at close, n ≥ 3), `group_brier` and `beat_group` per resolved question. The accuracy page lets experts compare against "ACAPS" or "Panel middle"; it uses synthetic values in `web/src/api.js` (`DEMO_GROUP_MEDIAN`) until then, and hides the option when the field is missing. Optional contract addition to `track-record.schema.json`.
+- [ ] (C → B) `GET /acaps/risks?panel=TCD`: server-side proxy to the ACAPS API (free account, token auth, see `docs/resources.md`). Keep the ACAPS token in the server env only, never send it to the browser; cache the result (the risk list updates monthly). Return `{ source: "live", panel, updated_at, risks: [{ risk_id, title, country, iso, risk_type, probability, impact, risk_level, trend, status }] }`, active risks for the panel's countries (TCD → TCD + SDN). Mock shape: `web/src/mock/acaps_risks_TCD.json`. The web app falls back to that snapshot if the call fails.
+- [ ] (C → A, B) Track record `pending[]` shows the **revised** (v2) forecast; our design scores the **blind** (v1) answer (both stored, see Delphi step 2). Please confirm which version `scoring.py` / `records.py` use. Found in Lane C's end-to-end test, 7 Nov.
+- [ ] (C → B) Still missing on the API side (web handles their absence): `GET /rounds/{id}` risk detail (`rationale_short`, `trend`, `expected_exposure`, trigger `description`) (W3); 3-way rating fields + top-3 ranking (W4/W5; web currently sends `agree` = both "about right"); `closes_at` on `/rounds/open` (W2). Anonymous: web now sends `device_secret = sha256(phone secret)`, works with the current API unchanged (W7).
+- [ ] (B → C) **Comments on/off per round** (team decision 7 Nov, anti-manipulation): `GET /rounds/{id}` and `/thread` now carry `comments: {enabled, n_orgs, min_orgs, areas, reason, source}`, from OCHA 3W presence on HDX. When `enabled` is false, hide the comment box and the peer comments section, and show `reason` in small text. E.g. R1043 eastern Chad 146 orgs → on; West Kordofan 17 → off. Details: `api/README.md` → "Comments on/off".
+- [ ] (B → C) **Collective view only** (team decision 7 Nov): `/aggregate` and `/thread` no longer return `your_answers`. The reveal screen should drop the "you" markers (dots, rating bars, your pick, check-your-answers) and show only group numbers.
+- [x] (C → B) Follows the track-record decision above: `GET /leaderboard` still returns every expert's pseudonym and score to any invite holder. Please remove it or put it behind the moderator key (`X-Moderator-Key`, see PR #3). The web app no longer calls it.
+- [ ] (B → A, C, FYI) **Moderator page:** `http://localhost:8000/ui/moderator` (served by the API, key-protected via `X-Moderator-Key` when `GT_MODERATOR_KEY` is set). Rounds, advance, round-1 vs final, revision shifts, comments on/off, AI synthesis, free text, contributors, leaderboard. Lane A: reuse or replace with your Streamlit dashboard as you like. `/leaderboard` is now 410 → `/moderator/leaderboard` (C's request: done).
 - [ ] (from → to) what is needed
 
 ## Integration log
+
+- 16:58 Hosted stack live (Lane C, for the demo): pitch site https://groundtruth-acaps.vercel.app (demo data, auto-deploys from `main`); live site https://groundtruth-acaps-live.vercel.app (invite links `#/?invite=inv_demo_02…08`) → API https://ground-truth-api.vercel.app → Supabase (Stockholm). API code = PR #3 (`supabase-api`, not merged into `lane-b`), deployed from Lane C's machine.
+- 16:58 Broke + fixed: merging into `main` rebuilt the API project from `main` (no API there), so the live API 404'd. API project is now disconnected from GitHub; redeploy it only with `vercel deploy --prod` from the `supabase-api` checkout.
 
 - HH:MM what was merged / what broke

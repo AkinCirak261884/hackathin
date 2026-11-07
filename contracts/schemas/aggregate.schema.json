@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aggregate.schema.json",
+  "title": "GET /rounds/{round_id}/aggregate. 403 before own submit; suppressed when n<3",
+  "type": "object",
+  "required": [
+    "round_id",
+    "n_responses",
+    "suppressed"
+  ],
+  "properties": {
+    "round_id": {
+      "type": "string"
+    },
+    "n_responses": {
+      "type": "integer"
+    },
+    "suppressed": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rating": {
+      "type": "object",
+      "description": "counts of too_low/agree/too_high",
+      "properties": {
+        "probability": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "impact": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "you": {
+          "type": "object"
+        }
+      }
+    },
+    "forecasts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "question_id",
+          "n",
+          "median",
+          "p25",
+          "p75",
+          "values"
+        ],
+        "properties": {
+          "question_id": {
+            "type": "string"
+          },
+          "n": {
+            "type": "integer"
+          },
+          "median": {
+            "type": "number"
+          },
+          "p25": {
+            "type": "number"
+          },
+          "p75": {
+            "type": "number"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "one dot per answer, rounded to 0.05, shuffled"
+          },
+          "acaps_baseline": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "seeing_count": {
+            "type": "integer"
+          },
+          "you": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "ranking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "option_id": {
+            "type": "string"
+          },
+          "points": {
+            "type": "integer"
+          },
+          "first_choice": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "can_revise": {
+      "type": "boolean"
+    },
+    "comments": {
+      "type": "array",
+      "description": "peer comments ('why I think this'), shown only after your own submit and n >= 3",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "comment_id",
+          "display_name",
+          "tier",
+          "text",
+          "is_you",
+          "record",
+          "forecasts"
+        ],
+        "properties": {
+          "comment_id": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "pseudonym, or 'Anonymous expert'. Never a name, token or expert_id"
+          },
+          "tier": {
+            "$ref": "common.schema.json#/$defs/tier"
+          },
+          "text": {
+            "type": "string"
+          },
+          "basis": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "common.schema.json#/$defs/reasoningBasis"
+            }
+          },
+          "is_you": {
+            "type": "boolean"
+          },
+          "record": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "null for anonymous tier (would link comments across rounds)",
+            "properties": {
+              "correct": {
+                "type": "integer"
+              },
+              "resolved": {
+                "type": "integer"
+              }
+            }
+          },
+          "forecasts": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "question_id -> prob; null for anonymous tier",
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}

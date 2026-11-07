@@ -1,0 +1,90 @@
+[
+  {
+    "expert_id": "E01",
+    "pseudonym": "Kestrel",
+    "country_panel": "TCD",
+    "lang": "fr",
+    "default_tier": "known",
+    "macro_region": "East",
+    "profile": "Local NGO director",
+    "invite_token": "inv_9ca58217a5a2",
+    "bias": "well_calibrated"
+  },
+  {
+    "expert_id": "E02",
+    "pseudonym": "Linden",
+    "country_panel": "TCD",
+    "lang": "en",
+    "default_tier": "known",
+    "macro_region": "N'Djamena",
+    "profile": "Anticipatory-action officer",
+    "invite_token": "inv_f8d33efb8bc3",
+    "bias": "anchored_on_acaps"
+  },
+  {
+    "expert_id": "E03",
+    "pseudonym": "Osprey",
+    "country_panel": "TCD",
+    "lang": "en",
+    "default_tier": "pseudonymous",
+    "macro_region": "Abroad",
+    "profile": "Conflict analyst, active on social media",
+    "invite_token": "inv_ea0daca9c81f",
+    "bias": "alarmist"
+  },
+  {
+    "expert_id": "E04",
+    "pseudonym": "Birch",
+    "country_panel": "TCD",
+    "lang": "fr",
+    "default_tier": "pseudonymous",
+    "macro_region": "Abroad",
+    "profile": "University researcher",
+    "invite_token": "inv_2c088d365245",
+    "bias": "underconfident"
+  },
+  {
+    "expert_id": "E05",
+    "pseudonym": "Heron",
+    "country_panel": "TCD",
+    "lang": "en",
+    "default_tier": "pseudonymous",
+    "macro_region": "Abroad",
+    "profile": "UN regional office",
+    "invite_token": "inv_103ffe902052",
+    "bias": "well_calibrated"
+  },
+  {
+    "expert_id": "E06",
+    "pseudonym": "Wren",
+    "country_panel": "TCD",
+    "lang": "fr",
+    "default_tier": "pseudonymous",
+    "macro_region": "East",
+    "profile": "MEAL officer",
+    "invite_token": "inv_bceb82ca9e47",
+    "bias": "noisy"
+  },
+  {
+    "expert_id": "E07",
+    "pseudonym": "-",
+    "country_panel": "TCD",
+    "lang": "fr",
+    "default_tier": "anonymous",
+    "macro_region": "East",
+    "profile": "Community responder",
+    "invite_token": "inv_ce141f70b747",
+    "bias": "alarmist"
+  },
+  {
+    "expert_id": "E08",
+    "pseudonym": "Alder",
+    "country_panel": "TCD",
+    "lang": "en",
+    "default_tier": "known",
+    "macro_region": "Abroad",
+    "profile": "Donor-agency methodologist",
+    "invite_token": "inv_6a855e421055",
+    "bias": "anchored_on_acaps"
+  }
+]

@@ -100,7 +100,6 @@ NON_MODERATOR = [
     ("get", f"/rounds/{RID}/aggregate"),
     ("get", "/me/track-record"),
     ("get", f"/rounds/{RID}/thread"),
-    ("get", "/leaderboard?panel=TCD"),
     ("post", "/me/leaderboard-opt-out"),
     ("get", "/public/summaries"),
 ]
@@ -128,6 +127,7 @@ def test_no_non_moderator_endpoint_returns_a_vault_identity(method, url, tier):
 def test_every_route_is_covered_by_leak_test():
     """Fails if someone adds a non-moderator route without adding it above."""
     covered = {u.split("?")[0].replace(RID, "{round_id}") for _, u in NON_MODERATOR}
+    covered |= {"/leaderboard", "/ui/moderator"}  # 410 / static HTML: checked in test_moderator_access.py
     routes = {r.path for r in app.routes if hasattr(r, "methods")}
     expert_routes = {p for p in routes if not p.startswith(("/moderator", "/docs", "/redoc", "/openapi"))}
     assert expert_routes - {"/health"} <= covered, expert_routes - covered

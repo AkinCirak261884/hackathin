@@ -13,7 +13,7 @@ from typing import Literal, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from api import db, records, rounds, seed, synthesis, trust
@@ -149,10 +149,9 @@ def track_record(x_invite_token: str = Header(...), x_device_secret: Optional[st
 
 
 @app.get("/leaderboard")
-def leaderboard(panel: str = "TCD", x_invite_token: Optional[str] = Header(None),
-                x_device_secret: Optional[str] = Header(None)):
-    """Peer leaderboard: display names only, no tokens. Headers optional (marks is_you)."""
-    return records.leaderboard(panel, x_invite_token, x_device_secret)
+def leaderboard_gone():
+    """Removed for experts (team decision 7 Nov: peers never see each other's records)."""
+    raise HTTPException(410, "leaderboard is moderator-only: GET /moderator/leaderboard with X-Moderator-Key")
 
 
 @app.post("/me/leaderboard-opt-out")
@@ -166,6 +165,28 @@ def public_summaries():
 
 
 # ---------- moderator ----------
+
+STATIC = Path(__file__).parent / "static"
+
+
+@app.get("/ui/moderator", response_class=HTMLResponse, include_in_schema=False)
+def moderator_page():
+    """The moderator page itself holds no data: it asks for the key and calls /moderator/* with it."""
+    return HTMLResponse((STATIC / "moderator.html").read_text(encoding="utf-8"),
+                        headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
+                                 "X-Frame-Options": "DENY"})
+
+
+@app.get("/moderator/rounds")
+def moderator_rounds(panel: Optional[str] = None):
+    """Every round (all stages, closed too) for the moderator page."""
+    return rounds.list_all(panel)
+
+
+@app.get("/moderator/leaderboard")
+def moderator_leaderboard(panel: str = "TCD"):
+    """Leaderboard for ACAPS only: display names and scores, no tokens."""
+    return records.leaderboard(panel, None, None)
 
 @app.post("/moderator/rounds", status_code=201)
 def create_round(body: RoundIn):

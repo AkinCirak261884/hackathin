@@ -147,7 +147,7 @@ def test_revision_counts_once_and_uses_latest():
     post(1, 0.6, version=2)
     a = agg(1).json()
     assert q_of(a)["dots"] == [0.1, 0.5, 0.9]          # reveal shows the frozen round-1 picture
-    assert a["your_answers"][Q] == 0.6 and a["can_revise"] is False
+    assert "your_answers" not in a and a["can_revise"] is False
     stage("closed")
     q = q_of(agg(1).json())
     assert q["n"] == 3 and q["dots"] == [0.5, 0.6, 0.9]  # final view: latest version, counted once
@@ -200,3 +200,29 @@ def test_lane_a_synthetic_round_posts_cleanly(tmp_path):
         "X-Invite-Token": first["invite_token"], **({"X-Device-Secret": first["device_secret"]}
                                                      if first.get("device_secret") else {})}).json()
     assert a["suppressed"] is False and q_of(a)["n"] == len({b["invite_token"] for b in bodies})
+
+
+# ---- collective view only (team decision 7 Nov: experts don't see their own answers back) ----
+
+def _keys(obj):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield k
+            yield from _keys(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from _keys(v)
+
+
+@pytest.mark.parametrize("s", ["blind", "reveal", "closed"])
+def test_group_views_never_return_your_own_answers(s):
+    for i, p in ((1, 0.15), (2, 0.5), (3, 0.85)):
+        post(i, p, tier="anonymous" if i == 1 else "pseudonymous", secret=SECRET if i == 1 else None)
+    stage(s)
+    h = {"X-Invite-Token": "inv_demo_01", "X-Device-Secret": SECRET}
+    for path in ("aggregate", "thread"):
+        body = client.get(f"/rounds/{RID}/{path}", headers=h).json()
+        keys = set(_keys(body))
+        assert not keys & {"your_answers", "you", "your_prob", "mine", "author_token"}, (path, keys)
+    if s != "blind":   # the group numbers are still there, and include everyone once n >= 3
+        assert q_of(agg(1, SECRET).json())["dots"] == [0.15, 0.5, 0.85]

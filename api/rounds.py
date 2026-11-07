@@ -14,7 +14,7 @@ import statistics
 from datetime import datetime, timezone
 from typing import Optional
 
-from api import db, trust
+from api import comments_policy, db, trust
 
 MIN_N = 3
 STAGES = ("blind", "reveal", "closed")
@@ -221,6 +221,8 @@ def _caller(invite_token: str, device_secret: Optional[str]) -> list[str]:
 
 
 def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
+    """Collective view only (team decision, 7 Nov): the caller never gets their own answers back,
+    only the group's numbers (which include their answer once n >= 3)."""
     rnd = get_round(round_id)
     candidates = _caller(invite_token, device_secret)
     stage = rnd["stage"]
@@ -247,13 +249,12 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
         out_q = [question_stats(rows, q) for q in questions]
     triggers = ([{"trigger_id": r["trigger_id"], "share": round(r["n"] / n_authors, 2)} for r in obs]
                 if n_authors >= MIN_N else [])
-    your = {r["question_id"]: (r["prob"] if r["prob"] is not None else bool(r["agree"])) for r in mine}
     return {"round_id": round_id, "stage": stage, "min_n": MIN_N,
             "locked": stage == "blind",
             "view": {"blind": "locked", "reveal": "round_1", "closed": "final"}[stage],
             "suppressed": all(q["suppressed"] for q in out_q),
             "questions": out_q, "triggers_observed": triggers,
-            "your_answers": your, "can_revise": stage == "reveal" and not revised}
+            "can_revise": stage == "reveal" and not revised}
 
 
 def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
@@ -278,7 +279,15 @@ def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None
         approved = m.execute("SELECT approved_text, published_at FROM summaries WHERE round_id = ?",
                              (round_id,)).fetchone()
     themes = [{"text": approved["approved_text"], "approved_at": approved["published_at"]}] if approved else []
-    return {**agg, "reasoning_basis": basis, "themes": themes}
+    return {**agg, "reasoning_basis": basis, "themes": themes, "comments": round_comments(round_id)}
+
+
+def round_comments(round_id: str) -> dict:
+    """Peer comments on/off for this round, from OCHA 3W presence in the affected area."""
+    rnd = get_round(round_id)
+    with db.main_db() as m:
+        risk = _risk(m, rnd["risk_id"])
+    return comments_policy.decide(risk)
 
 
 # ---------- expert-facing round info ----------
@@ -311,6 +320,20 @@ def list_open(panel: str, invite_token: Optional[str] = None, device_secret: Opt
     return {"panel": panel.upper(), "rounds": out}
 
 
+def list_all(panel: Optional[str] = None) -> dict:
+    """Moderator: every round with stage and n, newest first."""
+    with db.main_db() as m:
+        q = "SELECT * FROM rounds" + (" WHERE panel = ?" if panel else "") + " ORDER BY opened_at DESC, round_id"
+        rnds = m.execute(q, (panel.upper(),) if panel else ()).fetchall()
+        out = []
+        for r in rnds:
+            risk = _risk(m, r["risk_id"])
+            out.append({"round_id": r["round_id"], "risk_id": r["risk_id"], "panel": r["panel"],
+                        "stage": r["stage"], "opened_at": r["opened_at"], "risk_title": risk.get("title"),
+                        "country": risk.get("country"), "n_responses": _n_authors(m, r["round_id"])})
+    return {"rounds": out}
+
+
 def round_detail(round_id: str) -> dict:
     rnd = get_round(round_id)
     with db.main_db() as m:
@@ -326,7 +349,7 @@ def round_detail(round_id: str) -> dict:
     return {"round_id": round_id, "risk_id": rnd["risk_id"], "stage": rnd["stage"], "panel": rnd["panel"],
             "opened_at": rnd["opened_at"], "risk_title": risk.get("title"),
             "risk": {k: risk.get(k) for k in ("risk_id", "country", "probability", "impact", "level", "status")},
-            "triggers": triggers, "questions": questions}
+            "triggers": triggers, "questions": questions, "comments": comments_policy.decide(risk)}
 
 
 # ---------- moderator view ----------
@@ -380,4 +403,5 @@ def moderator_view(round_id: str) -> dict:
         "contributors": [{"author_token": a["author_token"], "tier": a["tier"],
                           "identity": trust.resolve_identity(a["author_token"], a["tier"])} for a in authors],
         "free_text": moderator_free_text(round_id),
+        "comments": comments_policy.decide(risk),
     }

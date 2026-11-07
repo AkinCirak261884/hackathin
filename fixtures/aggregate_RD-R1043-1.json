@@ -1,0 +1,207 @@
+{
+  "round_id": "RD-R1043-1",
+  "n_responses": 7,
+  "suppressed": false,
+  "reason": null,
+  "rating": {
+    "probability": {
+      "too_low": 2,
+      "agree": 4,
+      "too_high": 1
+    },
+    "impact": {
+      "too_low": 1,
+      "agree": 5,
+      "too_high": 1
+    },
+    "you": {
+      "probability": "agree",
+      "impact": "agree",
+      "ranking": [
+        "R1043",
+        "SYN-TCD-03",
+        "SYN-TCD-01"
+      ]
+    }
+  },
+  "forecasts": [
+    {
+      "question_id": "Q-R1043-T0618",
+      "n": 7,
+      "median": 0.65,
+      "p25": 0.575,
+      "p75": 0.775,
+      "values": [
+        0.45,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.85,
+        0.9
+      ],
+      "acaps_baseline": null,
+      "seeing_count": 5,
+      "you": 0.65
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "n": 7,
+      "median": 0.35,
+      "p25": 0.25,
+      "p75": 0.425,
+      "values": [
+        0.15,
+        0.2,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.55
+      ],
+      "acaps_baseline": null,
+      "seeing_count": 1,
+      "you": 0.2
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "n": 7,
+      "median": 0.45,
+      "p25": 0.4,
+      "p75": 0.65,
+      "values": [
+        0.35,
+        0.35,
+        0.45,
+        0.45,
+        0.6,
+        0.7,
+        0.75
+      ],
+      "acaps_baseline": null,
+      "seeing_count": 4,
+      "you": 0.45
+    }
+  ],
+  "ranking": [
+    {
+      "option_id": "R1043",
+      "points": 18,
+      "first_choice": 5
+    },
+    {
+      "option_id": "SYN-TCD-01",
+      "points": 12,
+      "first_choice": 2
+    },
+    {
+      "option_id": "SYN-TCD-03",
+      "points": 9,
+      "first_choice": 0
+    },
+    {
+      "option_id": "R0233",
+      "points": 2,
+      "first_choice": 0
+    },
+    {
+      "option_id": "SYN-TCD-02",
+      "points": 1,
+      "first_choice": 0
+    }
+  ],
+  "can_revise": true,
+  "comments": [
+    {
+      "comment_id": "CM-001",
+      "display_name": "Kestrel",
+      "tier": "known",
+      "text": "Our teams in Adré see new arrivals every week and two incidents near water points in October.",
+      "basis": [
+        "field_observation",
+        "local_contacts"
+      ],
+      "is_you": true,
+      "record": {
+        "correct": 7,
+        "resolved": 8
+      },
+      "forecasts": {
+        "Q-R1043-T0618": 0.65,
+        "Q-R1043-T0619": 0.2,
+        "Q-R1043-T0620": 0.45
+      }
+    },
+    {
+      "comment_id": "CM-002",
+      "display_name": "Osprey",
+      "tier": "pseudonymous",
+      "text": "Telegram channels close to the RSF openly discuss supply routes through Chad.",
+      "basis": [
+        "media_osint"
+      ],
+      "is_you": false,
+      "record": {
+        "correct": 6,
+        "resolved": 10
+      },
+      "forecasts": {
+        "Q-R1043-T0618": 0.8,
+        "Q-R1043-T0619": 0.4,
+        "Q-R1043-T0620": 0.6
+      }
+    },
+    {
+      "comment_id": "CM-003",
+      "display_name": "Birch",
+      "tier": "pseudonymous",
+      "text": "Historical pattern: proxy escalation followed Darfur offensives in 2005–2008.",
+      "basis": [
+        "experience",
+        "reports_data"
+      ],
+      "is_you": false,
+      "record": {
+        "correct": 8,
+        "resolved": 9
+      },
+      "forecasts": {
+        "Q-R1043-T0618": 0.6,
+        "Q-R1043-T0619": 0.3,
+        "Q-R1043-T0620": 0.4
+      }
+    },
+    {
+      "comment_id": "CM-004",
+      "display_name": "Wren",
+      "tier": "pseudonymous",
+      "text": "Clinic data from Sila shows rising watery-diarrhoea cases since September.",
+      "basis": [
+        "reports_data",
+        "field_observation"
+      ],
+      "is_you": false,
+      "record": {
+        "correct": 4,
+        "resolved": 7
+      },
+      "forecasts": {
+        "Q-R1043-T0618": 0.55,
+        "Q-R1043-T0619": 0.25,
+        "Q-R1043-T0620": 0.6
+      }
+    },
+    {
+      "comment_id": "CM-005",
+      "display_name": "Anonymous expert",
+      "tier": "anonymous",
+      "text": "Les drones passent presque chaque nuit près de la frontière.",
+      "basis": [
+        "field_observation"
+      ],
+      "is_you": false,
+      "record": null,
+      "forecasts": null
+    }
+  ]
+}
