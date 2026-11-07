@@ -49,6 +49,7 @@ Shared, changed only after voice agreement: `contracts/`, `fixtures/`, `BOARD.md
 - **Access:** invite-only. Each expert gets a personal invite token from the moderator. Rate-limit and revoke per token. The invite is the anti-spam and anti-misinformation layer, not metadata about the person. Possible extension: referral invites (an expert vouches, the moderator approves).
 - **Out of scope (on purpose):** open public reporting and war-crime evidence intake. Witness knowledge reaches ACAPS through panel experts ("what's missing" field). Add a static signpost screen that links to dedicated secure channels (e.g. OHCHR, ICC OTP, eyeWitness to Atrocities). Explain on one slide.
 - **Groupthink:** round 1 is blind. Group view (median, spread, one dot per answer) unlocks only after your own submit. One revision allowed; both versions stored.
+- **Track records (agreed 7 Nov, B + C):** each expert sees only their own record, privately. Peers never see anyone's record: comments show reasons only, and there is no public or peer leaderboard. The moderator sees all records to weigh views.
 - **Scoring:** Brier per answer. Moderator aggregate = median, later a track-record-weighted mean. Backtest baseline = ACAPS ratings mapped to Very Low 10% / Low 30% / Medium 50% / High 70% / Very High 90%, scored on resolved risks.
 
 ### Data model
@@ -112,8 +113,12 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 - [ ] (C → B) `GET /acaps/risks?panel=TCD`: server-side proxy to the ACAPS API (free account, token auth, see `docs/resources.md`). Keep the ACAPS token in the server env only, never send it to the browser; cache the result (the risk list updates monthly). Return `{ source: "live", panel, updated_at, risks: [{ risk_id, title, country, iso, risk_type, probability, impact, risk_level, trend, status }] }`, active risks for the panel's countries (TCD → TCD + SDN). Mock shape: `web/src/mock/acaps_risks_TCD.json`. The web app falls back to that snapshot if the call fails.
 - [ ] (C → A, B) Track record `pending[]` shows the **revised** (v2) forecast; our design scores the **blind** (v1) answer (both stored, see Delphi step 2). Please confirm which version `scoring.py` / `records.py` use. Found in Lane C's end-to-end test, 7 Nov.
 - [ ] (C → B) Still missing on the API side (web handles their absence): `GET /rounds/{id}` risk detail (`rationale_short`, `trend`, `expected_exposure`, trigger `description`) (W3); 3-way rating fields + top-3 ranking (W4/W5; web currently sends `agree` = both "about right"); `closes_at` on `/rounds/open` (W2). Anonymous: web now sends `device_secret = sha256(phone secret)`, works with the current API unchanged (W7).
+- [ ] (C → B) Follows the track-record decision above: `GET /leaderboard` still returns every expert's pseudonym and score to any invite holder. Please remove it or put it behind the moderator key (`X-Moderator-Key`, see PR #3). The web app no longer calls it.
 - [ ] (from → to) what is needed
 
 ## Integration log
+
+- 16:58 Hosted stack live (Lane C, for the demo): pitch site https://groundtruth-acaps.vercel.app (demo data, auto-deploys from `main`); live site https://groundtruth-acaps-live.vercel.app (invite links `#/?invite=inv_demo_02…08`) → API https://ground-truth-api.vercel.app → Supabase (Stockholm). API code = PR #3 (`supabase-api`, not merged into `lane-b`), deployed from Lane C's machine.
+- 16:58 Broke + fixed: merging into `main` rebuilt the API project from `main` (no API there), so the live API 404'd. API project is now disconnected from GitHub; redeploy it only with `vercel deploy --prod` from the `supabase-api` checkout.
 
 - HH:MM what was merged / what broke
