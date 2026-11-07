@@ -71,3 +71,17 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
   as data and instructions inside them are ignored; output validated (unknown ids dropped, one cluster per answer);
   summaries must not contain identifying details; copy-paste/coordinated answers are flagged locally. Nothing is
   published from here — the moderator approves text in the publish flow.
+
+## Comments on/off from OCHA 3W presence (`api/comments_policy.py`)
+
+Team decision (7 Nov): with few organisations in the affected area, a comment is easy to trace
+back and easy to steer, so comments are off there.
+
+- `GET /rounds/{id}`, `/rounds/{id}/thread` and `GET /moderator/rounds/{id}` carry
+  `comments: {enabled, n_orgs, min_orgs, areas, area_basis, reason, source}`.
+- Affected area = provinces/states/oblasts named in the risk title, or a region ("eastern Chad",
+  "Darfur"), else the whole country. `n_orgs` = distinct organisations there (one org in two areas counts once).
+- `enabled` when `n_orgs >= COMMENTS_MIN_ORGS` (env, default 30). No 3W data for the country → off.
+- Data: `api/data/presence_3w.json`, built from OCHA 3W/5W on HDX (CC BY; Chad Sep 2026, Sudan Jan–Jul
+  2026, Ukraine Jan–Sep 2026). Rebuild: `uv run --with openpyxl python -m api.build_presence_3w <dir>`.
+- Examples: R1043 eastern Chad 146 orgs → on · R1051 West Kordofan 17 → off · R0248 East Darfur 19 → off.

@@ -14,7 +14,7 @@ import statistics
 from datetime import datetime, timezone
 from typing import Optional
 
-from api import db, trust
+from api import comments_policy, db, trust
 
 MIN_N = 3
 STAGES = ("blind", "reveal", "closed")
@@ -279,7 +279,15 @@ def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None
         approved = m.execute("SELECT approved_text, published_at FROM summaries WHERE round_id = ?",
                              (round_id,)).fetchone()
     themes = [{"text": approved["approved_text"], "approved_at": approved["published_at"]}] if approved else []
-    return {**agg, "reasoning_basis": basis, "themes": themes}
+    return {**agg, "reasoning_basis": basis, "themes": themes, "comments": round_comments(round_id)}
+
+
+def round_comments(round_id: str) -> dict:
+    """Peer comments on/off for this round, from OCHA 3W presence in the affected area."""
+    rnd = get_round(round_id)
+    with db.main_db() as m:
+        risk = _risk(m, rnd["risk_id"])
+    return comments_policy.decide(risk)
 
 
 # ---------- expert-facing round info ----------
@@ -327,7 +335,7 @@ def round_detail(round_id: str) -> dict:
     return {"round_id": round_id, "risk_id": rnd["risk_id"], "stage": rnd["stage"], "panel": rnd["panel"],
             "opened_at": rnd["opened_at"], "risk_title": risk.get("title"),
             "risk": {k: risk.get(k) for k in ("risk_id", "country", "probability", "impact", "level", "status")},
-            "triggers": triggers, "questions": questions}
+            "triggers": triggers, "questions": questions, "comments": comments_policy.decide(risk)}
 
 
 # ---------- moderator view ----------
@@ -381,4 +389,5 @@ def moderator_view(round_id: str) -> dict:
         "contributors": [{"author_token": a["author_token"], "tier": a["tier"],
                           "identity": trust.resolve_identity(a["author_token"], a["tier"])} for a in authors],
         "free_text": moderator_free_text(round_id),
+        "comments": comments_policy.decide(risk),
     }
