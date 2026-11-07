@@ -20,11 +20,13 @@ export default function Home() {
           <article key={r.round_id} className="card round-card">
             <div className="chips">
               {r.practice && <Chip tone="practice">{t('practice_tag')}</Chip>}
+              {r.demo && <Chip tone="hot">{t('demo_off_tag')}</Chip>}
               <Chip>{r.risk_id}</Chip>{r.country && <Chip>{r.country}</Chip>}<Chip>{t('minutes', r.est_minutes)}</Chip>
               {r.closes_at && <Chip>{t('closes', date(r.closes_at))}</Chip>}
             </div>
             <h2 className="q-title">{r.title}</h2>
             {r.practice && <p className="q-sub">{t('practice_card')}</p>}
+            {r.demo && <p className="q-sub">{t('demo_off_card')}</p>}
             <a className={`btn block ${r.answered ? 'answered' : ''}`} href={`#/${r.answered ? 'reveal' : 'pulse'}/${r.round_id}`}>
               {r.answered ? t('answered') : t('start')}
             </a>

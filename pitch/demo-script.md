@@ -43,6 +43,15 @@ Spoken lines are in quotes. Taps are for the Driver. Timings are cumulative.
 | 1:25 | Group view: point at the dots chart for the first trigger. | "Only now do the numbers unlock: every answer as a dot, theirs in orange, the middle half shaded." |
 | 1:30 | Tap **My profile**. Point at **Your input at work** at the top, then the record card (x of y validated) and the accuracy card. | "First thing they see: where their input changed ACAPS's analysis, and when their forecasts resolve. Over time every expert builds a track record against ACAPS's own rating. That's how ACAPS learns whose judgement to trust." |
 
+### Optional 15-second beat · Comments switch off (phone, use in Q&A or instead of the slide below)
+
+| Driver taps | Presenter says |
+|---|---|
+| **Check-ins** → card **"Demo · comments off"** (R1048, Blue Nile) → **Start**. Tap through: one rating, one forecast, **Submit answers**. | "Not every risk is safe to discuss openly. This one affects a small group, 20,000 to 100,000 people." |
+| Step 2 shows **"No peer comments in this round"** with the reason card. **Keep my answers** → the group view has numbers but no comments. | "So peer comments switch off automatically, from OCHA's 3W data and HDX population data: in a small area, one comment can't be cross-checked, can spread misinformation and is easy to trace back. Experts still answer; what they write goes only to the ACAPS moderator." |
+
+Reset with **Reset my answers (demo)** afterwards, like the main demo.
+
 ### 1:35–2:00 · What ACAPS gets (slide)
 
 > "On ACAPS's side, a moderator sees how far each answer moved after the reasons step, where the panel disagrees with the rating, and what experts say is missing, clustered by AI and checked by a person before anything is published. The public page only ever shows group results, and nothing at all below 3 responses."
