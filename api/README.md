@@ -23,7 +23,8 @@ separate SQLite file (`api/var/vault.db`), so the contributions DB holds no name
 - v1 once per invite per round; v2 once, after v1, same tier. Closed round → 409.
 - `GET /rounds/{id}/aggregate` with headers `X-Invite-Token` (+ `X-Device-Secret` for anonymous).
   403 until you submitted; each question `suppressed` until n ≥ 3 distinct authors (latest version
-  counts); dots sorted; free text never included.
+  counts); dots sorted; free text never included. Collective view only: the caller never gets
+  their own answers back (no `your_answers`), only group numbers (team decision 7 Nov).
 - Lane A data: if `analysis/synthetic/` exists, the seed uses that panel (invites `inv_tcd_01…`), and
   `responses_R1043.json` posts cleanly (test `test_lane_a_synthetic_round_posts_cleanly`).
 

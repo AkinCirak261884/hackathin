@@ -35,7 +35,7 @@ def test_full_walk_blind_reveal_closed():
     a = agg(1).json()
     assert a["stage"] == "blind" and a["locked"] is True and a["view"] == "locked"
     assert all(q["suppressed"] and "dots" not in q for q in a["questions"])
-    assert a["your_answers"][Q] == 0.2 and a["can_revise"] is False
+    assert "your_answers" not in a and a["can_revise"] is False
     assert post(1, 0.3, version=2).status_code == 409
 
     # reveal: frozen round-1 picture, one revision each, no late first answers

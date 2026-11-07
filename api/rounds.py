@@ -221,6 +221,8 @@ def _caller(invite_token: str, device_secret: Optional[str]) -> list[str]:
 
 
 def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
+    """Collective view only (team decision, 7 Nov): the caller never gets their own answers back,
+    only the group's numbers (which include their answer once n >= 3)."""
     rnd = get_round(round_id)
     candidates = _caller(invite_token, device_secret)
     stage = rnd["stage"]
@@ -247,13 +249,12 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
         out_q = [question_stats(rows, q) for q in questions]
     triggers = ([{"trigger_id": r["trigger_id"], "share": round(r["n"] / n_authors, 2)} for r in obs]
                 if n_authors >= MIN_N else [])
-    your = {r["question_id"]: (r["prob"] if r["prob"] is not None else bool(r["agree"])) for r in mine}
     return {"round_id": round_id, "stage": stage, "min_n": MIN_N,
             "locked": stage == "blind",
             "view": {"blind": "locked", "reveal": "round_1", "closed": "final"}[stage],
             "suppressed": all(q["suppressed"] for q in out_q),
             "questions": out_q, "triggers_observed": triggers,
-            "your_answers": your, "can_revise": stage == "reveal" and not revised}
+            "can_revise": stage == "reveal" and not revised}
 
 
 def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
