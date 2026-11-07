@@ -3,7 +3,7 @@ import { api, DEMO_TOKEN, lastSubmission, revisionOf } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, r05, recordSummary, verdict, likelihoodKey } from '../stats.js'
-import { Head, Chip, Loading } from '../components/ui.jsx'
+import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 import acapsUKR from '../mock/acaps_country_UKR.json' // public ACAPS snapshot, see _note in the file
 
@@ -12,13 +12,21 @@ const ACAPS_COUNTRY = { UKR: acapsUKR }
 export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const { t, tx, date } = useT()
   const just = window.location.hash.includes('just=1')
-  const [agg] = useLoad(() => api.aggregate(roundId, DEMO_TOKEN), [roundId])
-  const [round] = useLoad(() => api.round(roundId), [roundId])
+  const [agg, aggErr] = useLoad(() => api.aggregate(roundId, DEMO_TOKEN), [roundId])
+  const [round, roundErr] = useLoad(() => api.round(roundId), [roundId])
   const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
   const [decision, setDecision] = useState(() => revisionOf(roundId)?.decision || null)
   const [aggKey, setAggKey] = useState(0)
   const [fresh] = useLoad(() => (aggKey ? api.aggregate(roundId, DEMO_TOKEN) : Promise.resolve(null)), [aggKey])
+  if (aggErr || roundErr) return <LoadError error={aggErr || roundErr} />
   if (!agg || !round) return <Loading />
+  // Lane B API refuses the group view to anyone who hasn't answered yet (blind first)
+  if (agg.mustAnswer) return (
+    <section className="page">
+      <Head level={1} title={t('reveal')} sub={t('must_answer')} />
+      <a className="btn" href={`#/pulse/${roundId}`}>{t('start')}</a>
+    </section>
+  )
   if (agg.suppressed) return <section className="page"><Head level={1} title={t('reveal')} sub={t('suppressed')} /></section>
   // Lane B API: the group view opens when the moderator moves the round to "reveal", not on your own submit
   if (agg.locked) return (

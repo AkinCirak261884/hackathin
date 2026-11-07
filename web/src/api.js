@@ -241,7 +241,8 @@ export const api = {
     return reply
   },
   aggregate: (id, token) =>
-    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : get(`/rounds/${id}/thread`).then(fromApi.aggregate),
+    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : get(`/rounds/${id}/thread`).then(fromApi.aggregate)
+        .catch((e) => (e.status === 403 ? { mustAnswer: true } : Promise.reject(e))),
   // keep = no second version; revise = POST version 2 with only the changed forecasts + "what changed your mind?"
   keepAnswers: async (id) => { saveRevision(id, { decision: 'kept' }) },
   revise: async (id, { answers, reason }) => {
@@ -297,7 +298,8 @@ export function inviteToken() {
 }
 export const DEMO_TOKEN = 'E01'
 export const DEMO_PSEUDONYM = 'Kestrel'
-export const demoPseudonym = () => (isNewcomerDemo() ? 'Alder' : DEMO_PSEUDONYM)
+// Demo mode only: on the API the profile doesn't know the expert's pseudonym, so it shows none
+export const demoPseudonym = () => (!MOCK ? null : isNewcomerDemo() ? 'Alder' : DEMO_PSEUDONYM)
 
 const randomHex = () => [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('')
 

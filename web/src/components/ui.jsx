@@ -1,4 +1,5 @@
 import React from 'react'
+import { useT } from '../i18n.jsx'
 
 // Section heading with a subtitle, used everywhere so nothing reads as plain text.
 export function Head({ eyebrow, title, sub, level = 2 }) {
@@ -23,6 +24,18 @@ export function Icon({ name, size = 16 }) {
   return (
     <svg className="icon" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" fill="none"
       stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d={PATHS[name]} /></svg>
+  )
+}
+
+// Shown instead of endless loading dots when a request fails (offline, server down, refused).
+export function LoadError({ error }) {
+  const { t } = useT()
+  const offline = !error?.status
+  return (
+    <section className="page">
+      <Head level={1} title={t('err_title')} sub={offline ? t('err_offline') : t('err_server', error.status)} />
+      <button className="btn ghost" onClick={() => window.location.reload()}>{t('err_retry')}</button>
+    </section>
   )
 }
 
