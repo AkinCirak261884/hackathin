@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { api, anonToken, inviteToken } from '../api.js'
+import { api, anonToken, inviteToken, MOCK } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, likelihoodKey } from '../stats.js'
@@ -326,7 +326,8 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
               <span className="muted small">{t('b_other_note')}</span>
             </div>
           )}
-          <p className="note">{policy?.enabled === false ? t('why_private_off') : t('why_private')}</p>
+          {/* demo data shows peer comments word for word; Lane B's API keeps reasoning for the moderator and shares approved themes */}
+          <p className="note">{policy?.enabled === false ? t('why_private_off') : MOCK ? t('why_private') : t('why_private_api')}</p>
           <CommentsPolicyLine policy={policy} />
         </>
       ),
