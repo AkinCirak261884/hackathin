@@ -291,3 +291,9 @@ a.card { color: inherit; text-decoration: none; cursor: pointer; }
 .pa-item { padding: 12px 0; border-top: 1px solid var(--line); }
 .pa-item:first-child { border-top: 0; }
 .pa-item p { margin: 6px 0 0; font-size: 15px; line-height: 1.45; }
+
+/* peer comments policy (OCHA 3W via HDX) */
+.cp-line { margin: 16px 0 0; }
+.cp-off { margin-top: 16px; border-left: 3px solid var(--sand); }
+.cp-off p { margin: 6px 0 0; }
+.own-source { margin-top: 10px; }

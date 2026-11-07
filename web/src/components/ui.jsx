@@ -39,6 +39,34 @@ export function LoadError({ error }) {
   )
 }
 
+// Peer comments on/off for this round (OCHA 3W operational presence via HDX). On: one quiet line with the source.
+// Off: a card explaining that with few organisations in the area, comments can't be cross-checked and are easier
+// to trace back, so what experts write goes to the ACAPS moderator only.
+export function CommentsPolicyLine({ policy }) {
+  const { t, date } = useT()
+  if (!policy) return null
+  const where = policy.areas?.length ? policy.areas.join(', ') : t('cp_country')
+  const sources = (policy.sources || (policy.source ? [policy.source] : [])).filter((s) => s.url)
+  const src = sources.length > 0 && (
+    <> · {sources.map((s, i) => (
+      <React.Fragment key={s.url}>{i > 0 && ', '}<a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>{s.as_of ? ` (${date(s.as_of)})` : ''}</React.Fragment>
+    ))}</>
+  )
+  if (policy.enabled) return <p className="muted small cp-line">{t('cp_on', policy.n_orgs, where, policy.people)}{src}</p>
+  const why = {
+    small_place: () => t('cp_off_place', policy.place?.type, policy.place?.name),
+    few_people: () => t('cp_off_people', policy.people, policy.min_people),
+    few_orgs: () => t('cp_off', policy.n_orgs, where, policy.min_orgs),
+  }[policy.basis] || (() => (policy.n_orgs == null ? t('cp_off_nodata') : t('cp_off', policy.n_orgs, where, policy.min_orgs)))
+  return (
+    <div className="card cp-off" role="note">
+      <b>{t('cp_off_title')}</b>
+      <p className="small">{why()}</p>
+      <p className="muted small">{t('cp_off_why')}{src}</p>
+    </div>
+  )
+}
+
 export function Loading() {
   return <div className="loading" aria-busy="true"><span /><span /><span /></div>
 }

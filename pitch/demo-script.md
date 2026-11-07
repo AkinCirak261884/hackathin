@@ -78,6 +78,7 @@ Slide: calibration chart (`analysis/charts/calibration.svg`) + the two numbers. 
 - **"How anonymous is anonymous?"** The anonymous level uses a one-way hash of a secret on the expert's phone; names live in a separate database that only the moderator side can open, and only for experts who chose to be known.
 - **"Why would busy experts come back?"** It takes about 3 minutes, they get a track record and a super estimator badge, and they see when their input changed ACAPS's analysis.
 - **"Doesn't scoring put pressure on experts?"** Each expert sees only their own record, privately; peers never see anyone's record, and there's no public leaderboard. ACAPS's moderator sees all records to weigh views. Scores only count after 5 resolved forecasts.
+- **"Couldn't a small group spread misinformation through comments?"** Comments between experts switch off per round when the area is small: a named town or village (HDX Populated Places), few people affected (ACAPS exposure), or fewer than 30 organisations working there (OCHA 3W). Copy-pasted or coordinated claims are held back for the moderator.
 - **"Is the accuracy real?"** ACAPS's baseline (0.213 on 99 resolved risks) is real data. The expert panel in the demo is synthetic; the pilot is what measures real experts.
 - **"What about Arabic?"** Next language: it covers about a third of ACAPS risks, including the rest of the Chad panel. Adding a language is one more set of texts.
 

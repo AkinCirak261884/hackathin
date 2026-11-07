@@ -4,7 +4,7 @@ import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, likelihoodKey } from '../stats.js'
 import TierPicker from '../components/TierPicker.jsx'
-import { Head, Chip, Loading, Icon, LoadError } from '../components/ui.jsx'
+import { Head, Chip, Loading, Icon, LoadError, CommentsPolicyLine } from '../components/ui.jsx'
 import { ProbMeter } from '../components/charts.jsx'
 
 const PRESETS = [0.1, 0.3, 0.5, 0.7, 0.9]
@@ -33,7 +33,7 @@ const OTHER = 'OTHER'
 
 // "Something else is happening": developments the expert sees that ACAPS hasn't listed, optionally flagged as
 // possibly bigger than the risk itself. Goes to the ACAPS moderator only (never shown word for word to peers).
-function SignalAdder({ signals, onChange }) {
+function SignalAdder({ signals, policy, onChange }) {
   const { t } = useT()
   const [text, setText] = useState('')
   const [bigger, setBigger] = useState(false)
@@ -61,13 +61,13 @@ function SignalAdder({ signals, onChange }) {
           <button type="submit" className="btn ghost small-btn" disabled={!text.trim()}>{t('add')}</button>
         </form>
       )}
-      <p className="muted small own-note">{t('own_private')}</p>
+      <p className="muted small own-note">{policy?.enabled === false ? t('own_private_off') : t('own_private')}</p>
     </div>
   )
 }
 
 // "A bigger risk isn't on the list?": the expert's own option, ranked like the others.
-function OtherRisk({ value, rank, full, onToggle, onChange }) {
+function OtherRisk({ value, rank, full, policy, onToggle, onChange }) {
   const { t } = useT()
   const [draft, setDraft] = useState('')
   if (value) return (
@@ -86,7 +86,7 @@ function OtherRisk({ value, rank, full, onToggle, onChange }) {
       <span className="q-sub">{t('other_sub')}</span>
       <input type="text" maxLength={120} value={draft} placeholder={t('other_ph')} aria-label={t('other_title')} onChange={(e) => setDraft(e.target.value)} />
       <button type="submit" className="btn ghost small-btn" disabled={!draft.trim()}>{t('add')}</button>
-      <p className="muted small own-note">{t('own_private')}</p>
+      <p className="muted small own-note">{policy?.enabled === false ? t('own_private_off') : t('own_private')}</p>
     </form>
   )
 }
@@ -101,12 +101,14 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
     missing: '', why: '', basis: [], tier: 'anonymous',
     signals: [],     // things the expert sees that ACAPS hasn't listed: [{ text, bigger }]
     other_risk: '',  // a risk missing from the top-3 list (contract: ranking_other, ranked as 'OTHER')
+    source_other: '', // "Based on: other": the expert's own source, in their words (moderator-only)
   })
   const set = (patch) => setA((s) => ({ ...s, ...patch }))
   if (roundErr) return <LoadError error={roundErr} />
   if (!round) return <Loading />
 
   const { risk, questions } = round
+  const policy = round.comments_policy
   const rating = questions.find((q) => q.kind === 'rating')
   const forecasts = questions.filter((q) => q.kind === 'forecast')
   const ranking = questions.find((q) => q.kind === 'ranking')
@@ -121,7 +123,8 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       version: 1,
       missing_text: a.missing.trim() || null,
       reasoning_text: a.why.trim() || null,
-      reasoning_basis: a.basis.length ? a.basis : null,
+      reasoning_basis: a.basis.filter((b) => b !== 'other').length ? a.basis.filter((b) => b !== 'other') : null,
+      source_other: a.basis.includes('other') && a.source_other.trim() ? a.source_other.trim() : null,
       answers: [
         { question_id: rating.question_id, rating_probability: a.rating_probability || 'agree', rating_impact: a.rating_impact || 'agree' },
         ...forecasts.map((q) => ({ question_id: q.question_id, prob: a.prob[q.question_id] ?? 0.5, seeing: !!a.seeing[q.trigger_id] })),
@@ -172,7 +175,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
           </span>
         </label>
       ))}
-      <SignalAdder signals={a.signals} onChange={(signals) => set({ signals })} />
+      <SignalAdder signals={a.signals} policy={policy} onChange={(signals) => set({ signals })} />
       </>,
     },
     {
@@ -223,7 +226,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
               </button>
             )
           })}
-          <OtherRisk value={a.other_risk} rank={a.ranking.indexOf(OTHER)} full={a.ranking.length >= 3}
+          <OtherRisk value={a.other_risk} rank={a.ranking.indexOf(OTHER)} full={a.ranking.length >= 3} policy={policy}
             onToggle={() => set({ ranking: a.ranking.includes(OTHER) ? a.ranking.filter((x) => x !== OTHER) : [...a.ranking, OTHER] })}
             onChange={(text) => set({
               other_risk: text,
@@ -276,7 +279,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
           <textarea id="why" rows="5" maxLength="1000" placeholder={t('why_ph')} value={a.why} onChange={(e) => set({ why: e.target.value })} />
           <div className="field-label">{t('basis_label')}</div>
           <div className="toggles">
-            {BASIS.map((b) => {
+            {[...BASIS, 'other'].map((b) => {
               const on = a.basis.includes(b)
               return (
                 <button key={b} type="button" aria-pressed={on} className={on ? 'on' : ''}
@@ -284,7 +287,15 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
               )
             })}
           </div>
-          <p className="note">{t('why_private')}</p>
+          {a.basis.includes('other') && (
+            <div className="own-form own-source">
+              <input type="text" maxLength={120} value={a.source_other} placeholder={t('b_other_ph')} aria-label={t('b_other_label')}
+                onChange={(e) => set({ source_other: e.target.value })} />
+              <span className="muted small">{t('b_other_note')}</span>
+            </div>
+          )}
+          <p className="note">{policy?.enabled === false ? t('why_private_off') : t('why_private')}</p>
+          <CommentsPolicyLine policy={policy} />
         </>
       ),
     },

@@ -87,7 +87,20 @@ const DEMO_SUMMARY = { source: 'ai', synthetic: true, themes: [
   { label: 'Armed recruitment around camps', n: 2, summary: 'Two experts report armed recruitment of young refugees near Adré and think it could grow beyond the cross-border risk ACAPS describes.' },
   { label: 'Disease and prices in the east', n: 3, summary: 'Several point to disease risk in overcrowded camps and rising food and fuel prices in Abéché as needs that the analysis underplays.' },
 ] }
+// Peer comments on/off per round, from OCHA 3W operational presence via HDX (Lane B's rule: < 30 organisations
+// in the affected area -> off). The live site gets this from the API; the pitch site uses the same real figures.
+const DEMO_COMMENTS = {
+  'RD-R1043-1': { enabled: true, basis: 'large_area', n_orgs: 146, min_orgs: 30, areas: ['Ouaddai', 'Sila', 'Wadi Fira', 'Ennedi Est'],
+    people: '>500,000', min_people: 100000,
+    sources: [{ title: 'OCHA 3W/5W Chad via HDX', url: 'https://data.humdata.org/dataset/chad-operational-presence', as_of: '2026-09-07' },
+      { title: 'Populated Places of Chad (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_tcd_populated_places' }] },
+  'RD-R0993-P': { enabled: true, basis: 'large_area', n_orgs: 427, min_orgs: 30, areas: [], people: '>500,000', min_people: 100000,
+    sources: [{ title: 'OCHA 3W/5W Ukraine via HDX', url: 'https://data.humdata.org/dataset/ukraine-who-does-what-where-3w', as_of: '2026-09-30' },
+      { title: 'Populated Places of Ukraine (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_ukr_populated_places' }] },
+}
+
 function withAdditions(agg, sub) {
+  agg = { ...agg, comments_policy: DEMO_COMMENTS[agg.round_id] || null }
   if (agg.round_id !== MAIN_ROUND) return agg
   const ranking = sub?.answers?.find((x) => x.ranking_other)?.ranking_other
   const mine = [...(sub?.seeing_other || []).map((s) => ({ kind: 'signal', bigger: !!s.bigger, text: s.text, you: true })),
@@ -200,6 +213,7 @@ const fromApi = {
     const trig = Object.fromEntries((r.triggers || []).map((t) => [t.trigger_id, t]))
     return {
       ...r,
+      comments_policy: r.comments || null,
       risk: { ...r.risk, title: r.risk_title, triggers: r.triggers || [] },
       questions: r.questions.map((q) => (q.kind === 'agree'
         ? { ...q, kind: 'rating', api_kind: 'agree', title: q.title || 'ACAPS rating', title_fr: q.title_fr || 'Évaluation ACAPS' }
@@ -232,6 +246,8 @@ const fromApi = {
       // expert additions + summary (server strips authors; we mark the ones this browser sent as "you")
       additions: (a.additions || []).map((x) => ({ ...x, you: ownTexts(local).has(x.text.toLowerCase()) })),
       summary: a.summary || null,
+      withheld_coordinated: a.withheld_coordinated || 0,
+      comments_policy: a.comments && !Array.isArray(a.comments) ? a.comments : null,
     }
   },
   trackRecord: (tr) => ({ ...tr, history: tr.history || [], pending: tr.pending || [], impact: tr.impact || [] }),
@@ -254,6 +270,7 @@ function foldAdditions(body) {
   return lines.length ? lines.join('\n').slice(0, 2000) : null
 }
 
+const API_BASES = ['field_observation', 'local_contacts', 'media_osint', 'reports_data', 'experience']
 const ownTexts = (sub) => new Set([...(sub?.seeing_other || []).map((s) => s.text),
   ...(sub?.answers || []).filter((x) => x.ranking_other).map((x) => x.ranking_other)].map((t) => t.toLowerCase()))
 
@@ -268,7 +285,9 @@ async function toApiResponse(body) {
   }
   const out = {
     invite_token: body.invite_token, tier: body.tier, version: body.version, answers, triggers_observed: triggers,
-    missing_text: foldAdditions(body), reasoning_text: body.reasoning_text ?? null, reasoning_basis: body.reasoning_basis || [],
+    missing_text: foldAdditions(body),
+    reasoning_text: [body.reasoning_text, body.source_other && `Own source: ${body.source_other}`].filter(Boolean).join('\n') || null,
+    reasoning_basis: (body.reasoning_basis || []).filter((b) => API_BASES.includes(b)),
   }
   if (body.tier === 'anonymous') out.device_secret = await deviceKey()
   return out
@@ -278,7 +297,7 @@ const postResponse = async (id, body) => http(`/rounds/${id}/responses`, { metho
 export const api = {
   openRounds: (panel = 'TCD') =>
     MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : get(`/rounds/open?panel=${panel}`).then(fromApi.openRounds),
-  round: (id) => (MOCK ? delay(ROUNDS[id] || round) : http(`/rounds/${id}`).then(fromApi.round)),
+  round: (id) => (MOCK ? delay({ ...(ROUNDS[id] || round), comments_policy: DEMO_COMMENTS[id] || null }) : http(`/rounds/${id}`).then(fromApi.round)),
   // the first answer is also kept in this browser (both modes): step 2 and "Check my answers" read it
   submit: async (id, body) => {
     const reply = MOCK ? await delay({ ...postReply, version: body.version }) : await postResponse(id, body)
