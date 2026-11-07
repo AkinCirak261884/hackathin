@@ -8,6 +8,8 @@ import postReply from '@fixtures/post_response_201.json'
 import trackRecord from '@fixtures/me_track_record.json'
 import trackRecordNew from '@fixtures/me_track_record_new.json'
 import publicSummaries from '@fixtures/public_summaries.json'
+import demoOffRound from './mock/round_RD-R1048-D.json' // pitch demo: a round where peer comments are off (small affected group)
+import demoOffAgg from './mock/aggregate_RD-R1048-D.json'
 import acapsRisksTCD from './mock/acaps_risks_TCD.json' // snapshot from the CSV until Lane B's /acaps/risks exists
 import { pct, r05, recordSummary } from './stats.js'
 
@@ -15,8 +17,11 @@ const BASE = import.meta.env.VITE_API_URL
 export const MOCK = !BASE
 
 const clone = (v) => JSON.parse(JSON.stringify(v))
-const ROUNDS = { [round.round_id]: round, [practiceRound.round_id]: practiceRound }
-const AGGS = { [aggregate.round_id]: aggregate, [practiceAggregate.round_id]: practiceAggregate }
+const ROUNDS = { [round.round_id]: round, [practiceRound.round_id]: practiceRound, [demoOffRound.round_id]: demoOffRound }
+const AGGS = { [aggregate.round_id]: aggregate, [practiceAggregate.round_id]: practiceAggregate, [demoOffAgg.round_id]: demoOffAgg }
+// demo-only card on the pitch site's check-ins, to show peer comments switching off
+const DEMO_OFF_CARD = { round_id: demoOffRound.round_id, risk_id: 'R1048', country: 'Sudan', title: demoOffRound.risk.title, stage: 'blind',
+  closes_at: demoOffRound.closes_at, n_questions: 2, est_minutes: 1, practice: false, demo: true, comments_off: true }
 const MAIN_ROUND = round.round_id
 export const MAIN_ROUND_ID = MAIN_ROUND
 export const PRACTICE_ROUND_ID = practiceRound.round_id
@@ -94,6 +99,9 @@ const DEMO_COMMENTS = {
     people: '>500,000', min_people: 100000,
     sources: [{ title: 'OCHA 3W/5W Chad via HDX', url: 'https://data.humdata.org/dataset/chad-operational-presence', as_of: '2026-09-07' },
       { title: 'Populated Places of Chad (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_tcd_populated_places' }] },
+  'RD-R1048-D': { enabled: false, basis: 'few_people', n_orgs: 36, min_orgs: 30, areas: ['Blue Nile'], people: '20,000-100,000', min_people: 100000,
+    sources: [{ title: 'OCHA 3W/5W Sudan via HDX', url: 'https://data.humdata.org/dataset/sudan-operational-presence', as_of: '2026-07-31' },
+      { title: 'Populated Places of Sudan (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_sdn_populated_places' }] },
   'RD-R0993-P': { enabled: true, basis: 'large_area', n_orgs: 427, min_orgs: 30, areas: [], people: '>500,000', min_people: 100000,
     sources: [{ title: 'OCHA 3W/5W Ukraine via HDX', url: 'https://data.humdata.org/dataset/ukraine-who-does-what-where-3w', as_of: '2026-09-30' },
       { title: 'Populated Places of Ukraine (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_ukr_populated_places' }] },
@@ -297,7 +305,7 @@ const postResponse = async (id, body) => http(`/rounds/${id}/responses`, { metho
 
 export const api = {
   openRounds: (panel = 'TCD') =>
-    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : get(`/rounds/open?panel=${panel}`).then(fromApi.openRounds),
+    MOCK ? delay([...roundsOpen, DEMO_OFF_CARD].map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : get(`/rounds/open?panel=${panel}`).then(fromApi.openRounds),
   round: (id) => (MOCK ? delay({ ...(ROUNDS[id] || round), comments_policy: DEMO_COMMENTS[id] || null }) : http(`/rounds/${id}`).then(fromApi.round)),
   // the first answer is also kept in this browser (both modes): step 2 and "Check my answers" read it
   submit: async (id, body) => {

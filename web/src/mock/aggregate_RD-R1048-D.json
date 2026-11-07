@@ -1,0 +1,53 @@
+{
+ "round_id": "RD-R1048-D",
+ "n_responses": 5,
+ "suppressed": false,
+ "reason": null,
+ "rating": {
+  "probability": {
+   "too_low": 1,
+   "agree": 3,
+   "too_high": 1
+  },
+  "impact": {
+   "too_low": 2,
+   "agree": 3,
+   "too_high": 0
+  },
+  "you": {
+   "probability": "agree",
+   "impact": "agree",
+   "ranking": []
+  }
+ },
+ "forecasts": [
+  {
+   "question_id": "Q-R1048-T0631",
+   "n": 5,
+   "median": 0.5,
+   "p25": 0.45,
+   "p75": 0.6,
+   "values": [
+    0.3,
+    0.45,
+    0.5,
+    0.6,
+    0.7
+   ],
+   "you": 0.5
+  }
+ ],
+ "ranking": [],
+ "can_revise": true,
+ "comments": [
+  {
+   "comment_id": "CM-D1",
+   "display_name": "Osprey",
+   "tier": "pseudonymous",
+   "text": "Synthetic: convoys seen moving north of Baw.",
+   "basis": [
+    "field_observation"
+   ]
+  }
+ ]
+}

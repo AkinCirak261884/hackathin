@@ -331,7 +331,9 @@ function ReasonsFirst({ round, agg, just, rec, onDecided }) {
           <div><b>{t('thanks')}</b>{rec && <div className="small">{t('record_banner', rec.correct, rec.total)}</div>}</div>
         </div>
       )}
-      <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />
+      {(agg.comments_policy || round.comments_policy)?.enabled === false
+        ? <Head level={1} eyebrow={t('rv_step')} title={t('rv_title_off')} sub={t('rv_sub_off')} />
+        : <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />}
       <CommentsPolicyLine policy={agg.comments_policy || round.comments_policy} />
       {(agg.comments_policy || round.comments_policy)?.enabled !== false && <>
         <Comments comments={agg.comments || []} round={round} hideNumbers />

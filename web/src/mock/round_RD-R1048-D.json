@@ -1,0 +1,55 @@
+{
+ "round_id": "RD-R1048-D",
+ "panel": "TCD",
+ "stage": "blind",
+ "practice": false,
+ "demo": true,
+ "opened_at": "2026-11-06",
+ "closes_at": "2026-11-13T18:00:00Z",
+ "risk": {
+  "risk_id": "R1048",
+  "title": "RSF expansion in Blue Nile state triggers displacement and protection risks",
+  "country": "Sudan",
+  "iso": "SDN",
+  "probability": "High",
+  "impact": 4,
+  "level": "High",
+  "status": "Active",
+  "trend": "Deteriorated",
+  "rationale_short": "The RSF offensive launched in early 2026 against SAF positions in Baw county opened a new front in Blue Nile state, raising the likelihood of conflict spreading north towards Ed Damazine and the Roseires Dam corridor.",
+  "expected_exposure": "20,000-100,000",
+  "triggers": [
+   {
+    "trigger_id": "T0631",
+    "risk_id": "R1048",
+    "title": "RSF advances north from Baw",
+    "completion_rate": 0.4,
+    "description": "RSF movement towards Ed Damazine or the Roseires Dam corridor would indicate expansion beyond current front lines and increase displacement risk."
+   }
+  ]
+ },
+ "questions": [
+  {
+   "question_id": "Q-R1048-RATING",
+   "risk_id": "R1048",
+   "trigger_id": null,
+   "kind": "rating",
+   "title": "ACAPS rating",
+   "title_fr": "L'évaluation d'ACAPS",
+   "text": "ACAPS rates this risk High probability and impact 4/5. Do you agree?",
+   "text_fr": "ACAPS évalue ce risque à une probabilité élevée et un impact de 4/5. Êtes-vous d'accord ?",
+   "closes_at": "2027-05-06T23:59:59Z"
+  },
+  {
+   "question_id": "Q-R1048-T0631",
+   "risk_id": "R1048",
+   "trigger_id": "T0631",
+   "kind": "forecast",
+   "title": "RSF advances north from Baw",
+   "title_fr": "Avancée des RSF au nord de Baw",
+   "text": "Will the RSF advance north from Baw towards Ed Damazine or the Roseires Dam corridor before 6 May 2027?",
+   "text_fr": "Les RSF avanceront-elles au nord de Baw vers Ed Damazine ou le corridor du barrage de Roseires avant le 6 mai 2027 ?",
+   "closes_at": "2027-05-06T23:59:59Z"
+  }
+ ]
+}
