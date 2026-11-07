@@ -189,6 +189,29 @@ function statLine(label, s) {
       s.agree_share != null ? `agree ${pct(s.agree_share)}` : "", el("span", { class: "muted" }, ` (n ${s.n})`)));
 }
 
+// Field-based vs remote: from the expert's own "Based on" ticks, never from location or their text.
+function splitSection(s, qText) {
+  if (!s) return [];
+  const g = s.groups, pts = (x) => `${x > 0 ? "+" : ""}${Math.round(x * 100)} pts`;
+  const side = (label, q) => q.suppressed
+    ? el("div", { class: "strip" }, el("span", { class: "muted" }, label), el("span", { class: "muted small" }, `hidden: fewer than ${s.min_n} answers`), el("span"))
+    : statLine(label, q);
+  return [
+    el("h3", {}, "Field-based vs remote"),
+    el("p", { class: "small muted" },
+      `Field = ticked "What I see myself" or "Local contacts" on the "Based on" step; remote = ticked only other sources. `
+      + `Self-declared: no location tracking. Now: ${g.field} field · ${g.remote} remote · ${g.not_stated} no source ticked. `
+      + `Each side shows from n = ${s.min_n} so a small group can't be singled out.`),
+    ...s.questions.map((q) => el("div", { class: "q" },
+      el("div", { class: "q-text" }, el("b", {}, q.question_id), " ", qText[q.question_id] || ""),
+      side("Field", q.field), side("Remote", q.remote),
+      q.median_gap != null || q.agree_gap != null ? el("div", { class: "small" },
+        q.median_gap != null ? `Field vs remote median: ${pts(q.median_gap)}` : "",
+        q.median_gap != null && q.agree_gap != null ? " · " : "",
+        q.agree_gap != null ? `agree with rating: ${pct(q.field.agree_share)} field vs ${pct(q.remote.agree_share)} remote` : "") : null)),
+  ];
+}
+
 function commentsBox(c) {
   if (!c) return null;
   return el("div", { class: `comments ${c.enabled ? "on" : "off"}` },
@@ -242,6 +265,8 @@ async function openRound(id) {
         el("div", { class: "q-text" }, el("b", {}, qid), " ", qText[qid] || ""),
         statLine("Round 1", r1[qid]), statLine("Final", fin[qid]),
         shifts[qid] ? el("div", { class: "small muted" }, `${shifts[qid].n_revised} revised · mean shift ${shifts[qid].mean_shift > 0 ? "+" : ""}${Math.round(shifts[qid].mean_shift * 100)} pts`) : null)),
+
+      ...splitSection(m.basis_split, qText),
 
       el("h3", {}, "What's missing · grouped"),
       el("div", { class: "row" }, synthBtn, el("span", { class: "small muted" }, `source: ${m.synthesis_source || "–"}${m.model ? " · " + m.model : ""}${m.fallback_reason ? " · " + m.fallback_reason : ""}`)),

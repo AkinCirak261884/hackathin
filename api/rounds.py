@@ -396,6 +396,34 @@ def moderator_free_text(round_id: str) -> list[dict]:
             for r in rows]
 
 
+FIELD_BASES = ("field_observation", "local_contacts")
+
+
+def basis_split(m, round_id: str, questions, rows: list, min_n: int = MIN_N) -> dict:
+    """Moderator only: answers from experts who ticked "What I see myself" or "Local contacts" on the "Based on"
+    step ('field') next to those who ticked only other sources ('remote'). Self-declared: no location, IP or
+    text analysis. Each side only from n >= min_n authors, so a small group can't be singled out."""
+    bases: dict[str, set] = {}
+    for r in m.execute("SELECT author_token, reasoning_basis FROM contributions"
+                       " WHERE round_id = ? AND reasoning_basis IS NOT NULL", (round_id,)).fetchall():
+        bases.setdefault(r["author_token"], set()).update(r["reasoning_basis"].split(","))  # v2 rows carry none
+    group = {a: "field" if bases.get(a, set()) & set(FIELD_BASES) else "remote" if bases.get(a) else "not_stated"
+             for a in {r["author_token"] for r in rows}}
+    out = []
+    for qid in questions:
+        field = question_stats([r for r in rows if group[r["author_token"]] == "field"], qid, min_n)
+        remote = question_stats([r for r in rows if group[r["author_token"]] == "remote"], qid, min_n)
+        item = {"question_id": qid, "field": field, "remote": remote}
+        if field.get("median") is not None and remote.get("median") is not None:
+            item["median_gap"] = round(field["median"] - remote["median"], 3)
+        if field.get("agree_share") is not None and remote.get("agree_share") is not None:
+            item["agree_gap"] = round(field["agree_share"] - remote["agree_share"], 2)
+        out.append(item)
+    return {"field_bases": list(FIELD_BASES), "min_n": min_n,
+            "groups": {g: sum(1 for x in group.values() if x == g) for g in ("field", "remote", "not_stated")},
+            "questions": out}
+
+
 def moderator_view(round_id: str) -> dict:
     """ACAPS moderator only. Sees n and distributions from 1 answer up (trusted), plus revision shifts."""
     rnd = get_round(round_id)
@@ -408,6 +436,7 @@ def moderator_view(round_id: str) -> dict:
         # MAX(tier): 'pseudonymous' > 'known', so one pseudonymous answer means "don't resolve me"
         authors = m.execute("SELECT author_token, MAX(tier) tier FROM contributions WHERE round_id = ?"
                             " GROUP BY author_token ORDER BY MIN(id)", (round_id,)).fetchall()
+        split = basis_split(m, round_id, questions, final)
     v1_by = {(r["author_token"], r["question_id"]): r for r in v1}
     shifts = []
     for qid in questions:
@@ -428,6 +457,7 @@ def moderator_view(round_id: str) -> dict:
         "questions": {"round_1": [question_stats(v1, q, min_n=1) for q in questions],
                       "final": [question_stats(final, q, min_n=1) for q in questions]},
         "revision_shifts": shifts,
+        "basis_split": split,
         "contributors": [{"author_token": a["author_token"], "tier": a["tier"],
                           "identity": trust.resolve_identity(a["author_token"], a["tier"])} for a in authors],
         "free_text": moderator_free_text(round_id),
