@@ -47,7 +47,13 @@
   .q { border-top: 1px solid var(--line); padding: 10px 0; }
   .q-text { font-size: 14px; margin-bottom: 6px; }
   .strip { display: grid; grid-template-columns: 70px 1fr 150px; gap: 8px; align-items: center; font-size: 13px; }
-  .strip svg { width: 100%; height: 26px; display: block; }
+  /* dot strip: plain elements, not a stretched SVG, so dots stay round at any width */
+  .dstrip { position: relative; height: 26px; min-width: 0; }
+  .dstrip i { position: absolute; display: block; }
+  .d-axis { left: 0; right: 0; top: 12px; height: 2px; background: var(--line); }
+  .d-band { top: 6px; height: 14px; min-width: 1px; border-radius: 3px; background: var(--accent-bg); }
+  .d-dot { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--dot); opacity: .85; }
+  .d-med { top: 2px; height: 22px; width: 3px; margin-left: -1.5px; border-radius: 1px; background: var(--dot2); }
   .comments { border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
   .comments.on { background: var(--ok-bg); } .comments.off { background: var(--warn-bg); }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -167,17 +173,12 @@ async function loadRounds() {
 }
 
 function dotStrip(dots, median, p25, p75) {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("viewBox", "0 0 200 26"); svg.setAttribute("preserveAspectRatio", "none");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", dots ? `answers: ${dots.map(pct).join(", ")}` : "no answers");
-  const add = (tag, a) => { const n = document.createElementNS(ns, tag); for (const k in a) n.setAttribute(k, a[k]); svg.append(n); return n; };
-  add("line", { x1: 0, x2: 200, y1: 13, y2: 13, stroke: "var(--line)", "stroke-width": 2 });
-  if (p25 != null) add("rect", { x: p25 * 200, y: 6, width: Math.max(1, (p75 - p25) * 200), height: 14, rx: 3, fill: "var(--accent-bg)" });
-  (dots || []).forEach((d, i) => add("circle", { cx: 4 + d * 192, cy: 13 + ((i % 3) - 1) * 4, r: 3.5, fill: "var(--dot)", "fill-opacity": .85 }));
-  if (median != null) add("line", { x1: median * 200, x2: median * 200, y1: 2, y2: 24, stroke: "var(--dot2)", "stroke-width": 2.5 });
-  return svg;
+  const at = (p) => `calc(4px + ${p} * (100% - 8px))`;  // 0%..100% across the track, 4px inset each side
+  return el("div", { class: "dstrip", role: "img", "aria-label": dots ? `answers: ${dots.map(pct).join(", ")}` : "no answers" },
+    el("i", { class: "d-axis" }),
+    p25 != null ? el("i", { class: "d-band", style: `left:${at(p25)};width:calc(${p75 - p25} * (100% - 8px))` }) : null,
+    ...(dots || []).map((d, i) => el("i", { class: "d-dot", style: `left:${at(d)};top:${13 + ((i % 3) - 1) * 4}px` })),
+    median != null ? el("i", { class: "d-med", style: `left:${at(median)}` }) : null);
 }
 
 function statLine(label, s) {
