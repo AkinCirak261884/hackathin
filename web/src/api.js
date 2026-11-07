@@ -54,6 +54,16 @@ export const hasAnySubmission = () => Object.keys(allSubmissions()).length > 0
 export function resetDemoAnswers() {
   try { ['gt_submissions', 'gt_submission', 'gt_forecast_updates', 'gt_revisions'].forEach((k) => localStorage.removeItem(k)) } catch {}
 }
+// Live mode: the server is the truth. When it says this invite (and this device's anonymous token) has no answer in a
+// round, e.g. after the live database was reset, forget this browser's copy so the round shows "Start" again.
+function forgetRound(roundId) {
+  for (const k of [KEY, 'gt_revisions']) {
+    try {
+      const all = JSON.parse(localStorage.getItem(k)) || {}
+      if (roundId in all) { delete all[roundId]; localStorage.setItem(k, JSON.stringify(all)) }
+    } catch {}
+  }
+}
 // Delphi step 2 (option B): after reading peer reasons the expert either keeps their answers or revises once.
 // Kept in this browser in both modes so the reveal knows whether to show the numbers yet.
 const REV_KEY = 'gt_revisions'
@@ -212,10 +222,13 @@ function personalTrackRecord(tr, sub) {
 // See status/A.md "Web ↔ API mismatches" W1–W16 for the list this closes.
 const fromApi = {
   // W2: { panel, rounds: [{ risk_title, you_submitted, n_questions }] } → array of round cards
-  openRounds: (r) => (r.rounds || []).map((x) => ({
-    round_id: x.round_id, risk_id: x.risk_id, title: x.risk_title, stage: x.stage, closes_at: x.closes_at || null,
-    est_minutes: Math.max(2, x.n_questions || 3), answered: !!x.you_submitted || !!lastSubmission(x.round_id),
-  })),
+  openRounds: (r) => (r.rounds || []).map((x) => {
+    if (x.you_submitted === false) forgetRound(x.round_id)
+    return {
+      round_id: x.round_id, risk_id: x.risk_id, title: x.risk_title, stage: x.stage, closes_at: x.closes_at || null,
+      est_minutes: Math.max(2, x.n_questions || 3), answered: !!x.you_submitted || !!lastSubmission(x.round_id),
+    }
+  }),
   // W3/W4: top-level triggers + risk_title; the API's yes/no "agree" item is shown as the rating step
   round: (r) => {
     const trig = Object.fromEntries((r.triggers || []).map((t) => [t.trigger_id, t]))
