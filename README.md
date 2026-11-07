@@ -24,7 +24,7 @@ The people closest to a crisis often sense it shifting first, but that knowledge
 1. **Blind check-in (about 3 minutes).** On a live ACAPS risk (demo: R1043, cross-border insecurity in eastern Chad) the expert rates ACAPS's probability and impact as too low / about right / too high, flags triggers they are seeing, gives a probability for each trigger by the deadline, ranks priorities and notes what ACAPS is missing.
 2. **Choose how you are shown.** Anonymous (default), pseudonymous or known to ACAPS, per answer.
 3. **Reasons before numbers (Delphi step 2).** After submitting, the expert reads the panel's reasons *without* their numbers, then keeps their answers or updates once, saying what changed their mind. Only then do the group's numbers unlock. The blind answer is always kept and is the one that is scored, so copying the group cannot improve anyone's record.
-4. **Group view.** Distribution of answers (one dot per expert, yours highlighted), agreement with ACAPS's rating, and peer comments with each commenter's track record.
+4. **Group view.** Distribution of answers (one dot per expert, yours highlighted), agreement with ACAPS's rating, and peer comments (reasons only: nobody's track record is shown to peers).
 5. **Track record.** "x of y correct", an accuracy score (Brier) compared with ACAPS's own rating or the panel's middle answer, a page per forecast, and a "super estimator" badge for experts who beat ACAPS. A practice round on a real, already-resolved risk lets new experts see scoring work on day one.
 6. **Impact.** "How ACAPS used your input" shows when a point an expert made changed an analysis.
 
