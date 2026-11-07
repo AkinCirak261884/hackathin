@@ -5,6 +5,7 @@ Run:  uvicorn api.main:app --reload     (from the repo root)
 """
 import json
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal, Optional
@@ -29,8 +30,11 @@ async def lifespan(_app):
     # No IP logging (BOARD.md): uvicorn's access log prints client IP:port, so switch it off here
     # rather than trusting everyone to pass --no-access-log.
     logging.getLogger("uvicorn.access").disabled = True
-    init_db()
-    seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
+    # Hosted (Vercel + Supabase): schema and seed are applied once with `python -m api.seed`, not on
+    # every serverless cold start, so GT_SKIP_STARTUP_SEED=1 there.
+    if not os.environ.get("GT_SKIP_STARTUP_SEED"):
+        init_db()
+        seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
     yield
 
 
