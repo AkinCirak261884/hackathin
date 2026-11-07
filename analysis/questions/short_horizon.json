@@ -1,0 +1,226 @@
+{
+  "status": "draft",
+  "round_opens_at": "2026-12-01T00:00:00Z",
+  "horizon": "1–3 months, so questions resolve inside the ~2-month December pilot",
+  "notes": [
+    "Drafted by Lane A from the Risk Radar triggers of the active Chad risks (R1043, R1066). R0233 has no status and is skipped.",
+    "Thresholds (counts, fatalities, localities) are first guesses: sanity-check them with Alex before the pilot.",
+    "Fields follow contracts/schemas/common.schema.json#/$defs/question; extra fields: opens_at, horizon_months, resolution_criterion, resolution_source, threshold_status."
+  ],
+  "questions": [
+    {
+      "question_id": "Q-R1043-T0618-SH1",
+      "risk_id": "R1043",
+      "trigger_id": "T0618",
+      "kind": "forecast",
+      "title": "Strikes or shelling on eastern Chad",
+      "title_fr": "Frappes ou bombardements dans l'est du Tchad",
+      "text": "Will a drone strike, airstrike or shelling hit Chadian territory in Ouaddaï, Wadi Fira, Sila or Ennedi Est province between 1 December 2026 and 31 January 2027?",
+      "text_fr": "Une frappe de drone, une frappe aérienne ou un bombardement touchera-t-il le territoire tchadien dans la province du Ouaddaï, Wadi Fira, Sila ou Ennedi Est entre le 1er décembre 2026 et le 31 janvier 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-01-31T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 2,
+      "resolution_criterion": "YES if ACLED records at least 1 event of type 'Explosions/Remote violence' located on Chadian territory in Ouaddaï, Wadi Fira, Sila or Ennedi Est with an event date from 1 Dec 2026 to 31 Jan 2027.",
+      "resolution_source": {
+        "type": "conflict_event_data",
+        "examples": [
+          "ACLED (Armed Conflict Location & Event Data)"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1043-T0618-SH2",
+      "risk_id": "R1043",
+      "trigger_id": "T0618",
+      "kind": "forecast",
+      "title": "Attacks spreading across border localities",
+      "title_fr": "Attaques s'étendant à plusieurs localités frontalières",
+      "text": "Will cross-border attacks or armed incursions affect at least 3 different localities in Ouaddaï, Wadi Fira, Sila or Ennedi Est between 1 December 2026 and 28 February 2027?",
+      "text_fr": "Des attaques transfrontalières ou des incursions armées toucheront-elles au moins 3 localités différentes dans le Ouaddaï, Wadi Fira, Sila ou Ennedi Est entre le 1er décembre 2026 et le 28 février 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-02-28T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 3,
+      "resolution_criterion": "YES if ACLED records events (battles, violence against civilians, or explosions/remote violence) involving actors operating from Sudan in at least 3 distinct named localities in those provinces, event dates 1 Dec 2026 to 28 Feb 2027.",
+      "resolution_source": {
+        "type": "conflict_event_data",
+        "examples": [
+          "ACLED (Armed Conflict Location & Event Data)"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1043-T0618-SH3",
+      "risk_id": "R1043",
+      "trigger_id": "T0618",
+      "kind": "forecast",
+      "title": "Humanitarian operations suspended by insecurity",
+      "title_fr": "Opérations humanitaires suspendues pour cause d'insécurité",
+      "text": "Will a UN agency or OCHA report that humanitarian operations in a locality of Ouaddaï, Wadi Fira, Sila or Ennedi Est were suspended or staff relocated because of cross-border insecurity, between 1 December 2026 and 31 January 2027?",
+      "text_fr": "Une agence des Nations unies ou OCHA signalera-t-elle que des opérations humanitaires dans une localité du Ouaddaï, Wadi Fira, Sila ou Ennedi Est ont été suspendues ou que du personnel a été relocalisé en raison de l'insécurité transfrontalière, entre le 1er décembre 2026 et le 31 janvier 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-01-31T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 2,
+      "resolution_criterion": "YES if an OCHA, UNHCR or other UN report published by 31 Jan 2027 states that operations were suspended, or staff relocated, in a named locality of those provinces because of cross-border attacks or insecurity during the window.",
+      "resolution_source": {
+        "type": "humanitarian_access_reports",
+        "examples": [
+          "OCHA Chad situation reports and access updates",
+          "UNHCR Chad updates"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1043-T0619-SH1",
+      "risk_id": "R1043",
+      "trigger_id": "T0619",
+      "kind": "forecast",
+      "title": "Attack on strategic infrastructure",
+      "title_fr": "Attaque contre une infrastructure stratégique",
+      "text": "Will an airport, military base, border post or major road corridor in eastern Chad be directly attacked (strike, shelling or armed assault) between 1 December 2026 and 28 February 2027?",
+      "text_fr": "Un aéroport, une base militaire, un poste frontière ou un grand axe routier de l'est du Tchad sera-t-il directement attaqué (frappe, bombardement ou assaut armé) entre le 1er décembre 2026 et le 28 février 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-02-28T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 3,
+      "resolution_criterion": "YES if ACLED, a UN report, or at least two independent international outlets report at least 1 attack on Chadian territory whose target is an airport (e.g. Amdjarass), military installation, border post or major transport corridor, during the window.",
+      "resolution_source": {
+        "type": "conflict_event_data_or_credible_reports",
+        "examples": [
+          "ACLED",
+          "UN reports",
+          "at least two independent international outlets"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1043-T0620-SH1",
+      "risk_id": "R1043",
+      "trigger_id": "T0620",
+      "kind": "forecast",
+      "title": "Chad accuses Sudanese actors or responds militarily",
+      "title_fr": "Le Tchad accuse des acteurs soudanais ou riposte militairement",
+      "text": "Will the Government of Chad officially accuse Sudanese forces or allied armed groups of an attack on Chadian territory, or announce a military response or border closure, between 1 December 2026 and 1 March 2027?",
+      "text_fr": "Le gouvernement tchadien accusera-t-il officiellement des forces soudanaises ou des groupes armés alliés d'une attaque sur le territoire tchadien, ou annoncera-t-il une riposte militaire ou une fermeture de frontière, entre le 1er décembre 2026 et le 1er mars 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-03-01T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 3,
+      "resolution_criterion": "YES if an official statement by the Chadian presidency, government or army, issued during the window, names Sudanese forces (SAF or RSF) or allied groups as responsible for an attack on Chad, or announces a military response or closure of the Chad–Sudan border.",
+      "resolution_source": {
+        "type": "official_statement",
+        "examples": [
+          "Government of Chad / presidency / army communiqués",
+          "reported by at least two independent international outlets"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1066-T0669-SH1",
+      "risk_id": "R1066",
+      "trigger_id": "T0669",
+      "kind": "forecast",
+      "title": "Boko Haram / ISWAP attacks in Lac province",
+      "title_fr": "Attaques de Boko Haram / ISWAP dans la province du Lac",
+      "text": "Will ACLED record at least 3 attacks attributed to Boko Haram (JAS) or ISWAP in Chad's Lac province between 1 December 2026 and 31 January 2027?",
+      "text_fr": "ACLED enregistrera-t-il au moins 3 attaques attribuées à Boko Haram (JAS) ou à l'ISWAP dans la province du Lac au Tchad entre le 1er décembre 2026 et le 31 janvier 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-01-31T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 2,
+      "resolution_criterion": "YES if ACLED records at least 3 events (battles, violence against civilians, or explosions/remote violence) with JAS/Boko Haram or ISWAP as an actor, located in Lac province, Chad, event dates 1 Dec 2026 to 31 Jan 2027.",
+      "resolution_source": {
+        "type": "conflict_event_data",
+        "examples": [
+          "ACLED (Armed Conflict Location & Event Data)"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1066-T0669-SH2",
+      "risk_id": "R1066",
+      "trigger_id": "T0669",
+      "kind": "forecast",
+      "title": "Deadly attack on a Chadian military position",
+      "title_fr": "Attaque meurtrière contre une position militaire tchadienne",
+      "text": "Will a single attack on a Chadian military position in Lac province kill at least 10 people between 1 December 2026 and 28 February 2027?",
+      "text_fr": "Une seule attaque contre une position militaire tchadienne dans la province du Lac fera-t-elle au moins 10 morts entre le 1er décembre 2026 et le 28 février 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-02-28T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 3,
+      "resolution_criterion": "YES if ACLED records a single event in Lac province, Chad, targeting Chadian military forces with at least 10 reported fatalities, event date 1 Dec 2026 to 28 Feb 2027.",
+      "resolution_source": {
+        "type": "conflict_event_data",
+        "examples": [
+          "ACLED (Armed Conflict Location & Event Data)"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1066-T0670-SH1",
+      "risk_id": "R1066",
+      "trigger_id": "T0670",
+      "kind": "forecast",
+      "title": "New military operation or emergency measures in Lac",
+      "title_fr": "Nouvelle opération militaire ou mesures d'urgence dans le Lac",
+      "text": "Will Chadian authorities announce a new military operation, a state of emergency, or new movement restrictions in Lac province between 1 December 2026 and 28 February 2027?",
+      "text_fr": "Les autorités tchadiennes annonceront-elles une nouvelle opération militaire, un état d'urgence ou de nouvelles restrictions de mouvement dans la province du Lac entre le 1er décembre 2026 et le 28 février 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-02-28T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 3,
+      "resolution_criterion": "YES if an official Chadian government, army or provincial statement issued during the window announces a new named military operation, a state of emergency, or new movement restrictions (e.g. curfew, bans on boats or motorbikes) covering all or part of Lac province.",
+      "resolution_source": {
+        "type": "official_statement",
+        "examples": [
+          "Government of Chad / presidency / army communiqués",
+          "reported by at least two independent international outlets"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    },
+    {
+      "question_id": "Q-R1066-T0670-SH2",
+      "risk_id": "R1066",
+      "trigger_id": "T0670",
+      "kind": "forecast",
+      "title": "New displacement in Lac province",
+      "title_fr": "Nouveaux déplacements dans la province du Lac",
+      "text": "Will IOM DTM, UNHCR or OCHA report new displacement in Lac province caused by insecurity or military operations, in a report published between 1 December 2026 and 1 March 2027?",
+      "text_fr": "L'OIM (DTM), le HCR ou OCHA signaleront-ils de nouveaux déplacements dans la province du Lac causés par l'insécurité ou des opérations militaires, dans un rapport publié entre le 1er décembre 2026 et le 1er mars 2027 ?",
+      "opens_at": "2026-12-01T00:00:00Z",
+      "closes_at": "2027-03-01T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "horizon_months": 3,
+      "resolution_criterion": "YES if a report or dashboard update published during the window attributes new displacement (any size; threshold to agree with ACAPS) in Lac province, Chad, to armed group attacks or military operations occurring after 1 Dec 2026.",
+      "resolution_source": {
+        "type": "displacement_and_humanitarian_reports",
+        "examples": [
+          "UNHCR Chad operational data portal",
+          "IOM DTM Chad",
+          "OCHA Chad situation reports"
+        ]
+      },
+      "threshold_status": "draft_check_with_alex"
+    }
+  ]
+}

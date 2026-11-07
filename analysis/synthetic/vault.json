@@ -1,0 +1,66 @@
+[
+  {
+    "expert_id": "EXP-TCD-01",
+    "name": "Synthetic Expert 01",
+    "email": "synthetic.expert01@example.org",
+    "invite_token": "inv_demo_01",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-01"
+  },
+  {
+    "expert_id": "EXP-TCD-02",
+    "name": "Synthetic Expert 02",
+    "email": "synthetic.expert02@example.org",
+    "invite_token": "inv_demo_02",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-02"
+  },
+  {
+    "expert_id": "EXP-TCD-03",
+    "name": "Synthetic Expert 03",
+    "email": "synthetic.expert03@example.org",
+    "invite_token": "inv_demo_03",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-03"
+  },
+  {
+    "expert_id": "EXP-TCD-04",
+    "name": "Synthetic Expert 04",
+    "email": "synthetic.expert04@example.org",
+    "invite_token": "inv_demo_04",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-04"
+  },
+  {
+    "expert_id": "EXP-TCD-05",
+    "name": "Synthetic Expert 05",
+    "email": "synthetic.expert05@example.org",
+    "invite_token": "inv_demo_05",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-05"
+  },
+  {
+    "expert_id": "EXP-TCD-06",
+    "name": "Synthetic Expert 06",
+    "email": "synthetic.expert06@example.org",
+    "invite_token": "inv_demo_06",
+    "device_secret": "device-secret-d45c39a39ec353c1",
+    "author_token": "anon_c4ebf7c61aa31fc2807eb4e48fa7e2b8"
+  },
+  {
+    "expert_id": "EXP-TCD-07",
+    "name": "Synthetic Expert 07",
+    "email": "synthetic.expert07@example.org",
+    "invite_token": "inv_demo_07",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-07"
+  },
+  {
+    "expert_id": "EXP-TCD-08",
+    "name": "Synthetic Expert 08",
+    "email": "synthetic.expert08@example.org",
+    "invite_token": "inv_demo_08",
+    "device_secret": null,
+    "author_token": "psd_EXP-TCD-08"
+  }
+]
