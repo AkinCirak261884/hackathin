@@ -1,0 +1,14 @@
+[
+  {"question_id": "Q-R1043-AGREE", "trigger_id": null, "kind": "agree",
+   "text": "Do you agree with ACAPS's rating for this risk (Probability: High, Impact: 4, Risk level: High)?",
+   "closes_at": "2027-05-06"},
+  {"question_id": "Q-R1043-T0618", "trigger_id": "T0618", "kind": "forecast",
+   "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, by 6 May 2027?",
+   "closes_at": "2027-05-06"},
+  {"question_id": "Q-R1043-T0619", "trigger_id": "T0619", "kind": "forecast",
+   "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, by 6 May 2027?",
+   "closes_at": "2027-05-06"},
+  {"question_id": "Q-R1043-T0620", "trigger_id": "T0620", "kind": "forecast",
+   "text": "Will armed groups, militias or proxy actors operating across the Chad-Sudan border become actively involved in cross-border hostilities in eastern Chad by 6 May 2027?",
+   "closes_at": "2027-05-06"}
+]
