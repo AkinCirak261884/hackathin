@@ -9,6 +9,7 @@ import trackRecord from '@fixtures/me_track_record.json'
 import trackRecordNew from '@fixtures/me_track_record_new.json'
 import publicSummaries from '@fixtures/public_summaries.json'
 import demoOffRound from './mock/round_RD-R1048-D.json' // pitch demo: a round where peer comments are off (small affected group)
+import acapsRationale from './mock/acaps_rationale.json'
 import demoOffAgg from './mock/aggregate_RD-R1048-D.json'
 import acapsRisksTCD from './mock/acaps_risks_TCD.json' // snapshot from the CSV until Lane B's /acaps/risks exists
 import { pct, r05, recordSummary } from './stats.js'
@@ -18,6 +19,8 @@ export const MOCK = !BASE
 
 const clone = (v) => JSON.parse(JSON.stringify(v))
 const ROUNDS = { [round.round_id]: round, [practiceRound.round_id]: practiceRound, [demoOffRound.round_id]: demoOffRound }
+// Full ACAPS rationale for "Read more" (the live API sends risk.rationale; the fixtures only have rationale_short)
+const withRationale = (r) => ({ ...r, risk: { ...r.risk, rationale: r.risk.rationale || acapsRationale[r.risk.risk_id] || null } })
 const AGGS = { [aggregate.round_id]: aggregate, [practiceAggregate.round_id]: practiceAggregate, [demoOffAgg.round_id]: demoOffAgg }
 // demo-only card on the pitch site's check-ins, to show peer comments switching off
 const DEMO_OFF_CARD = { round_id: demoOffRound.round_id, risk_id: 'R1048', country: 'Sudan', title: demoOffRound.risk.title, stage: 'blind',
@@ -319,7 +322,7 @@ const postResponse = async (id, body) => http(`/rounds/${id}/responses`, { metho
 export const api = {
   openRounds: (panel = 'TCD') =>
     MOCK ? delay([...roundsOpen, DEMO_OFF_CARD].map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : get(`/rounds/open?panel=${panel}`).then(fromApi.openRounds),
-  round: (id) => (MOCK ? delay({ ...(ROUNDS[id] || round), comments_policy: DEMO_COMMENTS[id] || null }) : http(`/rounds/${id}`).then(fromApi.round)),
+  round: (id) => (MOCK ? delay(withRationale({ ...(ROUNDS[id] || round), comments_policy: DEMO_COMMENTS[id] || null })) : http(`/rounds/${id}`).then(fromApi.round)),
   // the first answer is also kept in this browser (both modes): step 2 and "Check my answers" read it
   submit: async (id, body) => {
     const reply = MOCK ? await delay({ ...postReply, version: body.version }) : await postResponse(id, body)

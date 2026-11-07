@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useId, useRef, useState } from 'react'
 import { api, anonToken, inviteToken, MOCK } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
@@ -10,8 +10,50 @@ import { ProbMeter } from '../components/charts.jsx'
 const PRESETS = [0.1, 0.3, 0.5, 0.7, 0.9]
 const BASIS = ['field_observation', 'local_contacts', 'media_osint', 'reports_data', 'experience']
 
+// ACAPS rationale: one paragraph per line; "[label](https://…)" source links become real links (no raw HTML).
+function RationaleText({ text }) {
+  return text.split('\n').map((line, i) => {
+    const parts = []
+    let last = 0
+    for (const m of line.matchAll(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\s*\)/g)) {
+      if (m.index > last) parts.push(line.slice(last, m.index))
+      parts.push(<a key={m.index} href={m[2]} target="_blank" rel="noopener noreferrer">{m[1]}</a>)
+      last = m.index + m[0].length
+    }
+    parts.push(line.slice(last))
+    return <p key={i}>{parts}</p>
+  })
+}
+
+// "Read more": the card shows ACAPS's short rationale; the full text opens in a dialog over the screen.
+function RationaleDialog({ risk }) {
+  const { t } = useT()
+  const ref = useRef(null)
+  const titleId = useId()
+  const close = () => ref.current?.close()
+  return (
+    <>
+      <button type="button" className="link read-more" onClick={() => ref.current?.showModal()}>{t('read_more')}</button>
+      <dialog ref={ref} className="sheet" aria-labelledby={titleId} onClick={(e) => { if (e.target === ref.current) close() }}>
+        <div className="sheet-body">
+          <div className="sheet-head">
+            <div>
+              <div className="eyebrow">{t('acaps_rationale')} · {risk.risk_id}</div>
+              <h2 id={titleId}>{risk.title}</h2>
+            </div>
+            <button type="button" className="btn ghost small-btn" onClick={close}>{t('close')}</button>
+          </div>
+          <div className="sheet-text"><RationaleText text={risk.rationale} /></div>
+          <p className="muted small">{t('acaps_rationale_src')}</p>
+        </div>
+      </dialog>
+    </>
+  )
+}
+
 function RiskSummary({ risk }) {
   const { t } = useT()
+  const more = risk.rationale && risk.rationale.length > (risk.rationale_short || '').length + 20
   return (
     <div className="risk">
       <div className="chips">
@@ -20,6 +62,7 @@ function RiskSummary({ risk }) {
       </div>
       <h3>{risk.title}</h3>
       {risk.rationale_short && <p className="small muted">{risk.rationale_short}</p>}
+      {more && <RationaleDialog risk={risk} />}
       <dl className="facts">
         <div><dt>{t('probability')}</dt><dd>{risk.probability}</dd></div>
         <div><dt>{t('impact')}</dt><dd>{risk.impact}/5</dd></div>
