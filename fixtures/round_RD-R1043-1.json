@@ -1,0 +1,151 @@
+{
+  "round_id": "RD-R1043-1",
+  "panel": "TCD",
+  "stage": "blind",
+  "opened_at": "2026-11-06T18:00:00Z",
+  "closes_at": "2026-11-13T18:00:00Z",
+  "risk": {
+    "risk_id": "R1043",
+    "title": "Escalating cross-border insecurity linked to the Sudan conflict increases protection risks and humanitarian needs in eastern Chad",
+    "country": "Chad",
+    "iso": "TCD",
+    "probability": "High",
+    "impact": 4,
+    "level": "High",
+    "status": "Active",
+    "trend": "Deteriorated",
+    "rationale_short": "Since early 2026, the conflict in Sudan has evolved from a humanitarian crisis affecting Chad into a direct security threat to eastern border areas. Repeated drone strikes, cross-border incursions, and clashes involving fighters aligned with the Rapid Support Forces (RSF) and Sudanese Armed Forces (SAF) have already caused casualties on Chadian territory, including around Tine and other border regions.",
+    "expected_exposure": ">500,000",
+    "priority_needs": [
+      "Protection",
+      "Food security",
+      "Livelihoods",
+      "Health"
+    ],
+    "triggers": [
+      {
+        "trigger_id": "T0618",
+        "risk_id": "R1043",
+        "title": "Expansion of cross-border attacks and insecurity",
+        "description": "Additional drone strikes, shelling, or armed incursions near the Chad–Sudan border, particularly around Adré, Tina, and other eastern border localities, increase civilian casualties, trigger further displacement into Chad, and constrain humanitarian operations in already fragile border areas. Continued insecurity may also disrupt cross-border trade and movement routes relied upon by refugees and host communities",
+        "completion_rate": 0.4,
+        "objective": "cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement, or humanitarian access disruptions."
+      },
+      {
+        "trigger_id": "T0619",
+        "risk_id": "R1043",
+        "title": "Attacks on strategic infrastructure in Chad",
+        "description": "Threats by Sudanese actors against Chadian airports, border facilities, military positions, or transport infrastructure may materialise into direct attacks on strategic assets in eastern Chad. Any strike against airports such as Amdjarass, military installations, or critical transport corridors would increase the risk of direct confrontation between Chad and Sudanese armed actors, disrupt humanitarian and commercial operations, and further destabilise border regions",
+        "completion_rate": 0.1,
+        "objective": "attacks directly target strategic infrastructure in Chad, including airports, military facilities, border posts, or major transport corridors, causing significant disruption to civilian, humanitarian, or commercial activities."
+      },
+      {
+        "trigger_id": "T0620",
+        "risk_id": "R1043",
+        "title": "Renewed proxy mobilisation and cross-border armed group activity",
+        "description": "Historical patterns of proxy warfare between Chad and Sudan may re-emerge through the mobilisation, arming, or support of rebel groups and allied militias operating along the border. Increased involvement of SAF-aligned groups, RSF-linked actors, Darfuri armed factions, or Chadian rebel networks could expand the conflict beyond isolated border incidents and increase the likelihood of retaliatory attacks on Chadian territory.",
+        "completion_rate": 0.2,
+        "objective": "armed groups, militias, or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, resulting in sustained violence, retaliatory attacks, or territorial insecurity in eastern Chad."
+      }
+    ]
+  },
+  "questions": [
+    {
+      "question_id": "Q-R1043-RATING",
+      "risk_id": "R1043",
+      "trigger_id": null,
+      "kind": "rating",
+      "title": "ACAPS rating",
+      "title_fr": "L'évaluation d'ACAPS",
+      "text": "ACAPS rates this risk High probability and impact 4/5. Do you agree?",
+      "text_fr": "ACAPS évalue ce risque à une probabilité élevée et un impact de 4/5. Êtes-vous d'accord ?",
+      "closes_at": "2026-11-13T18:00:00Z",
+      "acaps_baseline": 0.78,
+      "outcome": null
+    },
+    {
+      "question_id": "Q-R1043-T0618",
+      "risk_id": "R1043",
+      "trigger_id": "T0618",
+      "kind": "forecast",
+      "title": "Expansion of cross-border attacks and insecurity",
+      "title_fr": "Expansion des attaques et de l'insécurité transfrontalières",
+      "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
+      "text_fr": "Les attaques transfrontalières deviendront-elles durables et récurrentes, touchant plusieurs localités frontalières de l'est du Tchad et causant d'importantes victimes civiles, des déplacements ou des perturbations de l'accès humanitaire, avant le 6 mai 2027 ?",
+      "closes_at": "2027-05-06T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null
+    },
+    {
+      "question_id": "Q-R1043-T0619",
+      "risk_id": "R1043",
+      "trigger_id": "T0619",
+      "kind": "forecast",
+      "title": "Attacks on strategic infrastructure in Chad",
+      "title_fr": "Attaques contre des infrastructures stratégiques au Tchad",
+      "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
+      "text_fr": "Des attaques viseront-elles directement des infrastructures stratégiques au Tchad (aéroports, installations militaires, postes frontières ou grands corridors de transport), causant d'importantes perturbations, avant le 6 mai 2027 ?",
+      "closes_at": "2027-05-06T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null
+    },
+    {
+      "question_id": "Q-R1043-T0620",
+      "risk_id": "R1043",
+      "trigger_id": "T0620",
+      "kind": "forecast",
+      "title": "Renewed proxy mobilisation and cross-border armed group activity",
+      "title_fr": "Remobilisation par procuration et groupes armés transfrontaliers",
+      "text": "Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
+      "text_fr": "Des groupes armés, milices ou acteurs par procuration opérant de part et d'autre de la frontière Tchad–Soudan participeront-ils activement à des hostilités transfrontalières, causant une violence durable, des représailles ou une insécurité territoriale dans l'est du Tchad, avant le 6 mai 2027 ?",
+      "closes_at": "2027-05-06T23:59:59Z",
+      "acaps_baseline": null,
+      "outcome": null
+    },
+    {
+      "question_id": "Q-TCD-TOP3",
+      "risk_id": "R1043",
+      "trigger_id": null,
+      "kind": "ranking",
+      "title": "Top 3 risks in Chad",
+      "title_fr": "Top 3 des risques au Tchad",
+      "text": "What are the three biggest risks in Chad that might worsen humanitarian outcomes in the next six months?",
+      "text_fr": "Quels sont les trois plus grands risques au Tchad susceptibles d'aggraver la situation humanitaire dans les six prochains mois ?",
+      "closes_at": "2026-11-13T18:00:00Z",
+      "acaps_baseline": null,
+      "outcome": null,
+      "options": [
+        {
+          "option_id": "R1043",
+          "label": "Cross-border insecurity from the Sudan conflict (eastern Chad)",
+          "label_fr": "Insécurité transfrontalière liée au conflit soudanais (est du Tchad)",
+          "synthetic": false
+        },
+        {
+          "option_id": "R0233",
+          "label": "Protests and violent clashes with security forces in urban areas",
+          "label_fr": "Manifestations et affrontements violents avec les forces de sécurité en zone urbaine",
+          "synthetic": false
+        },
+        {
+          "option_id": "SYN-TCD-01",
+          "label": "Lean-season food insecurity worsens as refugee arrivals rise",
+          "label_fr": "L'insécurité alimentaire de soudure s'aggrave avec l'afflux de réfugiés",
+          "synthetic": true
+        },
+        {
+          "option_id": "SYN-TCD-02",
+          "label": "Rainy-season flooding in N'Djamena and the south",
+          "label_fr": "Inondations de saison des pluies à N'Djamena et dans le sud",
+          "synthetic": true
+        },
+        {
+          "option_id": "SYN-TCD-03",
+          "label": "Funding shortfalls force cuts to refugee assistance in the east",
+          "label_fr": "Le manque de financement réduit l'assistance aux réfugiés dans l'est",
+          "synthetic": true
+        }
+      ]
+    }
+  ]
+}

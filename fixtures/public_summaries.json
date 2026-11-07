@@ -1,0 +1,43 @@
+[
+  {
+    "round_id": "RD-R1043-1",
+    "risk_id": "R1043",
+    "risk_title": "Escalating cross-border insecurity linked to the Sudan conflict increases protection risks and humanitarian needs in eastern Chad",
+    "published_at": "2026-11-14T10:00:00Z",
+    "n_responses": 7,
+    "headline": "Panel broadly agrees with ACAPS's High rating; sustained cross-border attacks seen as most likely",
+    "summary_text": "Most of the Chad panel agrees with the High probability and impact 4 rating, with a minority seeing it as too low. Experts flag refugee–host tensions over water and health risks in overcrowded sites as gaps in the current analysis.",
+    "rating_agreement": {
+      "probability": {
+        "too_low": 2,
+        "agree": 4,
+        "too_high": 1
+      },
+      "impact": {
+        "too_low": 1,
+        "agree": 5,
+        "too_high": 1
+      }
+    },
+    "forecasts": [
+      {
+        "question_id": "Q-R1043-T0618",
+        "text": "Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
+        "median": 0.65,
+        "n": 7
+      },
+      {
+        "question_id": "Q-R1043-T0619",
+        "text": "Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
+        "median": 0.3,
+        "n": 7
+      },
+      {
+        "question_id": "Q-R1043-T0620",
+        "text": "Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
+        "median": 0.45,
+        "n": 7
+      }
+    ]
+  }
+]

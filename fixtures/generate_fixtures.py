@@ -1,0 +1,518 @@
+"""Generate all mock JSON in fixtures/ from the real R1043 row + a synthetic Chad panel.
+
+Run from the repo root:  python3 fixtures/generate_fixtures.py
+Stdlib only (Python 3.9+). Deterministic: same output every run.
+All experts, names, answers and free text are SYNTHETIC.
+"""
+import csv
+import hashlib
+import json
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "fixtures"
+CSV = ROOT / "data" / "risk-radar-export.csv"
+
+ROUND_ID = "RD-R1043-1"
+OPENED_AT = "2026-11-06T18:00:00Z"
+ROUND_CLOSES_AT = "2026-11-13T18:00:00Z"
+FORECAST_CLOSES_AT = "2027-05-06T23:59:59Z"  # 6 months after the round opens
+# ACAPS rating -> probability: band midpoints (Lane A, ACAPS 2019 methodology)
+PROB_MAP = {"Very Low": 0.05, "Low": 0.22, "Medium": 0.50, "High": 0.78, "Very High": 0.95}
+MIN_RESOLVED = 5   # ranked / badge only after this many resolved forecasts (Lane A)
+SHRINK_K = 5       # shrink few-forecast scores toward the group mean (Lane A)
+
+
+def sha(s):
+    return hashlib.sha256(s.encode()).hexdigest()
+
+
+def write(name, obj):
+    (OUT / name).write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def load_rows():
+    with open(CSV, encoding="utf-8") as f:
+        return {r["Risk ID"]: r for r in csv.DictReader(f)}
+
+
+def parse_triggers(risk_id, text):
+    out = []
+    for block in re.split(r"\n(?=Trigger ID:)", text.strip()):
+        def grab(label, nxt):
+            m = re.search(label + r":\s*\n?(.*?)\n" + nxt, block, re.S)
+            return re.sub(r"\s+", " ", m.group(1)).strip(" :") if m else ""
+        tid = re.search(r"Trigger ID:\s*\S+\s*-\s*(T\d+)", block).group(1)
+        rate = re.search(r"Completion rate:\s*(\d+)%", block)
+        objective = grab(r"Quantitative objective to meet 100%", r"Trend:")
+        objective = re.sub(r"^Yes\.\s*100% completion would be reached if\s*", "", objective)
+        out.append({
+            "trigger_id": tid,
+            "risk_id": risk_id,
+            "title": grab("Title", "Description:"),
+            "description": grab("Description", "Sources:"),
+            "completion_rate": int(rate.group(1)) / 100 if rate else 0,
+            "objective": objective,
+        })
+    return out
+
+
+def first_sentences(text, n=2):
+    parts = re.split(r"(?<=\.)\s+", text.strip())
+    return " ".join(parts[:n])
+
+
+def pct(values, q):
+    v = sorted(values)
+    k = (len(v) - 1) * q
+    lo, hi = int(k), min(int(k) + 1, len(v) - 1)
+    return round(v[lo] + (v[hi] - v[lo]) * (k - lo), 3)
+
+
+def r05(x):
+    return round(round(x * 20) / 20, 2)
+
+
+# ---------------------------------------------------------------- synthetic panel
+EXPERTS = [
+    # id, pseudonym, profile, macro_region, tier, lang, bias
+    ("E01", "Kestrel", "Local NGO director", "East", "known", "fr", "well_calibrated"),
+    ("E02", "Linden", "Anticipatory-action officer", "N'Djamena", "known", "en", "anchored_on_acaps"),
+    ("E03", "Osprey", "Conflict analyst, active on social media", "Abroad", "pseudonymous", "en", "alarmist"),
+    ("E04", "Birch", "University researcher", "Abroad", "pseudonymous", "fr", "underconfident"),
+    ("E05", "Heron", "UN regional office", "Abroad", "pseudonymous", "en", "well_calibrated"),
+    ("E06", "Wren", "MEAL officer", "East", "pseudonymous", "fr", "noisy"),
+    ("E07", "-", "Community responder", "East", "anonymous", "fr", "alarmist"),
+    ("E08", "Alder", "Donor-agency methodologist", "Abroad", "known", "en", "anchored_on_acaps"),
+]
+# v1 answers: (T0618, T0619, T0620), rating_prob, rating_impact, seeing, ranking, ranking_other, missing
+ANSWERS = {
+    "E01": ((0.65, 0.20, 0.45), "agree", "agree", {"T0618", "T0620"},
+            ["R1043", "SYN-TCD-03", "SYN-TCD-01"], "Affrontements intercommunautaires autour des points d'eau (Ouaddaï)",
+            "Les tensions entre réfugiés et communautés hôtes autour des points d'eau à Adré ne sont pas dans l'analyse ; elles montent depuis septembre."),
+    "E02": ((0.70, 0.30, 0.35), "agree", "agree", {"T0618"},
+            ["R1043", "SYN-TCD-01", "SYN-TCD-02"], None,
+            "Funding cuts to refugee food rations from January would amplify every trigger."),
+    "E03": ((0.90, 0.55, 0.70), "too_low", "too_low", {"T0618", "T0619", "T0620"},
+            ["R1043", "R0233", "SYN-TCD-03"], None,
+            "Fuel smuggling routes through Ennedi-Est are shifting north after the August strike; watch the Amdjarass airstrip."),
+    "E04": ((0.55, 0.40, 0.45), "agree", "too_high", set(),
+            ["SYN-TCD-01", "R1043", "SYN-TCD-03"], None,
+            "Le rôle des réseaux zaghawa dans l'armée tchadienne mérite plus de poids : risque de défections."),
+    "E05": ((0.60, 0.15, 0.35), "agree", "agree", {"T0618"},
+            ["R1043", "SYN-TCD-03", "SYN-TCD-01"], None, None),
+    "E06": ((0.45, 0.35, 0.75), "too_high", "agree", {"T0620"},
+            ["SYN-TCD-01", "SYN-TCD-03", "R1043"], "Choléra / hépatite E dans les sites surpeuplés",
+            "Health: hepatitis E and cholera risk in overcrowded sites around Adré is missing from the priority needs."),
+    "E07": ((0.85, 0.45, 0.60), "too_low", "agree", {"T0618", "T0620"},
+            ["R1043", "SYN-TCD-01", "SYN-TCD-03"], None,
+            "Les gens évitent la route du marché à cause des drones ; les femmes vont plus loin pour chercher de l'eau."),
+    # E08 invited but has not answered yet
+}
+REVISIONS = {"E03": (0.80, 0.40, 0.60), "E04": (0.60, 0.30, 0.40), "E06": (0.55, 0.25, 0.60)}
+
+RANK_OPTIONS = [
+    ("R1043", "Cross-border insecurity from the Sudan conflict (eastern Chad)",
+     "Insécurité transfrontalière liée au conflit soudanais (est du Tchad)", False),
+    ("R0233", "Protests and violent clashes with security forces in urban areas",
+     "Manifestations et affrontements violents avec les forces de sécurité en zone urbaine", False),
+    ("SYN-TCD-01", "Lean-season food insecurity worsens as refugee arrivals rise",
+     "L'insécurité alimentaire de soudure s'aggrave avec l'afflux de réfugiés", True),
+    ("SYN-TCD-02", "Rainy-season flooding in N'Djamena and the south",
+     "Inondations de saison des pluies à N'Djamena et dans le sud", True),
+    ("SYN-TCD-03", "Funding shortfalls force cuts to refugee assistance in the east",
+     "Le manque de financement réduit l'assistance aux réfugiés dans l'est", True),
+]
+
+TITLE_FR = {
+    "T0618": "Expansion des attaques et de l'insécurité transfrontalières",
+    "T0619": "Attaques contre des infrastructures stratégiques au Tchad",
+    "T0620": "Remobilisation par procuration et groupes armés transfrontaliers",
+}
+# why-I-think-this (optional, after the survey). basis: field_observation, local_contacts, media_osint, reports_data, experience
+# synthetic past record (correct, resolved) shown next to peers' comments; Kestrel's is computed from TRACK_RECORD_PAST
+PEER_RECORDS = {"E03": (6, 10), "E04": (8, 9), "E06": (4, 7)}
+
+REASONING = {
+    "E01": ("Our teams in Adré see new arrivals every week and two incidents near water points in October.", ["field_observation", "local_contacts"]),
+    "E03": ("Telegram channels close to the RSF openly discuss supply routes through Chad.", ["media_osint"]),
+    "E04": ("Historical pattern: proxy escalation followed Darfur offensives in 2005–2008.", ["experience", "reports_data"]),
+    "E06": ("Clinic data from Sila shows rising watery-diarrhoea cases since September.", ["reports_data", "field_observation"]),
+    "E07": ("Les drones passent presque chaque nuit près de la frontière.", ["field_observation"]),
+}
+
+QUESTION_TEXT = {
+    "T0618": ("Will cross-border attacks become sustained and recurrent, affecting multiple border localities in eastern Chad and causing significant civilian casualties, displacement or humanitarian access disruptions, before 6 May 2027?",
+              "Les attaques transfrontalières deviendront-elles durables et récurrentes, touchant plusieurs localités frontalières de l'est du Tchad et causant d'importantes victimes civiles, des déplacements ou des perturbations de l'accès humanitaire, avant le 6 mai 2027 ?"),
+    "T0619": ("Will attacks directly target strategic infrastructure in Chad (airports, military facilities, border posts or major transport corridors), causing significant disruption, before 6 May 2027?",
+              "Des attaques viseront-elles directement des infrastructures stratégiques au Tchad (aéroports, installations militaires, postes frontières ou grands corridors de transport), causant d'importantes perturbations, avant le 6 mai 2027 ?"),
+    "T0620": ("Will armed groups, militias or proxy actors operating across the Chad–Sudan border become actively involved in cross-border hostilities, causing sustained violence, retaliatory attacks or territorial insecurity in eastern Chad, before 6 May 2027?",
+              "Des groupes armés, milices ou acteurs par procuration opérant de part et d'autre de la frontière Tchad–Soudan participeront-ils activement à des hostilités transfrontalières, causant une violence durable, des représailles ou une insécurité territoriale dans l'est du Tchad, avant le 6 mai 2027 ?"),
+}
+
+# Kestrel's synthetic past forecasts on REAL resolved risks (outcomes from the CSV)
+TRACK_RECORD_PAST = {"R1014": 0.80, "R0094": 0.30, "R0248": 0.75, "R1028": 0.20, "R0073": 0.35,
+                     "R0301": 0.85, "R0089": 0.35, "R0002": 0.60}
+NEWCOMER_PAST = {"R0120": 0.65, "R0242": 0.40}  # demo of a new expert, not yet ranked
+# other panel members' summary stats for the leaderboard: (expert_id, n_resolved, mean_brier, acaps_brier_same_questions)
+LEADERBOARD_OTHERS = [("E04", 9, 0.112, 0.221), ("E05", 11, 0.171, 0.205), ("E03", 10, 0.214, 0.219),
+                      ("E02", 12, 0.199, 0.208), ("E06", 7, 0.246, 0.214), ("E07", 6, 0.098, 0.226),
+                      ("E08", 2, 0.180, 0.200)]
+
+
+# ---------------------------------------------------------------- practice round: R0993 (Ukraine, resolved)
+# A real resolved ACAPS risk replayed as it stood in April 2025: answer first, then see what actually happened.
+PRACTICE_ID = "RD-R0993-P"
+PRACTICE_ANSWERS = {  # eid: (prob for T0482 question, rating_probability, rating_impact)
+    "E01": (0.60, "agree", "agree"), "E02": (0.50, "agree", "agree"), "E03": (0.85, "too_low", "agree"),
+    "E04": (0.45, "agree", "too_high"), "E05": (0.65, "too_low", "agree"), "E06": (0.70, "agree", "agree"),
+    "E07": (0.80, "too_low", "too_low"),
+}
+PRACTICE_COMMENTS = {
+    "E03": ("Russia kept hitting gas production sites during the pause; the pattern pointed to a big strike once it ended.", ["media_osint"]),
+    "E05": ("In past years strikes on the grid clustered before the heating season.", ["experience", "reports_data"]),
+    "E07": ("Les coupures ont repris dès la fin avril dans notre ville.", ["field_observation"]),
+}
+
+
+def practice_round_r0993(rows):
+    r = rows["R0993"]
+    trig = parse_triggers("R0993", r["Triggers"])[0]
+    o = r["Status"] == "Materialised"
+    q_rating = {"question_id": "Q-R0993-RATING", "risk_id": "R0993", "trigger_id": None, "kind": "rating",
+                "title": "ACAPS rating", "title_fr": "L'évaluation d'ACAPS",
+                "text": f"In April 2025 ACAPS rated this risk {r['Probability']} probability and impact {r['Impact']}/5. Do you agree?",
+                "text_fr": f"En avril 2025, ACAPS évaluait ce risque à une probabilité moyenne et un impact de {r['Impact']}/5. Êtes-vous d'accord ?",
+                "closes_at": "2025-04-30T23:59:59Z", "acaps_baseline": PROB_MAP[r["Probability"]], "outcome": None}
+    q_fc = {"question_id": f"Q-R0993-{trig['trigger_id']}", "risk_id": "R0993", "trigger_id": trig["trigger_id"], "kind": "forecast",
+            "title": "Country-wide strike on the grid after the pause", "title_fr": "Frappe massive sur le réseau après la trêve",
+            "text": "Will Russian forces launch a country-wide combined missile and drone attack on Ukraine's energy infrastructure after the partial ceasefire ends in late April 2025, before 31 October 2025?",
+            "text_fr": "Les forces russes lanceront-elles une attaque combinée de missiles et de drones sur les infrastructures énergétiques de toute l'Ukraine après la fin de la trêve partielle fin avril 2025, avant le 31 octobre 2025 ?",
+            "closes_at": "2025-10-31T23:59:59Z", "acaps_baseline": PROB_MAP[r["Probability"]], "outcome": o}
+    risk = {"risk_id": "R0993", "title": r["Risk Title"], "country": r["Country"], "iso": r["ISO"],
+            "probability": r["Probability"], "impact": int(r["Impact"]), "level": r["Risk Level"], "status": "Active (April 2025)",
+            "trend": r["Risk trend"] or "Stable", "rationale_short": first_sentences(r["Rationale"], 2),
+            "expected_exposure": r["Expected exposure"],
+            "priority_needs": [x.strip() for x in r["Expected priority needs"].split(",")], "triggers": [trig]}
+    outcome = {"materialised": o, "what": r["What materialised?"], "summary": first_sentences(r["Hazard materialisation"], 2),
+               "acaps_prob": PROB_MAP[r["Probability"]]}
+    rnd = {"round_id": PRACTICE_ID, "panel": "TCD", "stage": "closed", "practice": True, "as_of": "2025-04-17",
+           "opened_at": "2025-04-17T00:00:00Z", "closes_at": "2025-04-30T23:59:59Z", "risk": risk,
+           "questions": [q_rating, q_fc], "outcome": outcome}
+    write(f"round_{PRACTICE_ID}.json", rnd)
+    vals = [a[0] for a in PRACTICE_ANSWERS.values()]
+    counts = lambda i: {k: sum(a[i] == k for a in PRACTICE_ANSWERS.values()) for k in ["too_low", "agree", "too_high"]}
+    me = PRACTICE_ANSWERS["E01"]
+    exp = {e[0]: e for e in EXPERTS}
+    comments = []
+    for i, (eid, (why, basis)) in enumerate(PRACTICE_COMMENTS.items()):
+        anon = exp[eid][4] == "anonymous"
+        comments.append({"comment_id": f"CM-P{i + 1:02d}", "display_name": "Anonymous expert" if anon else exp[eid][1],
+                         "tier": exp[eid][4], "text": why, "basis": basis, "is_you": False,
+                         "record": None if anon else {"correct": PEER_RECORDS.get(eid, (5, 8))[0], "resolved": PEER_RECORDS.get(eid, (5, 8))[1]},
+                         "forecasts": None if anon else {q_fc["question_id"]: PRACTICE_ANSWERS[eid][0]}})
+    write(f"aggregate_{PRACTICE_ID}.json", {
+        "round_id": PRACTICE_ID, "n_responses": len(vals), "suppressed": False, "reason": None,
+        "rating": {"probability": counts(1), "impact": counts(2), "you": {"probability": me[1], "impact": me[2], "ranking": []}},
+        "forecasts": [{"question_id": q_fc["question_id"], "n": len(vals), "median": pct(vals, 0.5), "p25": pct(vals, 0.25),
+                       "p75": pct(vals, 0.75), "values": sorted(r05(v) for v in vals), "acaps_baseline": PROB_MAP[r["Probability"]],
+                       "seeing_count": 4, "you": me[0]}],
+        "ranking": [], "can_revise": False, "comments": comments})
+    return rnd
+
+
+def main():
+    rows = load_rows()
+    r = rows["R1043"]
+    triggers = parse_triggers("R1043", r["Triggers"])
+    assert [t["trigger_id"] for t in triggers] == ["T0618", "T0619", "T0620"], triggers
+
+    risk = {
+        "risk_id": "R1043", "title": r["Risk Title"], "country": r["Country"], "iso": r["ISO"],
+        "probability": r["Probability"], "impact": int(r["Impact"]), "level": r["Risk Level"],
+        "status": r["Status"], "trend": r["Risk trend"],
+        "rationale_short": first_sentences(r["Rationale"], 2),
+        "expected_exposure": r["Expected exposure"],
+        "priority_needs": [s.strip() for s in r["Expected priority needs"].split(",")],
+        "triggers": triggers,
+    }
+
+    questions = [{
+        "question_id": "Q-R1043-RATING", "risk_id": "R1043", "trigger_id": None, "kind": "rating",
+        "title": "ACAPS rating", "title_fr": "L'évaluation d'ACAPS",
+        "text": f"ACAPS rates this risk {r['Probability']} probability and impact {r['Impact']}/5. Do you agree?",
+        "text_fr": f"ACAPS évalue ce risque à une probabilité {'élevée' if r['Probability'] == 'High' else r['Probability']} et un impact de {r['Impact']}/5. Êtes-vous d'accord ?",
+        "closes_at": ROUND_CLOSES_AT, "acaps_baseline": PROB_MAP[r["Probability"]], "outcome": None,
+    }]
+    for t in triggers:
+        en, fr = QUESTION_TEXT[t["trigger_id"]]
+        questions.append({
+            "question_id": f"Q-R1043-{t['trigger_id']}", "risk_id": "R1043", "trigger_id": t["trigger_id"],
+            "kind": "forecast", "title": t["title"], "title_fr": TITLE_FR[t["trigger_id"]],
+            "text": en, "text_fr": fr, "closes_at": FORECAST_CLOSES_AT,
+            "acaps_baseline": None, "outcome": None,
+        })
+    questions.append({
+        "question_id": "Q-TCD-TOP3", "risk_id": "R1043", "trigger_id": None, "kind": "ranking",
+        "title": "Top 3 risks in Chad", "title_fr": "Top 3 des risques au Tchad",
+        "text": "What are the three biggest risks in Chad that might worsen humanitarian outcomes in the next six months?",
+        "text_fr": "Quels sont les trois plus grands risques au Tchad susceptibles d'aggraver la situation humanitaire dans les six prochains mois ?",
+        "closes_at": ROUND_CLOSES_AT, "acaps_baseline": None, "outcome": None,
+        "options": [{"option_id": o, "label": en, "label_fr": fr, "synthetic": s} for o, en, fr, s in RANK_OPTIONS],
+    })
+    fq = [q for q in questions if q["kind"] == "forecast"]
+
+    round_obj = {"round_id": ROUND_ID, "panel": "TCD", "stage": "blind", "opened_at": OPENED_AT,
+                 "closes_at": ROUND_CLOSES_AT, "risk": risk, "questions": questions}
+    write(f"round_{ROUND_ID}.json", round_obj)
+    practice = practice_round_r0993(rows)
+    write("rounds_open_TCD.json", [
+        {"round_id": ROUND_ID, "risk_id": "R1043", "country": "Chad", "title": risk["title"], "stage": "blind",
+         "closes_at": ROUND_CLOSES_AT, "n_questions": len(questions), "est_minutes": 3, "answered": False, "practice": False},
+        {"round_id": practice["round_id"], "risk_id": "R0993", "country": "Ukraine", "title": practice["risk"]["title"],
+         "stage": "closed", "closes_at": None, "n_questions": len(practice["questions"]), "est_minutes": 2,
+         "answered": False, "practice": True},
+    ])
+
+    # experts + vault
+    experts, vault, token_of = [], [], {}
+    for eid, pseu, prof, reg, tier, lang, bias in EXPERTS:
+        experts.append({"expert_id": eid, "pseudonym": pseu, "country_panel": "TCD", "lang": lang,
+                        "default_tier": tier, "macro_region": reg, "profile": prof,
+                        "invite_token": "inv_" + sha("invite-" + eid)[:12], "bias": bias})
+        vault.append({"expert_id": eid, "name": f"Synthetic Expert {eid[1:]}", "email": f"expert{eid[1:]}@example.org"})
+        token_of[eid] = ("anon_" + sha("demo-device-secret-" + eid)) if tier == "anonymous" else eid
+    write("experts.json", experts)
+    write("identity_vault.json", vault)
+    exp = {e["expert_id"]: e for e in experts}
+
+    # contributions (one row per author x question x version)
+    contribs, n = [], 0
+    def add(eid, version, qid, **fields):
+        nonlocal n
+        n += 1
+        row = {"id": f"C-{n:04d}", "round_id": ROUND_ID, "question_id": qid, "author_token": token_of[eid],
+               "tier": exp[eid]["default_tier"], "version": version, "prob": None, "seeing": None,
+               "rating_probability": None, "rating_impact": None, "ranking": None, "ranking_other": None,
+               "missing_text": None, "reasoning_text": None, "reasoning_basis": None, "created_at": f"2026-11-0{7 if version == 1 else 8}T{8 + n % 10:02d}:{n * 7 % 60:02d}:00Z"}
+        row.update(fields)
+        contribs.append(row)
+        return row["id"]
+
+    missing_ids = {}
+    for eid, (probs, rp, ri, seeing, ranking, other, missing) in ANSWERS.items():
+        why, basis = REASONING.get(eid, (None, None))
+        missing_ids[eid] = add(eid, 1, "Q-R1043-RATING", rating_probability=rp, rating_impact=ri, missing_text=missing,
+                               reasoning_text=why, reasoning_basis=basis)
+        for q, p in zip(fq, probs):
+            add(eid, 1, q["question_id"], prob=p, seeing=q["trigger_id"] in seeing)
+        add(eid, 1, "Q-TCD-TOP3", ranking=ranking, ranking_other=other)
+    for eid, probs in REVISIONS.items():
+        seeing = ANSWERS[eid][3]
+        for q, p in zip(fq, probs):
+            add(eid, 2, q["question_id"], prob=p, seeing=q["trigger_id"] in seeing)
+    write(f"contributions_{ROUND_ID}.json", contribs)
+
+    def latest(eid, qi):
+        return (REVISIONS.get(eid) or ANSWERS[eid][0])[qi]
+
+    def stats(vals):
+        return {"n": len(vals), "median": pct(vals, 0.5), "p25": pct(vals, 0.25), "p75": pct(vals, 0.75),
+                "values": sorted(r05(v) for v in vals)}
+
+    def rating_counts(idx):
+        c = {"too_low": 0, "agree": 0, "too_high": 0}
+        for a in ANSWERS.values():
+            c[a[idx]] += 1
+        return c
+
+    def ranking_points():
+        pts = {o[0]: [0, 0] for o in RANK_OPTIONS}
+        for a in ANSWERS.values():
+            for i, oid in enumerate(a[4]):
+                pts[oid][0] += 3 - i
+                pts[oid][1] += 1 if i == 0 else 0
+        return sorted(({"option_id": k, "points": v[0], "first_choice": v[1]} for k, v in pts.items()),
+                      key=lambda x: -x["points"])
+
+    viewer = "E01"
+
+    def kestrel_record():
+        ok = sum(((p > 0.5) == (rows[rid]["Status"] == "Materialised")) for rid, p in TRACK_RECORD_PAST.items() if p != 0.5)
+        return ok, len(TRACK_RECORD_PAST)
+
+    # Peer comments on the results page (only after your own submit, n >= 3). Anonymous comments carry
+    # no record or forecasts, so they can't be linked across rounds.
+    def comments_for(me):
+        out = []
+        for i, (eid, (why, basis)) in enumerate(REASONING.items()):
+            if eid not in ANSWERS:
+                continue
+            tier = exp[eid]["default_tier"]
+            anon = tier == "anonymous"
+            rec = kestrel_record() if eid == viewer else PEER_RECORDS.get(eid)
+            out.append({"comment_id": f"CM-{i + 1:03d}", "display_name": "Anonymous expert" if anon else exp[eid]["pseudonym"],
+                        "tier": tier, "text": why, "basis": basis, "is_you": eid == me,
+                        "record": None if anon or not rec else {"correct": rec[0], "resolved": rec[1]},
+                        "forecasts": None if anon else {q["question_id"]: latest(eid, qi) for qi, q in enumerate(fq)}})
+        return out
+    agg_forecasts = []
+    for qi, q in enumerate(fq):
+        v1 = [a[0][qi] for a in ANSWERS.values()]
+        s = stats(v1)
+        s.update({"question_id": q["question_id"], "acaps_baseline": None,
+                  "seeing_count": sum(q["trigger_id"] in a[3] for a in ANSWERS.values()),
+                  "you": ANSWERS[viewer][0][qi]})
+        agg_forecasts.append({"question_id": s.pop("question_id"), **s})
+    write(f"aggregate_{ROUND_ID}.json", {
+        "round_id": ROUND_ID, "n_responses": len(ANSWERS), "suppressed": False, "reason": None,
+        "rating": {"probability": rating_counts(1), "impact": rating_counts(2),
+                   "you": {"probability": ANSWERS[viewer][1], "impact": ANSWERS[viewer][2], "ranking": ANSWERS[viewer][4]}},
+        "forecasts": agg_forecasts, "ranking": ranking_points(), "can_revise": True,
+        "comments": comments_for(viewer)})
+    write("aggregate_suppressed.json", {
+        "round_id": ROUND_ID, "n_responses": 2, "suppressed": True,
+        "reason": "Fewer than 3 responses so far. The group view unlocks at 3 to protect anonymity.",
+        "can_revise": False})
+
+    # POST example (Kestrel, v1)
+    k = ANSWERS[viewer]
+    write("post_response_request.json", {
+        "invite_token": exp[viewer]["invite_token"], "tier": "known", "version": 1, "missing_text": k[6],
+        "reasoning_text": REASONING[viewer][0], "reasoning_basis": REASONING[viewer][1],
+        "answers": [{"question_id": "Q-R1043-RATING", "rating_probability": k[1], "rating_impact": k[2]}]
+        + [{"question_id": q["question_id"], "prob": p, "seeing": q["trigger_id"] in k[3]} for q, p in zip(fq, k[0])]
+        + [{"question_id": "Q-TCD-TOP3", "ranking": k[4], "ranking_other": k[5]}]})
+    write("post_response_201.json", {"contribution_ids": [c["id"] for c in contribs if c["author_token"] == viewer and c["version"] == 1],
+                                     "version": 1})
+
+    # track record + leaderboard: same shape as Lane A's analysis/leaderboard.py
+    def history(past):
+        out = []
+        for rid, p in past.items():
+            rr = rows[rid]
+            o = 1 if rr["Status"] == "Materialised" else 0
+            ap = PROB_MAP[rr["Probability"]]
+            b, ab = round((p - o) ** 2, 4), round((ap - o) ** 2, 4)
+            out.append({"question_id": f"Q-{rid}-MAT", "risk_id": rid,
+                        "text": f"Will this risk materialise within six months? {rr['Risk Title'].strip()} ({rr['Country']})",
+                        "closes_at": "2026-05-06", "outcome": o, "outcome_label": "happened" if o else "didn't happen",
+                        "your_prob": p, "brier": b, "acaps_prob": ap, "acaps_brier": ab, "beat_acaps": b < ab})
+        return out
+
+    def record_stats(h):
+        n = len(h)
+        mean = round(sum(x["brier"] for x in h) / n, 4) if n else None
+        acaps = round(sum(x["acaps_brier"] for x in h) / n, 4) if n else None
+        return {"n_resolved": n, "mean_brier": mean, "acaps_brier_same_questions": acaps,
+                "n_beat_acaps": sum(x["beat_acaps"] for x in h),
+                "super_estimator": n >= MIN_RESOLVED and mean < acaps}
+
+    kh = history(TRACK_RECORD_PAST)
+    ks = record_stats(kh)
+    pool = [(viewer, ks["n_resolved"], ks["mean_brier"], ks["acaps_brier_same_questions"])] + LEADERBOARD_OTHERS
+    ranked = [x for x in pool if x[1] >= MIN_RESOLVED]
+    group_mean = round(sum(x[2] for x in ranked) / len(ranked), 4)
+    def display(eid):
+        e = exp[eid]
+        return "Anonymous expert" if e["default_tier"] == "anonymous" else e["pseudonym"]
+    entries = sorted(({"display_name": display(e), "n_resolved": n, "mean_brier": m,
+                       "shrunk_brier": round((n * m + SHRINK_K * group_mean) / (n + SHRINK_K), 4),
+                       "acaps_brier_same_questions": a, "super_estimator": n >= MIN_RESOLVED and m < a,
+                       "is_you": e == viewer} for e, n, m, a in ranked), key=lambda x: x["shrunk_brier"])
+    for i, e in enumerate(entries):
+        e["rank"] = i + 1
+    entries = [{"rank": e["rank"], **{k: v for k, v in e.items() if k != "rank"}} for e in entries]
+    # leaderboard removed from the app (team decision); entries only feed rank fields in the track record
+    me_rank = next(e["rank"] for e in entries if e["is_you"])
+
+    def track_record(token, h, s_, rank):
+        n_ranked = len(entries)
+        return {"author_token": token, **s_, "acaps_baseline_brier": s_["acaps_brier_same_questions"],
+                "min_resolved": MIN_RESOLVED, "forecasts_until_counted": max(0, MIN_RESOLVED - s_["n_resolved"]),
+                "rank": rank, "n_ranked": n_ranked,
+                "rank_percentile": round((n_ranked - rank + 1) / n_ranked, 4) if rank else None,
+                "acaps_mapping": "midpoint", "history": h}
+
+    pending = [{"question_id": q["question_id"], "title": q["title"], "title_fr": q["title_fr"], "text": q["text"],
+                "text_fr": q["text_fr"], "your_prob": p, "closes_at": q["closes_at"]} for q, p in zip(fq, k[0])]
+    impact = [{"risk_id": "R1043", "date": "2026-11-20",
+               "note": "Your point on refugee–host tensions at water points was added to the R1043 rationale (synthetic example)."}]
+    # pending + impact are Lane C/B extras on top of Lane A's shape
+    write("me_track_record.json", {**track_record(viewer, kh, ks, me_rank), "pending": pending, "impact": impact})
+    nh = history(NEWCOMER_PAST)
+    write("me_track_record_new.json", {**track_record("E08", nh, record_stats(nh), None), "pending": pending, "impact": []})
+
+    # moderator view
+    forecasts_mod = []
+    for qi, q in enumerate(fq):
+        v1 = [a[0][qi] for a in ANSWERS.values()]
+        v2 = [latest(e, qi) for e in ANSWERS]
+        shifts = [abs(REVISIONS[e][qi] - ANSWERS[e][0][qi]) for e in REVISIONS]
+        by_region = []
+        for reg in ["East", "N'Djamena", "Abroad"]:
+            vals = [ANSWERS[e][0][qi] for e in ANSWERS if exp[e]["macro_region"] == reg]
+            if len(vals) >= 3:
+                by_region.append({"macro_region": reg, "n": len(vals), "median": pct(vals, 0.5)})
+        forecasts_mod.append({"question_id": q["question_id"], "trigger_id": q["trigger_id"],
+                              "acaps_completion_rate": next(t["completion_rate"] for t in triggers if t["trigger_id"] == q["trigger_id"]),
+                              "v1": stats(v1), "v2": stats(v2), "n_revised": len(shifts),
+                              "mean_abs_shift": round(sum(shifts) / len(shifts), 3),
+                              "seeing_count": sum(q["trigger_id"] in a[3] for a in ANSWERS.values()),
+                              "by_region": by_region, "by_region_dropped": ["N'Djamena"]})
+    vault_name = {v["expert_id"]: v["name"] for v in vault}
+    def shown_as(eid):
+        t = exp[eid]["default_tier"]
+        return vault_name[eid] if t == "known" else exp[eid]["pseudonym"] if t == "pseudonymous" else "Anonymous"
+    tiers = {}
+    for e in ANSWERS:
+        tiers[exp[e]["default_tier"]] = tiers.get(exp[e]["default_tier"], 0) + 1
+    write(f"moderator_round_{ROUND_ID}.json", {
+        "round": {**round_obj, "stage": "reveal"},
+        "n_invited": len(EXPERTS), "n_responses": len(ANSWERS), "tiers": tiers,
+        "rating": {"probability": rating_counts(1), "impact": rating_counts(2), "acaps": {"probability": r["Probability"], "impact": int(r["Impact"])}},
+        "forecasts": forecasts_mod,
+        "missing": [{"contribution_id": missing_ids[e], "shown_as": shown_as(e), "tier": exp[e]["default_tier"], "text": a[6]}
+                    for e, a in ANSWERS.items() if a[6]],
+        "synthesis": {
+            "generated_by": "mock (Claude API in Lane B, moderator side only)",
+            "clusters": [
+                {"theme": "Refugee–host tensions and water access", "summary": "Two field experts in the East report rising tensions and longer, riskier trips to water points.", "contribution_ids": [missing_ids["E01"], missing_ids["E07"]]},
+                {"theme": "Health risks in overcrowded sites", "summary": "Disease outbreak risk (hepatitis E, cholera) around Adré is absent from priority needs.", "contribution_ids": [missing_ids["E06"]]},
+                {"theme": "Shifting smuggling routes and infrastructure", "summary": "Fuel routes moving north after the August strike; Amdjarass airstrip flagged (relates to T0619).", "contribution_ids": [missing_ids["E03"]]},
+                {"theme": "Security-force cohesion", "summary": "Zaghawa networks in the army raise defection risk (relates to T0620).", "contribution_ids": [missing_ids["E04"]]},
+                {"theme": "Funding cuts", "summary": "Ration cuts from January would amplify all triggers.", "contribution_ids": [missing_ids["E02"]]},
+            ],
+            "suggested_rating_change": "Keep probability High and impact 4. Consider adding Health and WASH to priority needs. Experts are split on T0620 (proxy mobilisation).",
+        },
+        "reasoning": [{"contribution_id": missing_ids[e], "shown_as": shown_as(e), "tier": exp[e]["default_tier"],
+                       "text": REASONING[e][0], "basis": REASONING[e][1]} for e in ANSWERS if e in REASONING],
+        "ranking": ranking_points(),
+        "ranking_other": [a[5] for a in ANSWERS.values() if a[5]],
+    })
+
+    # public summary: aggregates only
+    pub = [{
+        "round_id": ROUND_ID, "risk_id": "R1043", "risk_title": risk["title"], "published_at": "2026-11-14T10:00:00Z",
+        "n_responses": len(ANSWERS),
+        "headline": "Panel broadly agrees with ACAPS's High rating; sustained cross-border attacks seen as most likely",
+        "summary_text": "Most of the Chad panel agrees with the High probability and impact 4 rating, with a minority seeing it as too low. Experts flag refugee–host tensions over water and health risks in overcrowded sites as gaps in the current analysis.",
+        "rating_agreement": {"probability": rating_counts(1), "impact": rating_counts(2)},
+        "forecasts": [{"question_id": q["question_id"], "text": q["text"], "median": pct([latest(e, qi) for e in ANSWERS], 0.5), "n": len(ANSWERS)}
+                      for qi, q in enumerate(fq)],
+    }]
+    dump = json.dumps(pub, ensure_ascii=False)
+    for e in EXPERTS:
+        assert token_of[e[0]] not in dump and (e[1] == "-" or e[1] not in dump), f"public summary leaks {e[0]}"
+    for a in ANSWERS.values():
+        assert not a[6] or a[6] not in dump, "public summary contains verbatim free text"
+    for why, _ in REASONING.values():
+        assert why not in dump, "public summary contains verbatim reasoning"
+    write("public_summaries.json", pub)
+
+    print(f"wrote fixtures for {ROUND_ID}: {len(contribs)} contributions, {len(experts)} experts")
+
+
+if __name__ == "__main__":
+    main()

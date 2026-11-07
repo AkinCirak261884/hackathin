@@ -1,0 +1,114 @@
+{
+ "source": "snapshot",
+ "panel": "TCD",
+ "risks": [
+  {
+   "risk_id": "R1043",
+   "title": "Escalating cross-border insecurity linked to the Sudan conflict increases protection risks and humanitarian needs in eastern Chad",
+   "country": "Chad",
+   "iso": "TCD",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "High",
+   "impact": 4,
+   "risk_level": "High",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1066",
+   "title": "Escalating insecurity across the Lake Chad Basin increases displacement, protection risks, and humanitarian access constraints",
+   "country": "Chad, Niger, Cameroon, Nigeria",
+   "iso": "TCD, NER, CMR, NGA",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Very High",
+   "impact": 4,
+   "risk_level": "High",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1048",
+   "title": "RSF expansion in Blue Nile state triggers displacement and protection risks",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "High",
+   "impact": 4,
+   "risk_level": "High",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1049",
+   "title": "RSF restoration of siege on Al Obeid, North Kordofan drives widescale displacement towards White Nile state",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Medium",
+   "impact": 5,
+   "risk_level": "Medium",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1051",
+   "title": "Interregional trade restrictions disrupt markets and deepen food insecurity in West Kordofan",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Medium",
+   "impact": 5,
+   "risk_level": "Medium",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1052",
+   "title": "A rift between SAF and allied groups in Khartoum leads to worsening humanitarian conditions and protection concerns",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Low",
+   "impact": 5,
+   "risk_level": "Medium",
+   "trend": "Stable",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1054",
+   "title": "RSF drone attacks damage the Merowe Dam and power grid in Northern state, disrupting health, food security, and public services",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Low",
+   "impact": 5,
+   "risk_level": "Medium",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1053",
+   "title": "Long-range RSF drones targeting the eastern supply corridor and Port Sudan disrupt trade and aid delivery in Red Sea state",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Medium",
+   "impact": 3,
+   "risk_level": "Medium",
+   "trend": "Deteriorated",
+   "status": "Active"
+  },
+  {
+   "risk_id": "R1055",
+   "title": "Mass returns from eastern Chad exacerbate humanitarian needs in West Darfur State",
+   "country": "Sudan",
+   "iso": "SDN",
+   "risk_type": "Marked deterioration in an existing crisis",
+   "probability": "Medium",
+   "impact": 3,
+   "risk_level": "Medium",
+   "trend": "Stable",
+   "status": "Active"
+  }
+ ]
+}

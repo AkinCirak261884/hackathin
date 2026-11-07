@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "round.schema.json",
+  "title": "GET /rounds/{round_id}",
+  "type": "object",
+  "required": [
+    "round_id",
+    "panel",
+    "stage",
+    "opened_at",
+    "closes_at",
+    "risk",
+    "questions"
+  ],
+  "properties": {
+    "round_id": {
+      "type": "string",
+      "examples": [
+        "RD-R1043-1"
+      ]
+    },
+    "panel": {
+      "type": "string",
+      "examples": [
+        "TCD"
+      ]
+    },
+    "stage": {
+      "$ref": "common.schema.json#/$defs/stage"
+    },
+    "opened_at": {
+      "$ref": "common.schema.json#/$defs/isoDate"
+    },
+    "closes_at": {
+      "$ref": "common.schema.json#/$defs/isoDate"
+    },
+    "risk": {
+      "$ref": "common.schema.json#/$defs/risk"
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/question"
+      }
+    },
+    "practice": {
+      "type": "boolean",
+      "description": "replay of a resolved ACAPS risk; outcome shown after you answer"
+    },
+    "as_of": {
+      "type": "string",
+      "description": "practice only: the date the risk is shown as of"
+    },
+    "outcome": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "practice only: what actually happened (from the Risk Radar export)",
+      "properties": {
+        "materialised": {
+          "type": "boolean"
+        },
+        "what": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "acaps_prob": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

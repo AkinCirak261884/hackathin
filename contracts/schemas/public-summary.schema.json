@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "public-summary.schema.json",
+  "title": "Public summary: aggregates only, no authors, no verbatim free text",
+  "type": "object",
+  "required": ["round_id", "risk_id", "published_at", "n_responses", "headline", "summary_text"],
+  "additionalProperties": false,
+  "properties": {
+    "round_id": { "type": "string" }, "risk_id": { "type": "string" }, "risk_title": { "type": "string" },
+    "published_at": { "type": "string" },
+    "n_responses": { "type": "integer", "minimum": 3 },
+    "headline": { "type": "string" },
+    "summary_text": { "type": "string", "description": "moderator-approved" },
+    "rating_agreement": { "type": "object" },
+    "forecasts": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "properties": { "question_id": { "type": "string" }, "text": { "type": "string" }, "median": { "type": "number" }, "n": { "type": "integer" } } }
+    }
+  }
+}
