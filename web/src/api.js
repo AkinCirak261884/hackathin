@@ -90,10 +90,13 @@ const DEMO_SUMMARY = { source: 'ai', synthetic: true, themes: [
 // Peer comments on/off per round, from OCHA 3W operational presence via HDX (Lane B's rule: < 30 organisations
 // in the affected area -> off). The live site gets this from the API; the pitch site uses the same real figures.
 const DEMO_COMMENTS = {
-  'RD-R1043-1': { enabled: true, n_orgs: 146, min_orgs: 30, areas: ['Ouaddai', 'Sila', 'Wadi Fira', 'Ennedi Est'],
-    source: { title: 'OCHA 3W/5W Chad via HDX', url: 'https://data.humdata.org/dataset/chad-operational-presence', as_of: '2026-09-07' } },
-  'RD-R0993-P': { enabled: true, n_orgs: 427, min_orgs: 30, areas: [],
-    source: { title: 'OCHA 3W/5W Ukraine via HDX', url: 'https://data.humdata.org/dataset/ukraine-who-does-what-where-3w', as_of: '2026-09-30' } },
+  'RD-R1043-1': { enabled: true, basis: 'large_area', n_orgs: 146, min_orgs: 30, areas: ['Ouaddai', 'Sila', 'Wadi Fira', 'Ennedi Est'],
+    people: '>500,000', min_people: 100000,
+    sources: [{ title: 'OCHA 3W/5W Chad via HDX', url: 'https://data.humdata.org/dataset/chad-operational-presence', as_of: '2026-09-07' },
+      { title: 'Populated Places of Chad (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_tcd_populated_places' }] },
+  'RD-R0993-P': { enabled: true, basis: 'large_area', n_orgs: 427, min_orgs: 30, areas: [], people: '>500,000', min_people: 100000,
+    sources: [{ title: 'OCHA 3W/5W Ukraine via HDX', url: 'https://data.humdata.org/dataset/ukraine-who-does-what-where-3w', as_of: '2026-09-30' },
+      { title: 'Populated Places of Ukraine (OSM via HDX)', url: 'https://data.humdata.org/dataset/hotosm_ukr_populated_places' }] },
 }
 
 function withAdditions(agg, sub) {

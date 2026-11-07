@@ -42,6 +42,7 @@ Lane A backtested on the Risk Radar export: across **99 resolved ACAPS risks**, 
 - **Invite-only.** Each expert gets a personal invite; rate-limited and revocable.
 - **Identities kept apart.** Names live in a separate vault database; contributions only carry a token. Anonymous answers are linked only to a one-way hash of a secret generated on the expert's phone.
 - **Secrets never in URLs.** Tokens travel in request headers; the server does not log IP addresses.
+- **Peer comments only where they can't mislead or expose.** Per round, comments between experts are on only for a large area: off if the risk names a town or village (HDX Populated Places), if few people are affected (ACAPS expected exposure up to 100,000) or if fewer than 30 organisations work there (OCHA 3W via HDX). Copy-pasted or coordinated answers are never amplified to the panel.
 - **Minimum of 3.** No group view or public number is shown for fewer than 3 responses; no free text is published verbatim.
 - **Witnesses are signposted, not collected.** People who have seen abuses are pointed to the ICC and eyeWitness rather than asked to report in the app.
 
