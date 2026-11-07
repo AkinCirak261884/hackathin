@@ -2,13 +2,14 @@ import React, { useState } from 'react'
 import { api, MOCK, hasAnySubmission, resetDemoAnswers } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
-import { Head, Chip, Loading } from '../components/ui.jsx'
+import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 
 export default function Home() {
   const { t, date } = useT()
   const [version, setVersion] = useState(0)
-  const [rounds] = useLoad(() => api.openRounds('TCD'), [version])
+  const [rounds, roundsErr] = useLoad(() => api.openRounds('TCD'), [version])
   const [acaps] = useLoad(() => api.acapsRisks('TCD'), [])
+  if (roundsErr) return <LoadError error={roundsErr} />
   if (!rounds) return <Loading />
   const reset = () => { resetDemoAnswers(); setVersion((v) => v + 1) }
   return (

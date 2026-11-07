@@ -3,13 +3,14 @@ import { api } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct } from '../stats.js'
-import { Head, Chip, Loading } from '../components/ui.jsx'
+import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 import { RatingBar, RatingLegend, ProbMeter } from '../components/charts.jsx'
 
 // Aggregates only. Never render authors or verbatim free text here.
 export default function PublicPage() {
   const { t, date } = useT()
-  const [list] = useLoad(() => api.publicSummaries(), [])
+  const [list, listErr] = useLoad(() => api.publicSummaries(), [])
+  if (listErr) return <LoadError error={listErr} />
   if (!list) return <Loading />
   return (
     <section className="page">
