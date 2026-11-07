@@ -88,7 +88,7 @@ _STOP = set("""the and for that this with from have will are was were been being
 which would could should about into more than also only very much such these those other some when what
 where while because does doing done over under after before between during ACAPS acaps risk rating
 analysis missing impact probability les des une pour dans avec sont mais plus pas que qui sur est
-seeing list bigger""".split())  # last line: words from the web app's addition prefixes
+seeing list bigger likely""".split())  # last line: words from the web app's addition prefixes
 
 
 def _words(text: str) -> list[str]:
@@ -256,8 +256,12 @@ def _fallback(reason: str, items: list[dict]) -> dict:
 # when the round's group view is unlocked (n >= 3) and Lane B's comments policy allows peer text; answers
 # the AI flagged as identifying are left out. Plus a summary: the moderator-run AI synthesis if cached,
 # else the free keyword grouping (labelled as such).
-_SIGNAL = re.compile(r"^Seeing, not on ACAPS's list( \(may be bigger than this risk\))?: (.+)$")
-_RISK = "Risk missing from the top-3 list: "
+_SIGNAL = re.compile(r"^Seeing, not on ACAPS's list( \(may be bigger than this risk\))?(?: · (\d{1,3})% likely)?: (.+)$")
+_RISK = re.compile(r"^Risk missing from the top-3 list(?: · (\d{1,3})% likely)?: (.+)$")
+
+
+def _prob(pct):
+    return None if pct is None else max(0, min(100, int(pct))) / 100
 
 
 def peer_additions(round_id: str) -> dict:
@@ -273,11 +277,11 @@ def peer_additions(round_id: str) -> dict:
         if it["response_id"] in flagged:
             continue
         for line in it["text"].splitlines():
-            m = _SIGNAL.match(line.strip())
+            m, r = _SIGNAL.match(line.strip()), _RISK.match(line.strip())
             if m:
-                item = {"kind": "signal", "bigger": bool(m.group(1)), "text": m.group(2).strip()[:200]}
-            elif line.strip().startswith(_RISK):
-                item = {"kind": "risk", "bigger": False, "text": line.strip()[len(_RISK):].strip()[:120]}
+                item = {"kind": "signal", "bigger": bool(m.group(1)), "prob": _prob(m.group(2)), "text": m.group(3).strip()[:200]}
+            elif r:
+                item = {"kind": "risk", "bigger": False, "prob": _prob(r.group(1)), "text": r.group(2).strip()[:120]}
             else:
                 continue
             key = (item["kind"], item["text"].lower())

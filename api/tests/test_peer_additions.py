@@ -30,7 +30,7 @@ def test_additions_hidden_until_reveal_then_shown_without_authors():
     assert texts["Fuel prices doubled"]["bigger"] is False
     assert "Rainy season." not in texts  # plain "what's missing" text stays moderator-only
     for a in t["additions"]:
-        assert set(a) == {"kind", "bigger", "text"}  # no author, tier, time or id
+        assert set(a) == {"kind", "bigger", "prob", "text"}  # no author, tier, time or id
     assert t["summary"]["source"] in ("ai", "keywords")
 
 
@@ -47,3 +47,16 @@ def test_coordinated_copy_paste_is_not_amplified():
     assert "Army deserting the border posts tonight" not in texts
     assert "Fuel prices doubled" in texts
     assert t["withheld_coordinated"] == 2
+
+
+def test_likelihood_travels_with_additions():
+    answer("inv_demo_01", "Seeing, not on ACAPS's list (may be bigger than this risk) · 70% likely: Armed group recruiting in camps")
+    answer("inv_demo_02", "Risk missing from the top-3 list · 40% likely: Cholera in the east")
+    answer("inv_demo_03", "Seeing, not on ACAPS's list: Fuel prices doubled")
+    assert c.post(f"/moderator/rounds/{R}/advance", json={"to": "reveal"}).status_code == 200
+    t = c.get(f"/rounds/{R}/thread", headers={"X-Invite-Token": "inv_demo_01"}).json()
+    if not t["comments"]["enabled"]:
+        return
+    by = {a["text"]: a for a in t["additions"]}
+    assert by["Armed group recruiting in camps"]["prob"] == 0.7 and by["Armed group recruiting in camps"]["bigger"] is True
+    assert by["Cholera in the east"]["prob"] == 0.4 and by["Fuel prices doubled"]["prob"] is None
