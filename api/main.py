@@ -31,8 +31,11 @@ async def lifespan(_app):
     # No IP logging (BOARD.md): uvicorn's access log prints client IP:port, so switch it off here
     # rather than trusting everyone to pass --no-access-log.
     logging.getLogger("uvicorn.access").disabled = True
-    init_db()
-    seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
+    # Hosted (Vercel + Supabase): schema and seed are applied once with `python -m api.seed`, not on
+    # every serverless cold start, so GT_SKIP_STARTUP_SEED=1 there.
+    if not os.environ.get("GT_SKIP_STARTUP_SEED"):
+        init_db()
+        seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
     yield
 
 
@@ -135,8 +138,12 @@ def aggregate(round_id: str,
 @app.get("/rounds/{round_id}/thread")
 def round_thread(round_id: str,
                  x_invite_token: str = Header(...), x_device_secret: Optional[str] = Header(None)):
-    """Peer-safe thread: aggregate + reasoning-basis shares + approved themes. No authors."""
-    return rounds.thread(round_id, x_invite_token, x_device_secret)
+    """Peer-safe thread: aggregate + reasoning-basis shares + approved themes. No authors.
+    Plus expert additions and a summary once unlocked, where the comments policy allows (see synthesis.py)."""
+    t = rounds.thread(round_id, x_invite_token, x_device_secret)
+    if not t.get("locked") and not t.get("suppressed") and (t.get("comments") or {}).get("enabled"):
+        t.update(synthesis.peer_additions(round_id, until=rounds.reveal_cutoff(round_id)))
+    return t
 
 
 @app.get("/me/track-record")
@@ -199,7 +206,21 @@ def moderator_round(round_id: str):
     out.update({k: syn.get(k) for k in ("missing_clusters", "synthesis_source", "fallback_reason", "model",
                                        "identifying_details", "coordination_flags")})
     out["synthesis_generated_at"] = syn.get("generated_at")
+    out["demo_reset"] = demo_reset_on()
     return out
+
+
+# TEMPORARY demo-only: GT_DEMO_RESET=1 lets the moderator put a round back to the start for the pitch demo.
+# Off by default (button hidden, endpoint 404), so a pilot deployment never has it. Remove before the pilot.
+def demo_reset_on() -> bool:
+    return os.environ.get("GT_DEMO_RESET") == "1"
+
+
+@app.post("/moderator/rounds/{round_id}/demo-reset")
+def demo_reset(round_id: str):
+    if not demo_reset_on():
+        raise HTTPException(404, "demo reset is off (set GT_DEMO_RESET=1 on a demo deployment)")
+    return rounds.demo_reset(round_id)
 
 
 @app.post("/moderator/rounds/{round_id}/synthesis")
@@ -220,6 +241,17 @@ def revoke_invite(invite_token: str):
     if not trust.revoke_invite(invite_token):
         raise HTTPException(404, "invite not found")
     return {"invite_token": invite_token, "revoked": True}
+
+
+class CommentsIn(BaseModel):
+    off: bool
+
+
+@app.post("/moderator/rounds/{round_id}/comments")
+def set_comments(round_id: str, body: CommentsIn):
+    """Moderator turns peer comments off for this round ({"off": true}) or back to the automatic rule ({"off": false}).
+    Never forces them on where the 3W / area-size rule says off."""
+    return rounds.set_comments_off(round_id, body.off)
 
 
 @app.post("/moderator/rounds/{round_id}/advance")

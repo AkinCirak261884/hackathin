@@ -143,3 +143,23 @@ def test_startup_disables_ip_access_log():
     import logging
     with TestClient(app):
         assert logging.getLogger("uvicorn.access").disabled
+
+
+def test_open_rounds_say_this_invite_answered_without_linking_the_anonymous_answer():
+    from fastapi.testclient import TestClient
+    from api.main import app
+    c = TestClient(app)
+    rid, secret = "RND-R1043-1", "device-secret-0123456789"
+    def card(**h):
+        return next(r for r in c.get("/rounds/open?panel=TCD", headers=h).json()["rounds"] if r["round_id"] == rid)
+    assert card(**{"X-Invite-Token": "inv_demo_01"})["invite_answered"] is False
+    body = {"invite_token": "inv_demo_01", "tier": "anonymous", "device_secret": secret, "version": 1,
+            "answers": [{"question_id": "Q-R1043-T0618", "prob": 0.6}]}
+    assert c.post(f"/rounds/{rid}/responses", json=body).status_code == 201
+    other_window = card(**{"X-Invite-Token": "inv_demo_01"})
+    assert other_window["invite_answered"] is True and other_window["you_submitted"] is False   # counted, not linked
+    assert other_window["invite_revised"] is False
+    same_window = card(**{"X-Invite-Token": "inv_demo_01", "X-Device-Secret": secret})
+    assert same_window["you_submitted"] is True
+    assert card()["invite_answered"] is None                                                     # no invite: nothing said
+    assert card(**{"X-Invite-Token": "inv_demo_02"})["invite_answered"] is False                 # per invite only

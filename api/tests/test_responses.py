@@ -153,13 +153,24 @@ def test_revision_counts_once_and_uses_latest():
     assert q["n"] == 3 and q["dots"] == [0.5, 0.6, 0.9]  # final view: latest version, counted once
 
 
-def test_anonymous_caller_needs_device_secret_to_unlock():
+def test_anonymous_caller_without_device_secret_sees_group_but_nothing_linked():
+    # Decided 8 Nov (team owner, via C): an expert who answered anonymously in another window/device can still see
+    # the group view, because the invite did answer (answer-first holds). Nothing links them to that answer: no
+    # "you", no revision from there. Before, this was a 403.
     post(1, tier="anonymous", secret=SECRET)
     post(2)
     post(3)
     stage("reveal")
-    assert agg(1).status_code == 403
-    assert agg(1, secret=SECRET).status_code == 200
+    other = agg(1)
+    assert other.status_code == 200
+    assert other.json()["answered_elsewhere"] is True and other.json()["can_revise"] is False
+    assert "your_answers" not in other.json()
+    same = agg(1, secret=SECRET).json()
+    assert same["answered_elsewhere"] is False and same["can_revise"] is True
+    assert agg(4).status_code == 403          # an invite that never answered still has to answer first
+    # and a revision can't be made without the device secret
+    r = post(1, version=2, tier="anonymous")
+    assert r.status_code == 422
 
 
 def test_triggers_observed_share():

@@ -13,6 +13,9 @@ DATA_DIR = Path(__file__).parent / "var"
 # (ingest recreates the file, so only run it before real responses exist).
 MAIN_DB = Path(os.environ.get("GT_DB", DATA_DIR / "groundtruth.db"))
 VAULT_DB = Path(os.environ.get("GT_VAULT_DB", DATA_DIR / "vault.db"))
+# Hosted mode: a Postgres URL (Supabase transaction pooler) switches both databases to Postgres, as two
+# separate schemas (gt, gt_vault). Unset = SQLite files as before (local dev and tests). See api/pg.py.
+DATABASE_URL = os.environ.get("GT_DATABASE_URL")
 
 MAIN_SCHEMA = """
 CREATE TABLE IF NOT EXISTS risks (
@@ -83,6 +86,16 @@ CREATE TABLE IF NOT EXISTS summaries (
     round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
     approved_text TEXT NOT NULL, published_at TEXT NOT NULL
 );
+-- When the round's group view opened: first answers after it are "late" (accepted, kept out of the frozen view).
+CREATE TABLE IF NOT EXISTS round_reveals (
+    round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
+    revealed_at TEXT NOT NULL
+);
+-- Moderator settings per round (comments_off = the moderator turned peer comments off, stricter than the 3W rule).
+CREATE TABLE IF NOT EXISTS round_settings (
+    round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
+    comments_off INTEGER NOT NULL DEFAULT 0, updated_at TEXT
+);
 """
 
 VAULT_SCHEMA = """
@@ -115,11 +128,17 @@ def connect(path: Path) -> sqlite3.Connection:
 
 
 def main_db() -> sqlite3.Connection:
+    if DATABASE_URL:
+        from api import pg
+        return pg.Connection(DATABASE_URL, pg.MAIN_SCHEMA_NAME)
     return connect(MAIN_DB)
 
 
 def vault_db() -> sqlite3.Connection:
     """Only trust.py and the moderator layer may call this."""
+    if DATABASE_URL:
+        from api import pg
+        return pg.Connection(DATABASE_URL, pg.VAULT_SCHEMA_NAME)
     return connect(VAULT_DB)
 
 
@@ -134,6 +153,10 @@ MIGRATIONS = [
 
 
 def init_db(main_path: Path | None = None, vault_path: Path | None = None) -> None:
+    if DATABASE_URL and main_path is None and vault_path is None:
+        from api import pg
+        pg.init(DATABASE_URL, MAIN_SCHEMA, VAULT_SCHEMA, MIGRATIONS)
+        return
     with connect(main_path or MAIN_DB) as c:
         c.executescript(MAIN_SCHEMA)
         for table, col, typ in MIGRATIONS:
@@ -145,4 +168,4 @@ def init_db(main_path: Path | None = None, vault_path: Path | None = None) -> No
 
 if __name__ == "__main__":
     init_db()
-    print(f"Initialised {MAIN_DB} and {VAULT_DB}")
+    print("Initialised Postgres schemas gt + gt_vault" if DATABASE_URL else f"Initialised {MAIN_DB} and {VAULT_DB}")

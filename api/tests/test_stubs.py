@@ -62,3 +62,14 @@ def test_schema_builds_with_vault_separated(tmp_path):
     assert {"risks", "triggers", "questions", "rounds", "experts", "contributions", "scores"} <= main_tables
     assert "identity_vault" not in main_tables
     assert {"identity_vault", "invites"} <= vault_tables
+
+
+def test_round_card_has_full_rationale_for_read_more():
+    from fastapi.testclient import TestClient
+    from api.main import app
+    risk = TestClient(app).get("/rounds/RND-R1043-1").json()["risk"]
+    assert risk["rationale_short"].endswith("…") and len(risk["rationale_short"]) <= 401
+    full = risk["rationale"]
+    assert full.startswith(risk["rationale_short"][:-1].rstrip())   # the short text is the start of the full one
+    assert len(full) > 3000 and "\n" in full and "\n\n" not in full    # paragraphs kept, no empty lines
+    assert "  " not in full

@@ -47,7 +47,13 @@
   .q { border-top: 1px solid var(--line); padding: 10px 0; }
   .q-text { font-size: 14px; margin-bottom: 6px; }
   .strip { display: grid; grid-template-columns: 70px 1fr 150px; gap: 8px; align-items: center; font-size: 13px; }
-  .strip svg { width: 100%; height: 26px; display: block; }
+  /* dot strip: plain elements, not a stretched SVG, so dots stay round at any width */
+  .dstrip { position: relative; height: 26px; min-width: 0; }
+  .dstrip i { position: absolute; display: block; }
+  .d-axis { left: 0; right: 0; top: 12px; height: 2px; background: var(--line); }
+  .d-band { top: 6px; height: 14px; min-width: 1px; border-radius: 3px; background: var(--accent-bg); }
+  .d-dot { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--dot); opacity: .85; }
+  .d-med { top: 2px; height: 22px; width: 3px; margin-left: -1.5px; border-radius: 1px; background: var(--dot2); }
   .comments { border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
   .comments.on { background: var(--ok-bg); } .comments.off { background: var(--warn-bg); }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -118,13 +124,19 @@ async function api(path, opts = {}) {
   if (key) headers["X-Moderator-Key"] = key;
   const res = await fetch(path, { ...opts, headers, referrerPolicy: "no-referrer" });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(res.status === 401 ? "Wrong or missing moderator key." : (body.detail ? JSON.stringify(body.detail) : `HTTP ${res.status}`));
+  if (!res.ok) {
+    const e = new Error(res.status === 401 ? "Wrong moderator key. Paste only the part after GT_MODERATOR_KEY= and press Connect." : (body.detail ? JSON.stringify(body.detail) : `HTTP ${res.status}`));
+    e.status = res.status;
+    throw e;
+  }
   return body;
 }
 
 $("keyForm").addEventListener("submit", (e) => {
   e.preventDefault();
-  key = $("key").value.trim();
+  // accept a pasted "GT_MODERATOR_KEY=..." line or a quoted key too
+  key = $("key").value.trim().replace(/^GT_MODERATOR_KEY\s*=\s*/, "").replace(/^["']|["']$/g, "");
+  $("key").value = key;
   try { key ? sessionStorage.setItem(KEY, key) : sessionStorage.removeItem(KEY); } catch (e) {}
   loadRounds();
 });
@@ -151,21 +163,22 @@ async function loadRounds() {
         el("span", { class: "small muted" }, `${r.country || ""} · n = ${r.n_responses}`),
         el("span", { class: "small" }, (r.risk_title || r.risk_id).slice(0, 90))))) : [el("li", { class: "muted small" }, "No rounds yet.")]));
     if (!current && rounds[0]) openRound(rounds[0].round_id);
-  } catch (e) { $("roundsErr").replaceChildren(err(e.message)); }
+  } catch (e) {
+    // hosted, first visit: no key yet is not an error, just the next step
+    $("roundsErr").replaceChildren(e.status === 401 && !key
+      ? el("p", { class: "muted small" }, "Enter the moderator key at the top right and press Connect.")
+      : err(e.message));
+    if (!key) $("key").focus();
+  }
 }
 
 function dotStrip(dots, median, p25, p75) {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("viewBox", "0 0 200 26"); svg.setAttribute("preserveAspectRatio", "none");
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", dots ? `answers: ${dots.map(pct).join(", ")}` : "no answers");
-  const add = (tag, a) => { const n = document.createElementNS(ns, tag); for (const k in a) n.setAttribute(k, a[k]); svg.append(n); return n; };
-  add("line", { x1: 0, x2: 200, y1: 13, y2: 13, stroke: "var(--line)", "stroke-width": 2 });
-  if (p25 != null) add("rect", { x: p25 * 200, y: 6, width: Math.max(1, (p75 - p25) * 200), height: 14, rx: 3, fill: "var(--accent-bg)" });
-  (dots || []).forEach((d, i) => add("circle", { cx: 4 + d * 192, cy: 13 + ((i % 3) - 1) * 4, r: 3.5, fill: "var(--dot)", "fill-opacity": .85 }));
-  if (median != null) add("line", { x1: median * 200, x2: median * 200, y1: 2, y2: 24, stroke: "var(--dot2)", "stroke-width": 2.5 });
-  return svg;
+  const at = (p) => `calc(4px + ${p} * (100% - 8px))`;  // 0%..100% across the track, 4px inset each side
+  return el("div", { class: "dstrip", role: "img", "aria-label": dots ? `answers: ${dots.map(pct).join(", ")}` : "no answers" },
+    el("i", { class: "d-axis" }),
+    p25 != null ? el("i", { class: "d-band", style: `left:${at(p25)};width:calc(${p75 - p25} * (100% - 8px))` }) : null,
+    ...(dots || []).map((d, i) => el("i", { class: "d-dot", style: `left:${at(d)};top:${13 + ((i % 3) - 1) * 4}px` })),
+    median != null ? el("i", { class: "d-med", style: `left:${at(median)}` }) : null);
 }
 
 function statLine(label, s) {
@@ -177,12 +190,47 @@ function statLine(label, s) {
       s.agree_share != null ? `agree ${pct(s.agree_share)}` : "", el("span", { class: "muted" }, ` (n ${s.n})`)));
 }
 
-function commentsBox(c) {
+// Field-based vs remote: from the expert's own "Based on" ticks, never from location or their text.
+function splitSection(s, qText) {
+  if (!s) return [];
+  const g = s.groups, pts = (x) => `${x > 0 ? "+" : ""}${Math.round(x * 100)} pts`;
+  const side = (label, q) => q.suppressed
+    ? el("div", { class: "strip" }, el("span", { class: "muted" }, label), el("span", { class: "muted small" }, `hidden: fewer than ${s.min_n} answers`), el("span"))
+    : statLine(label, q);
+  return [
+    el("h3", {}, "Field-based vs remote"),
+    el("p", { class: "small muted" },
+      `Field = ticked "What I see myself" or "Local contacts" on the "Based on" step; remote = ticked only other sources. `
+      + `Self-declared: no location tracking. Now: ${g.field} field · ${g.remote} remote · ${g.not_stated} no source ticked. `
+      + `Each side shows from n = ${s.min_n} so a small group can't be singled out.`),
+    ...s.questions.map((q) => el("div", { class: "q" },
+      el("div", { class: "q-text" }, el("b", {}, q.question_id), " ", qText[q.question_id] || ""),
+      side("Field", q.field), side("Remote", q.remote),
+      q.median_gap != null || q.agree_gap != null ? el("div", { class: "small" },
+        q.median_gap != null ? `Field vs remote median: ${pts(q.median_gap)}` : "",
+        q.median_gap != null && q.agree_gap != null ? " · " : "",
+        q.agree_gap != null ? `agree with rating: ${pct(q.field.agree_share)} field vs ${pct(q.remote.agree_share)} remote` : "") : null)),
+  ];
+}
+
+// Peer comments: the automatic rule's decision, plus the moderator's own switch (only ever stricter: off, or back
+// to automatic; never forced on where the rule says off).
+function commentsBox(c, id) {
   if (!c) return null;
+  const set = async (off) => {
+    if (off && !confirm(`Turn peer comments off for ${id}?\n\nExperts in this round won't see each other's reasons or additions; what they write goes to you only.`)) return;
+    try { await api(`/moderator/rounds/${encodeURIComponent(id)}/comments`, { method: "POST", body: JSON.stringify({ off }) }); openRound(id); }
+    catch (e) { $("roundView").prepend(err(e.message)); }
+  };
+  const btn = c.moderator_off
+    ? el("button", { class: "ghost", onclick: () => set(false) }, c.auto_enabled ? "Turn back on (automatic)" : "Back to automatic")
+    : c.enabled ? el("button", { class: "ghost", onclick: () => set(true) }, "Turn comments off") : null;
   return el("div", { class: `comments ${c.enabled ? "on" : "off"}` },
     el("div", { class: "row" }, el("b", {}, "Peer comments"), el("span", { class: c.enabled ? "pill ok" : "pill warn" }, c.enabled ? "ON" : "OFF"),
-      c.n_orgs != null ? el("span", { class: "small muted" }, `${c.n_orgs} organisations · threshold ${c.min_orgs}`) : null),
+      c.moderator_off ? el("span", { class: "small muted" }, "turned off by you") : c.n_orgs != null ? el("span", { class: "small muted" }, `${c.n_orgs} organisations · threshold ${c.min_orgs}`) : null,
+      el("span", { style: "flex:1" }), btn),
     el("div", { class: "small" }, c.reason),
+    c.moderator_off ? el("div", { class: "small muted" }, `Automatic rule: ${c.auto_enabled ? "on" : "off"}.`) : null,
     c.source ? el("div", { class: "small muted" }, "Source: ", el("a", { href: c.source.url, target: "_blank", rel: "noopener noreferrer" }, c.source.title), ` (as of ${c.source.as_of}, ${c.source.licence})`) : null);
 }
 
@@ -212,17 +260,26 @@ async function openRound(id) {
       catch (e) { v.prepend(err(e.message)); synthBtn.disabled = false; synthBtn.textContent = "Run AI synthesis"; }
     } }, "Run AI synthesis");
 
+    // TEMPORARY demo-only: shown only when the API runs with GT_DEMO_RESET=1. Remove before the pilot.
+    const resetBtn = m.demo_reset ? el("button", { class: "ghost", onclick: async () => {
+      if (!confirm(`Reset ${id} for the demo?\n\nDeletes all ${m.n_responses} answers in this round and puts it back to "blind". This can't be undone.`)) return;
+      try { await api(`/moderator/rounds/${encodeURIComponent(id)}/demo-reset`, { method: "POST" }); await loadRounds(); openRound(id); }
+      catch (e) { v.prepend(err(e.message)); }
+    } }, "Reset round (demo)") : null;
+
     const ftById = Object.fromEntries((m.free_text || []).map((f) => [f.response_id, f]));
-    v.replaceChildren(
-      el("div", { class: "row" }, el("h2", { style: "margin:0;flex:1" }, `${id} · ${m.risk_id}`), el("span", { class: STAGE_PILL[m.stage] }, m.stage), advanceBtn),
+    // replaceChildren() prints null as the text "null": drop empty sections first
+    v.replaceChildren(...[
+      el("div", { class: "row" }, el("h2", { style: "margin:0;flex:1" }, `${id} · ${m.risk_id}`), el("span", { class: STAGE_PILL[m.stage] }, m.stage), advanceBtn, resetBtn),
       el("p", { class: "small" }, pub.risk_title || ""),
       el("dl", { class: "facts" },
-        el("div", {}, el("dt", {}, "Responses"), el("dd", {}, m.n_responses)),
+        el("div", {}, el("dt", {}, "Responses"), el("dd", {}, m.n_responses, m.n_late ? el("span", { class: "muted" }, ` (${m.n_late} late)`) : null)),
         el("div", {}, el("dt", {}, "Revised"), el("dd", {}, m.n_revised)),
         el("div", {}, el("dt", {}, "ACAPS rating"), el("dd", {}, `${m.acaps_rating.probability || "–"} · impact ${m.acaps_rating.impact ?? "–"}`)),
         el("div", {}, el("dt", {}, "Agree with rating"), el("dd", {}, pct(m.agree_share)))),
       m.stage === "blind" ? el("p", { class: "note" }, "Blind stage: experts can't see the group yet. Advance to reveal once at least 3 have answered.") : null,
-      commentsBox(m.comments),
+      m.stage === "reveal" ? el("p", { class: "note" }, "Late first answers are still accepted. Experts keep seeing the group as it was at the reveal, so nothing shifts in front of them; late answers are included here and in the final results when you close the round.") : null,
+      commentsBox(m.comments, id),
 
       el("h3", {}, "Questions · round 1 vs final"),
       el("p", { class: "small muted" }, "Dots = answers, band = middle half (p25–p75), orange line = median. You see from n = 1; experts only from n = 3."),
@@ -230,6 +287,8 @@ async function openRound(id) {
         el("div", { class: "q-text" }, el("b", {}, qid), " ", qText[qid] || ""),
         statLine("Round 1", r1[qid]), statLine("Final", fin[qid]),
         shifts[qid] ? el("div", { class: "small muted" }, `${shifts[qid].n_revised} revised · mean shift ${shifts[qid].mean_shift > 0 ? "+" : ""}${Math.round(shifts[qid].mean_shift * 100)} pts`) : null)),
+
+      ...splitSection(m.basis_split, qText),
 
       el("h3", {}, "What's missing · grouped"),
       el("div", { class: "row" }, synthBtn, el("span", { class: "small muted" }, `source: ${m.synthesis_source || "–"}${m.model ? " · " + m.model : ""}${m.fallback_reason ? " · " + m.fallback_reason : ""}`)),
@@ -246,11 +305,11 @@ async function openRound(id) {
 
       el("h3", {}, "Contributors"),
       el("div", { class: "scroll" }, el("table", {},
-        el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Tier"), el("th", {}, "Identity"))),
+        el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Tier"), el("th", {}, "Answered"), el("th", {}, "Identity"))),
         el("tbody", {}, ...(m.contributors || []).map((c, i) => el("tr", {},
-          el("td", {}, i + 1), el("td", {}, c.tier),
+          el("td", {}, i + 1), el("td", {}, c.tier), el("td", {}, c.late ? el("span", { class: "pill warn" }, "late") : el("span", { class: "muted" }, "on time")),
           el("td", {}, c.identity ? c.identity.name : el("span", { class: "muted" }, c.tier === "anonymous" ? "anonymous" : "not shown (pseudonymous)"))))))),
-    );
+    ].flat().filter((x) => x != null && x !== false));
   } catch (e) { v.replaceChildren(err(e.message)); }
 }
 
