@@ -354,7 +354,9 @@ def _radar_extra(risk_id: str) -> dict:
     if not r:
         return {}
     text = re.sub(r"\s+", " ", r.get("Rationale") or "").strip()
-    short = " ".join(re.split(r"(?<=[.!?])\s+", text)[:2])[:400]
+    short = " ".join(re.split(r"(?<=[.!?])\s+", text)[:2])
+    if len(short) > 400:  # cut at a word, never mid-word
+        short = short[:400].rsplit(" ", 1)[0].rstrip(",;:") + "…"
     return {"rationale_short": short or None, "trend": (r.get("Risk trend") or "").strip() or None,
             "expected_exposure": (r.get("Expected exposure") or "").strip() or None}
 
