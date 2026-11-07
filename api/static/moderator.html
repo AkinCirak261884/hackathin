@@ -268,15 +268,17 @@ async function openRound(id) {
     } }, "Reset round (demo)") : null;
 
     const ftById = Object.fromEntries((m.free_text || []).map((f) => [f.response_id, f]));
-    v.replaceChildren(
+    // replaceChildren() prints null as the text "null": drop empty sections first
+    v.replaceChildren(...[
       el("div", { class: "row" }, el("h2", { style: "margin:0;flex:1" }, `${id} · ${m.risk_id}`), el("span", { class: STAGE_PILL[m.stage] }, m.stage), advanceBtn, resetBtn),
       el("p", { class: "small" }, pub.risk_title || ""),
       el("dl", { class: "facts" },
-        el("div", {}, el("dt", {}, "Responses"), el("dd", {}, m.n_responses)),
+        el("div", {}, el("dt", {}, "Responses"), el("dd", {}, m.n_responses, m.n_late ? el("span", { class: "muted" }, ` (${m.n_late} late)`) : null)),
         el("div", {}, el("dt", {}, "Revised"), el("dd", {}, m.n_revised)),
         el("div", {}, el("dt", {}, "ACAPS rating"), el("dd", {}, `${m.acaps_rating.probability || "–"} · impact ${m.acaps_rating.impact ?? "–"}`)),
         el("div", {}, el("dt", {}, "Agree with rating"), el("dd", {}, pct(m.agree_share)))),
       m.stage === "blind" ? el("p", { class: "note" }, "Blind stage: experts can't see the group yet. Advance to reveal once at least 3 have answered.") : null,
+      m.stage === "reveal" ? el("p", { class: "note" }, "Late first answers are still accepted. Experts keep seeing the group as it was at the reveal, so nothing shifts in front of them; late answers are included here and in the final results when you close the round.") : null,
       commentsBox(m.comments, id),
 
       el("h3", {}, "Questions · round 1 vs final"),
@@ -303,11 +305,11 @@ async function openRound(id) {
 
       el("h3", {}, "Contributors"),
       el("div", { class: "scroll" }, el("table", {},
-        el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Tier"), el("th", {}, "Identity"))),
+        el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Tier"), el("th", {}, "Answered"), el("th", {}, "Identity"))),
         el("tbody", {}, ...(m.contributors || []).map((c, i) => el("tr", {},
-          el("td", {}, i + 1), el("td", {}, c.tier),
+          el("td", {}, i + 1), el("td", {}, c.tier), el("td", {}, c.late ? el("span", { class: "pill warn" }, "late") : el("span", { class: "muted" }, "on time")),
           el("td", {}, c.identity ? c.identity.name : el("span", { class: "muted" }, c.tier === "anonymous" ? "anonymous" : "not shown (pseudonymous)"))))))),
-    );
+    ].flat().filter((x) => x != null && x !== false));
   } catch (e) { v.replaceChildren(err(e.message)); }
 }
 

@@ -54,11 +54,13 @@ def _short_trigger(tid: str) -> str:
     return tid.split(" - ")[-1].strip()
 
 
-def _n_authors(m, round_id: str, version: Optional[int] = None) -> int:
+def _n_authors(m, round_id: str, version: Optional[int] = None, until: Optional[str] = None) -> int:
     sql = "SELECT COUNT(DISTINCT author_token) FROM contributions WHERE round_id = ?"
     args: tuple = (round_id,)
     if version:
-        sql, args = sql + " AND version = ?", (round_id, version)
+        sql, args = sql + " AND version = ?", (*args, version)
+    if until:
+        sql, args = sql + " AND created_at <= ?", (*args, until)
     return m.execute(sql, args).fetchone()[0]
 
 
@@ -107,6 +109,11 @@ def advance(round_id: str, to: Optional[str] = None) -> dict:
         stamp = ", closed_at = ?" if nxt == "closed" else ""
         args = (nxt, datetime.now(timezone.utc).isoformat(), round_id) if stamp else (nxt, round_id)
         m.execute(f"UPDATE rounds SET stage = ?{stamp} WHERE round_id = ?", args)
+        if nxt == "reveal":  # answers after this moment are late: accepted, kept out of the frozen reveal view
+            _ensure_settings(m)
+            m.execute("DELETE FROM round_reveals WHERE round_id = ?", (round_id,))
+            m.execute("INSERT INTO round_reveals (round_id, revealed_at) VALUES (?, ?)",
+                      (round_id, datetime.now(timezone.utc).isoformat()))
     return {"round_id": round_id, "from_stage": rnd["stage"], "to_stage": nxt, "n_responses": n}
 
 
@@ -118,8 +125,9 @@ def submit(round_id: str, invite_token: str, tier: str, device_secret: Optional[
     rnd = get_round(round_id)
     if rnd["stage"] == "closed":
         raise RoundError(409, "round is closed")
-    if version == 1 and rnd["stage"] != "blind":
-        raise RoundError(409, "round 1 is over; you can join the next round")
+    # Late first answers (decided 8 Nov, team owner via C): accepted during the reveal. The expert hasn't seen the
+    # group (the view opens only after your own answer), so it's still independent; it's kept out of the frozen
+    # reveal view and counts in the final results.
     if version == 2 and rnd["stage"] != "reveal":
         raise RoundError(409, "revisions open when the moderator reveals the group view")
     token = trust.authenticate(invite_token, tier, device_secret)
@@ -174,15 +182,20 @@ def submit(round_id: str, invite_token: str, tier: str, device_secret: Optional[
         v.execute("INSERT INTO round_participation VALUES (?,?,?)", (round_id, invite_token, version))
 
     return {"round_id": round_id, "author_token": token, "version": version, "stored": len(answers),
+            "late": version == 1 and rnd["stage"] == "reveal",
             "can_revise": False, "aggregate_unlocked": rnd["stage"] != "blind",
             "next": "wait for the moderator to reveal the group view" if version == 1 else "thanks, revision saved"}
 
 
 # ---------- aggregates ----------
 
-def _rows(m, round_id: str, v1_only: bool) -> list:
-    """v1_only: frozen round-1 answers. Else one row per (author, question) at its latest version."""
+def _rows(m, round_id: str, v1_only: bool, until: Optional[str] = None) -> list:
+    """v1_only: round-1 answers (until: only those given before the reveal, the frozen picture).
+    Else one row per (author, question) at its latest version."""
     if v1_only:
+        if until:
+            return m.execute("SELECT * FROM contributions WHERE round_id = ? AND version = 1 AND created_at <= ?",
+                             (round_id, until)).fetchall()
         return m.execute("SELECT * FROM contributions WHERE round_id = ? AND version = 1", (round_id,)).fetchall()
     return m.execute(
         "SELECT c.* FROM contributions c JOIN ("
@@ -192,11 +205,14 @@ def _rows(m, round_id: str, v1_only: bool) -> list:
         " WHERE c.round_id = ?", (round_id, round_id)).fetchall()
 
 
-def _latest_version_join(v1_only: bool) -> str:
-    """SQL fragment: per author, the version the current view uses."""
-    return ("(SELECT author_token, 1 v FROM contributions WHERE round_id = ? GROUP BY author_token)"
-            if v1_only else
-            "(SELECT author_token, MAX(version) v FROM contributions WHERE round_id = ? GROUP BY author_token)")
+def _view_join(round_id: str, until: Optional[str]) -> tuple[str, tuple]:
+    """SQL fragment + params: per author, the version the current view uses. until (reveal stage): first answers
+    given before the reveal, so late answers never change what experts see. Else: each author's latest version."""
+    if until:
+        return ("(SELECT author_token, 1 v FROM contributions WHERE round_id = ? AND version = 1 AND created_at <= ?"
+                " GROUP BY author_token)", (round_id, until))
+    return ("(SELECT author_token, MAX(version) v FROM contributions WHERE round_id = ? GROUP BY author_token)",
+            (round_id,))
 
 
 def question_stats(rows: list, qid: str, min_n: int = MIN_N) -> dict:
@@ -249,13 +265,18 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
         revised = bool(mine) and m.execute("SELECT 1 FROM contributions WHERE round_id = ? AND author_token = ? "
                                            "AND version = 2 LIMIT 1", (round_id, mine[0]["author_token"])).fetchone()
         questions = _round_questions(m, rnd)
-        v1_only = stage == "reveal"
-        rows = [] if stage == "blind" else _rows(m, round_id, v1_only)
+        revealed = _revealed_at(m, round_id, stage)
+        cutoff = revealed if stage == "reveal" else None
+        late = bool(mine and revealed) and (m.execute(
+            "SELECT MIN(created_at) FROM contributions WHERE round_id = ? AND author_token = ? AND version = 1",
+            (round_id, mine[0]["author_token"])).fetchone()[0] or "") > revealed
+        rows = [] if stage == "blind" else _rows(m, round_id, stage == "reveal", until=cutoff)
+        join, jargs = _view_join(round_id, cutoff)
         obs = [] if stage == "blind" else m.execute(
             f"SELECT o.trigger_id, COUNT(DISTINCT o.author_token) n FROM observed_triggers o JOIN "
-            f"{_latest_version_join(v1_only)} l ON o.author_token = l.author_token AND o.version = l.v"
-            f" WHERE o.round_id = ? GROUP BY o.trigger_id", (round_id, round_id)).fetchall()
-        n_authors = _n_authors(m, round_id)
+            f"{join} l ON o.author_token = l.author_token AND o.version = l.v"
+            f" WHERE o.round_id = ? GROUP BY o.trigger_id", (*jargs, round_id)).fetchall()
+        n_authors = _n_authors(m, round_id, version=1, until=cutoff) if cutoff else _n_authors(m, round_id)
 
     if stage == "blind":
         out_q = [{"question_id": q, "suppressed": True, "n": None} for q in questions]
@@ -269,7 +290,7 @@ def aggregate(round_id: str, invite_token: str, device_secret: Optional[str] = N
             "suppressed": all(q["suppressed"] for q in out_q),
             "questions": out_q, "triggers_observed": triggers,
             "can_revise": stage == "reveal" and not revised and not elsewhere,
-            "answered_elsewhere": elsewhere}
+            "answered_elsewhere": elsewhere, "late": late}
 
 
 def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None) -> dict:
@@ -279,12 +300,13 @@ def thread(round_id: str, invite_token: str, device_secret: Optional[str] = None
     basis: list = []
     with db.main_db() as m:
         if not agg["locked"]:
-            v1_only = agg["stage"] == "reveal"
+            cutoff = _revealed_at(m, round_id, agg["stage"]) if agg["stage"] == "reveal" else None
+            join, jargs = _view_join(round_id, cutoff)
             firsts = m.execute(
-                f"SELECT c.reasoning_basis FROM contributions c JOIN {_latest_version_join(v1_only)} l"
+                f"SELECT c.reasoning_basis FROM contributions c JOIN {join} l"
                 f" ON c.author_token = l.author_token AND c.version = l.v"
-                f" WHERE c.round_id = ? AND c.reasoning_basis IS NOT NULL", (round_id, round_id)).fetchall()
-            n_authors = _n_authors(m, round_id)
+                f" WHERE c.round_id = ? AND c.reasoning_basis IS NOT NULL", (*jargs, round_id)).fetchall()
+            n_authors = _n_authors(m, round_id, version=1, until=cutoff) if cutoff else _n_authors(m, round_id)
             counts: dict[str, int] = {}
             for r in firsts:
                 for b in r["reasoning_basis"].split(","):
@@ -309,23 +331,52 @@ def round_comments(round_id: str) -> dict:
 # ---------- moderator override: peer comments off for one round ----------
 # Only ever stricter than the automatic rule: the moderator can turn comments off (and back to automatic),
 # never force them on where the rule says off.
-_SETTINGS_DDL = ("CREATE TABLE IF NOT EXISTS round_settings (round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),"
-                 " comments_off INTEGER NOT NULL DEFAULT 0, updated_at TEXT)")
+_LAZY_TABLES = {
+    "round_settings": "CREATE TABLE IF NOT EXISTS round_settings (round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),"
+                      " comments_off INTEGER NOT NULL DEFAULT 0, updated_at TEXT)",
+    "round_reveals": "CREATE TABLE IF NOT EXISTS round_reveals (round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),"
+                     " revealed_at TEXT NOT NULL)",
+}
 _settings_ready: set = set()
 
 
 def _ensure_settings(m) -> None:
-    """The hosted DB gets schema changes only from `python -m api.seed`, so this table is created on first use."""
+    """The hosted DB gets schema changes only from `python -m api.seed`, so these tables are created on first use."""
     where = db.DATABASE_URL or str(db.MAIN_DB)
     if where in _settings_ready:
         return
-    if not db.DATABASE_URL:
-        m.execute(_SETTINGS_DDL)
-    elif not m.execute("SELECT 1 FROM information_schema.tables WHERE table_schema = current_schema()"
-                       " AND table_name = 'round_settings'").fetchone():
-        m.execute(_SETTINGS_DDL)
-        m.execute("ALTER TABLE round_settings ENABLE ROW LEVEL SECURITY")  # same lock-down as pg.init: RLS, no policies
+    for name, ddl in _LAZY_TABLES.items():
+        if not db.DATABASE_URL:
+            m.execute(ddl)
+        elif not m.execute("SELECT 1 FROM information_schema.tables WHERE table_schema = current_schema()"
+                           " AND table_name = ?", (name,)).fetchone():
+            m.execute(ddl)
+            m.execute(f"ALTER TABLE {name} ENABLE ROW LEVEL SECURITY")  # same lock-down as pg.init: RLS, no policies
     _settings_ready.add(where)
+
+
+def _revealed_at(m, round_id: str, stage: str) -> Optional[str]:
+    """When the round's group view opened (None while blind). Rounds revealed before this was recorded get 'now' on
+    first use: until then first answers were refused during the reveal, so every earlier answer was on time."""
+    if stage == "blind":
+        return None
+    _ensure_settings(m)
+    r = m.execute("SELECT revealed_at FROM round_reveals WHERE round_id = ?", (round_id,)).fetchone()
+    if r:
+        return r["revealed_at"]
+    # OR IGNORE + read back: two first requests at once both end up with the same recorded time
+    m.execute("INSERT OR IGNORE INTO round_reveals (round_id, revealed_at) VALUES (?, ?)",
+              (round_id, datetime.now(timezone.utc).isoformat()))
+    return m.execute("SELECT revealed_at FROM round_reveals WHERE round_id = ?", (round_id,)).fetchone()["revealed_at"]
+
+
+def reveal_cutoff(round_id: str) -> Optional[str]:
+    """For the thread's peer additions: during the reveal, only what was there at the reveal."""
+    rnd = get_round(round_id)
+    if rnd["stage"] != "reveal":
+        return None
+    with db.main_db() as m:
+        return _revealed_at(m, round_id, "reveal")
 
 
 def comments_off(m, round_id: str) -> bool:
@@ -456,14 +507,15 @@ def round_detail(round_id: str) -> dict:
 
 # ---------- moderator view ----------
 
-def moderator_free_text(round_id: str) -> list[dict]:
-    """Moderator-only: free text linked to response ids (not to authors)."""
+def moderator_free_text(round_id: str, until: Optional[str] = None) -> list[dict]:
+    """Moderator-only: free text linked to response ids (not to authors). until: only answers given by then."""
     get_round(round_id)
     with db.main_db() as m:
         rows = m.execute(
             "SELECT id, version, tier, missing_text, reasoning_text, reasoning_basis FROM contributions"
             " WHERE round_id = ? AND (missing_text IS NOT NULL OR reasoning_text IS NOT NULL"
-            " OR reasoning_basis IS NOT NULL) ORDER BY id", (round_id,)).fetchall()
+            " OR reasoning_basis IS NOT NULL)" + (" AND created_at <= ?" if until else "") + " ORDER BY id",
+            (round_id, until) if until else (round_id,)).fetchall()
     return [{"response_id": r["id"], "version": r["version"], "tier": r["tier"],
              "missing_text": r["missing_text"], "reasoning_text": r["reasoning_text"],
              "reasoning_basis": r["reasoning_basis"].split(",") if r["reasoning_basis"] else []}
@@ -484,6 +536,7 @@ def demo_reset(round_id: str) -> dict:
         m.execute("UPDATE rounds SET stage = 'blind', closed_at = NULL WHERE round_id = ?", (round_id,))
         _ensure_settings(m)
         m.execute("DELETE FROM round_settings WHERE round_id = ?", (round_id,))  # comments back to automatic
+        m.execute("DELETE FROM round_reveals WHERE round_id = ?", (round_id,))
         v.execute("DELETE FROM round_participation WHERE round_id = ?", (round_id,))
     return {"round_id": round_id, "stage": "blind", "removed_responses": n}
 
@@ -526,8 +579,10 @@ def moderator_view(round_id: str) -> dict:
         final = _rows(m, round_id, v1_only=False)
         v2 = m.execute("SELECT * FROM contributions WHERE round_id = ? AND version = 2", (round_id,)).fetchall()
         # MAX(tier): 'pseudonymous' > 'known', so one pseudonymous answer means "don't resolve me"
-        authors = m.execute("SELECT author_token, MAX(tier) tier FROM contributions WHERE round_id = ?"
-                            " GROUP BY author_token ORDER BY MIN(id)", (round_id,)).fetchall()
+        authors = m.execute("SELECT author_token, MAX(tier) tier, MIN(CASE WHEN version = 1 THEN created_at END) first_at"
+                            " FROM contributions WHERE round_id = ? GROUP BY author_token ORDER BY MIN(id)",
+                            (round_id,)).fetchall()
+        revealed = _revealed_at(m, round_id, rnd["stage"])
         split = basis_split(m, round_id, questions, final)
         off = comments_off(m, round_id)
     v1_by = {(r["author_token"], r["question_id"]): r for r in v1}
@@ -551,7 +606,10 @@ def moderator_view(round_id: str) -> dict:
                       "final": [question_stats(final, q, min_n=1) for q in questions]},
         "revision_shifts": shifts,
         "basis_split": split,
+        "revealed_at": revealed,
+        "n_late": sum(1 for a in authors if revealed and (a["first_at"] or "") > revealed),
         "contributors": [{"author_token": a["author_token"], "tier": a["tier"],
+                          "late": bool(revealed and (a["first_at"] or "") > revealed),
                           "identity": trust.resolve_identity(a["author_token"], a["tier"])} for a in authors],
         "free_text": moderator_free_text(round_id),
         "comments": with_moderator(comments_policy.decide(risk), off),

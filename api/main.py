@@ -142,7 +142,7 @@ def round_thread(round_id: str,
     Plus expert additions and a summary once unlocked, where the comments policy allows (see synthesis.py)."""
     t = rounds.thread(round_id, x_invite_token, x_device_secret)
     if not t.get("locked") and not t.get("suppressed") and (t.get("comments") or {}).get("enabled"):
-        t.update(synthesis.peer_additions(round_id))
+        t.update(synthesis.peer_additions(round_id, until=rounds.reveal_cutoff(round_id)))
     return t
 
 

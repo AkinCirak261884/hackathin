@@ -73,9 +73,9 @@ class SynthesisUnavailable(Exception):
 
 # ---------- input ----------
 
-def items_for(round_id: str) -> list[dict]:
+def items_for(round_id: str, until: Optional[str] = None) -> list[dict]:
     return [{"response_id": f["response_id"], "text": f["missing_text"].strip()}
-            for f in rounds.moderator_free_text(round_id) if f["missing_text"] and f["missing_text"].strip()]
+            for f in rounds.moderator_free_text(round_id, until) if f["missing_text"] and f["missing_text"].strip()]
 
 
 def input_hash(items: list[dict]) -> str:
@@ -264,8 +264,9 @@ def _prob(pct):
     return None if pct is None else max(0, min(100, int(pct))) / 100
 
 
-def peer_additions(round_id: str) -> dict:
-    items = items_for(round_id)
+def peer_additions(round_id: str, until: Optional[str] = None) -> dict:
+    """until (reveal stage): only answers given before the reveal, so late answers never change what peers see."""
+    items = items_for(round_id, until)
     hit = cached(round_id)
     flagged = {d["response_id"] for d in (hit or {}).get("identifying_details", [])}
     # misinformation guard: near-identical (copy-paste / coordinated) answers are never amplified to peers;
@@ -289,7 +290,10 @@ def peer_additions(round_id: str) -> dict:
                 seen.add(key)
                 adds.append(item)
     adds.sort(key=lambda a: (a["kind"], not a["bigger"], a["text"].lower()))  # stable, says nothing about who/when
-    if hit and hit.get("synthesis_source") == "claude":
+    ids = {it["response_id"] for it in items}
+    # the AI summary only if it was made from exactly these answers; else the free keyword grouping of them
+    if hit and hit.get("synthesis_source") == "claude" and all(
+            set(c.get("response_ids", [])) <= ids for c in hit.get("missing_clusters", [])):
         source, clusters = "ai", hit.get("missing_clusters", [])
     else:
         source, clusters = "keywords", fallback_clusters(items) if items else []

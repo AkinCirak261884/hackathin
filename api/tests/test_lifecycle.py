@@ -38,19 +38,20 @@ def test_full_walk_blind_reveal_closed():
     assert "your_answers" not in a and a["can_revise"] is False
     assert post(1, 0.3, version=2).status_code == 409
 
-    # reveal: frozen round-1 picture, one revision each, no late first answers
+    # reveal: frozen round-1 picture, one revision each; late first answers accepted (8 Nov) but kept out of it
     r = advance(to="reveal").json()
     assert r == {"round_id": RID, "from_stage": "blind", "to_stage": "reveal", "n_responses": 3}
     assert dots(1) == [0.2, 0.5, 0.8] and agg(1).json()["can_revise"] is True
-    assert post(4, 0.9).status_code == 409
+    assert post(4, 0.9).status_code == 201     # late: accepted
+    assert agg(4).json()["late"] is True and agg(1).json()["late"] is False
     assert post(1, 0.45, version=2).status_code == 201
-    assert dots(2) == [0.2, 0.5, 0.8]          # unchanged while revisions arrive: no timing leak
+    assert dots(2) == [0.2, 0.5, 0.8]          # unchanged while revisions and late answers arrive: no timing leak
     assert agg(1).json()["can_revise"] is False
 
     # closed: final answers, nothing accepted
     assert advance().json()["to_stage"] == "closed"
     a = agg(2).json()
-    assert a["view"] == "final" and dots(2) == [0.45, 0.5, 0.8]
+    assert a["view"] == "final" and dots(2) == [0.45, 0.5, 0.8, 0.9]   # final view includes the late answer
     assert post(2, 0.6, version=2).status_code == 409
     assert advance().status_code == 409
     with db.main_db() as m:

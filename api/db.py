@@ -86,6 +86,11 @@ CREATE TABLE IF NOT EXISTS summaries (
     round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
     approved_text TEXT NOT NULL, published_at TEXT NOT NULL
 );
+-- When the round's group view opened: first answers after it are "late" (accepted, kept out of the frozen view).
+CREATE TABLE IF NOT EXISTS round_reveals (
+    round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
+    revealed_at TEXT NOT NULL
+);
 -- Moderator settings per round (comments_off = the moderator turned peer comments off, stricter than the 3W rule).
 CREATE TABLE IF NOT EXISTS round_settings (
     round_id TEXT PRIMARY KEY REFERENCES rounds(round_id),
