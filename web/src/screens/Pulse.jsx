@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { api, anonToken, DEMO_INVITE } from '../api.js'
+import { api, anonToken, inviteToken } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, likelihoodKey } from '../stats.js'
@@ -51,7 +51,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
   async function submit() {
     setBusy(true)
     const body = {
-      invite_token: DEMO_INVITE,
+      invite_token: inviteToken(),
       tier: a.tier,
       version: 1,
       missing_text: a.missing.trim() || null,
