@@ -8,5 +8,5 @@
     }
   ],
   "routes": [{ "src": "/(.*)", "dest": "api/index.py" }],
-  "regions": ["fra1"]
+  "regions": ["arn1"]
 }

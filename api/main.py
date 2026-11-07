@@ -3,6 +3,7 @@ leaderboard. Still mock: AI clusters (moderator), publish flow and /public/summa
 
 Run:  uvicorn api.main:app --reload     (from the repo root)
 """
+import hmac
 import json
 import logging
 import os
@@ -39,6 +40,19 @@ async def lifespan(_app):
 
 
 app = FastAPI(title="Ground Truth API", version="0.2.0", lifespan=lifespan)
+
+# Moderator endpoints expose reasoning text, known-tier identities, invites and publishing. When hosted,
+# GT_MODERATOR_KEY is set and every /moderator/* call must send it as X-Moderator-Key. Unset = local dev/tests.
+MODERATOR_KEY = os.environ.get("GT_MODERATOR_KEY")
+
+
+@app.middleware("http")
+async def moderator_key(request: Request, call_next):
+    if MODERATOR_KEY and request.url.path.startswith("/moderator") and request.method != "OPTIONS":
+        given = request.headers.get("x-moderator-key", "")
+        if not hmac.compare_digest(given.encode(), MODERATOR_KEY.encode()):
+            return JSONResponse({"detail": "moderator key required"}, status_code=401)
+    return await call_next(request)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
