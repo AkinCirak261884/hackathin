@@ -124,6 +124,7 @@ function FullReveal({ round, agg, tr, just, roundId }) {
       </div>
 
       <Comments comments={agg.comments || []} round={round} />
+      <PanelAdditions agg={agg} />
       <MyAnswers round={round} agg={agg} />
       {/* TEMPORARY: demo-only, so a presenter can run the check-in again straight from the results */}
       {MOCK && (
@@ -328,6 +329,7 @@ function ReasonsFirst({ round, agg, just, rec, onDecided }) {
       )}
       <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />
       <Comments comments={agg.comments || []} round={round} hideNumbers />
+      <PanelAdditions agg={agg} />
       <article className="card decide-card">
         {!revising ? (
           <>
@@ -419,4 +421,41 @@ function AdditionsNote({ round, roundId }) {
   const n = (mine.seeing_other?.length || 0) + (other ? 1 : 0)
   if (!n) return null
   return <div className="note additions-note"><b>{t('own_flagged', n)}</b> {t('own_flagged_d', n)}</div>
+}
+
+// What experts flagged that ACAPS hadn't listed: no names, no order, plus an AI (or keyword) summary.
+// Shown after the reveal only; the server applies the n >= 3 rule and the per-round comments policy.
+function PanelAdditions({ agg }) {
+  const { t } = useT()
+  const adds = agg.additions || []
+  if (!adds.length && !agg.summary) return null
+  const ai = agg.summary?.source === 'ai'
+  return (
+    <section className="panel-adds">
+      <Head title={t('pa_title')} sub={t('pa_sub')} />
+      {agg.summary?.themes?.length > 0 && (
+        <article className="card pa-summary">
+          <div className="eyebrow">{ai ? t('pa_ai') : t('pa_keywords')}{agg.summary.synthetic && <span className="pill">{t('synthetic')}</span>}</div>
+          {agg.summary.themes.map((th) => (
+            <div key={th.label} className="pa-theme"><b>{th.label}</b><p>{th.summary}</p></div>
+          ))}
+          <p className="muted small">{ai ? t('pa_ai_note') : t('pa_kw_note')}</p>
+        </article>
+      )}
+      {adds.length > 0 && (
+        <div className="card pa-list">
+          {adds.map((a) => (
+            <div key={a.kind + a.text} className="pa-item">
+              <div className="chips">
+                <span className="chip">{a.kind === 'risk' ? t('pa_risk') : t('pa_signal')}</span>
+                {a.bigger && <span className="chip hot">{t('sig_bigger_tag')}</span>}
+                {a.you && <span className="you-tag">{t('you')}</span>}
+              </div>
+              <p>{a.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
 }

@@ -76,7 +76,27 @@ function saveSubmission(roundId, body) {
 }
 
 // The demo user is Kestrel (E01). Swap Kestrel's fixture answers for what the user actually entered.
+// DEMO ONLY (pitch site): what other panel members added that ACAPS hadn't listed, and an AI summary of it.
+// Synthetic, like all fixture data. On the live site both come from the API (/thread: additions, summary).
+const DEMO_ADDITIONS = [
+  { kind: 'signal', bigger: true, text: 'Armed men recruiting young refugees around the Adré transit sites' },
+  { kind: 'signal', bigger: false, text: 'Fuel and sorghum prices in Abéché up sharply since September' },
+  { kind: 'risk', bigger: false, text: 'Cholera and hepatitis E in the overcrowded eastern camps' },
+]
+const DEMO_SUMMARY = { source: 'ai', synthetic: true, themes: [
+  { label: 'Armed recruitment around camps', n: 2, summary: 'Two experts report armed recruitment of young refugees near Adré and think it could grow beyond the cross-border risk ACAPS describes.' },
+  { label: 'Disease and prices in the east', n: 3, summary: 'Several point to disease risk in overcrowded camps and rising food and fuel prices in Abéché as needs that the analysis underplays.' },
+] }
+function withAdditions(agg, sub) {
+  if (agg.round_id !== MAIN_ROUND) return agg
+  const ranking = sub?.answers?.find((x) => x.ranking_other)?.ranking_other
+  const mine = [...(sub?.seeing_other || []).map((s) => ({ kind: 'signal', bigger: !!s.bigger, text: s.text, you: true })),
+    ...(ranking ? [{ kind: 'risk', bigger: false, text: ranking, you: true }] : [])]
+  return { ...agg, additions: [...mine, ...DEMO_ADDITIONS], summary: DEMO_SUMMARY }
+}
+
 function personalise(agg, sub) {
+  agg = withAdditions(agg, sub)
   if (!sub) return agg
   const a = clone(agg)
   const byQ = Object.fromEntries(sub.answers.map((x) => [x.question_id, x]))
@@ -209,6 +229,9 @@ const fromApi = {
       })),
       ranking: [],
       comments: (a.themes || []).map((th, i) => ({ comment_id: `theme-${i}`, is_theme: true, tier: 'anonymous', text: th.text })),
+      // expert additions + summary (server strips authors; we mark the ones this browser sent as "you")
+      additions: (a.additions || []).map((x) => ({ ...x, you: ownTexts(local).has(x.text.toLowerCase()) })),
+      summary: a.summary || null,
     }
   },
   trackRecord: (tr) => ({ ...tr, history: tr.history || [], pending: tr.pending || [], impact: tr.impact || [] }),
@@ -230,6 +253,9 @@ function foldAdditions(body) {
   if (other) lines.push(`Risk missing from the top-3 list: ${other}`)
   return lines.length ? lines.join('\n').slice(0, 2000) : null
 }
+
+const ownTexts = (sub) => new Set([...(sub?.seeing_other || []).map((s) => s.text),
+  ...(sub?.answers || []).filter((x) => x.ranking_other).map((x) => x.ranking_other)].map((t) => t.toLowerCase()))
 
 // Web response body → Lane B's ResponseIn. W5: 3-way rating collapses to agree = both "about right";
 // top-3 ranking isn't stored by the API yet. W6: lists, never null. W7: device_secret = the phone-side hash.
