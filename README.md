@@ -2,6 +2,8 @@
 
 **A short monthly check-in that lets ACAPS's trusted field experts test ACAPS risk analyses, forecast what happens next, and see how their judgement holds up, without exposing who said what.**
 
+**Live demo: [groundtruth-acaps.vercel.app](https://groundtruth-acaps.vercel.app)** (demo data, works on a phone; use "Reset my answers (demo)" to start again)
+
 Built at Hackathon for Good #8 (The Hague, 6–8 November 2026) for the [ACAPS Ground Truth challenge](docs/challenge-brief.md). All people in the demo are synthetic; the risks are real ACAPS Risk Radar data.
 
 ---
