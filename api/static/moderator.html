@@ -118,13 +118,19 @@ async function api(path, opts = {}) {
   if (key) headers["X-Moderator-Key"] = key;
   const res = await fetch(path, { ...opts, headers, referrerPolicy: "no-referrer" });
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(res.status === 401 ? "Wrong or missing moderator key." : (body.detail ? JSON.stringify(body.detail) : `HTTP ${res.status}`));
+  if (!res.ok) {
+    const e = new Error(res.status === 401 ? "Wrong moderator key. Paste only the part after GT_MODERATOR_KEY= and press Connect." : (body.detail ? JSON.stringify(body.detail) : `HTTP ${res.status}`));
+    e.status = res.status;
+    throw e;
+  }
   return body;
 }
 
 $("keyForm").addEventListener("submit", (e) => {
   e.preventDefault();
-  key = $("key").value.trim();
+  // accept a pasted "GT_MODERATOR_KEY=..." line or a quoted key too
+  key = $("key").value.trim().replace(/^GT_MODERATOR_KEY\s*=\s*/, "").replace(/^["']|["']$/g, "");
+  $("key").value = key;
   try { key ? sessionStorage.setItem(KEY, key) : sessionStorage.removeItem(KEY); } catch (e) {}
   loadRounds();
 });
@@ -151,7 +157,13 @@ async function loadRounds() {
         el("span", { class: "small muted" }, `${r.country || ""} · n = ${r.n_responses}`),
         el("span", { class: "small" }, (r.risk_title || r.risk_id).slice(0, 90))))) : [el("li", { class: "muted small" }, "No rounds yet.")]));
     if (!current && rounds[0]) openRound(rounds[0].round_id);
-  } catch (e) { $("roundsErr").replaceChildren(err(e.message)); }
+  } catch (e) {
+    // hosted, first visit: no key yet is not an error, just the next step
+    $("roundsErr").replaceChildren(e.status === 401 && !key
+      ? el("p", { class: "muted small" }, "Enter the moderator key at the top right and press Connect.")
+      : err(e.message));
+    if (!key) $("key").focus();
+  }
 }
 
 function dotStrip(dots, median, p25, p75) {
