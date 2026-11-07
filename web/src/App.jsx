@@ -8,6 +8,7 @@ import Profile from './screens/Profile.jsx'
 import PublicPage from './screens/Public.jsx'
 import Signpost from './screens/Signpost.jsx'
 import Guess from './screens/Guess.jsx'
+import Update from './screens/Update.jsx'
 import { RecordPage, AccuracyPage } from './screens/Record.jsx'
 
 // Tiny hash router: #/pulse/RD-R1043-1, #/reveal/RD-R1043-1, #/me, #/guess/Q-R1014-MAT, #/public, #/signpost
@@ -37,11 +38,12 @@ function Shell() {
     { href: '#/me', key: 'me', label: t('nav_me'), icon: Icon.me },
     { href: '#/public', key: 'public', label: t('nav_public'), icon: Icon.public },
   ]
-  const current = page === 'reveal' || page === 'pulse' ? '' : ['guess', 'record', 'accuracy'].includes(page) ? 'me' : page
+  const current = ['reveal', 'pulse', 'update'].includes(page) ? '' : ['guess', 'record', 'accuracy'].includes(page) ? 'me' : page
   const screens = {
     '': <Home />,
     pulse: <Pulse roundId={id} />,
     reveal: <Reveal roundId={id} />,
+    update: <Update roundId={id} />,
     me: <Profile />,
     guess: <Guess questionId={id} />,
     record: <RecordPage />,

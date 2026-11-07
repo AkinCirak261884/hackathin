@@ -51,7 +51,7 @@ function RationaleDialog({ risk }) {
   )
 }
 
-function RiskSummary({ risk }) {
+export function RiskSummary({ risk }) {
   const { t } = useT()
   const more = risk.rationale && risk.rationale.length > (risk.rationale_short || '').length + 20
   return (
@@ -75,7 +75,7 @@ function RiskSummary({ risk }) {
 const OTHER = 'OTHER'
 
 // Slider + quick presets + reading, shared by ACAPS's trigger questions and the expert's own additions.
-function ProbPicker({ p, touched, label, onChange }) {
+export function ProbPicker({ p, touched, label, onChange }) {
   const { t } = useT()
   const v = p ?? 0.5
   return (
