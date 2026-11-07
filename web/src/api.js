@@ -189,12 +189,19 @@ const fromApi = {
   aggregate: (a) => {
     if (a.locked) return { locked: true, stage: a.stage, round_id: a.round_id }
     if (a.suppressed) return { suppressed: true }
-    const qs = a.questions || [], mine = a.your_answers || {}
+    // Lane B's API no longer returns the caller's own answers ("collective view only"), so "you" comes from
+    // the answers this browser kept at submission (blind answer with any revision laid over it).
+    const local = latestSubmission(a.round_id)
+    const localProbs = Object.fromEntries((local?.answers || []).filter((x) => x.prob != null).map((x) => [x.question_id, x.prob]))
+    const localRating = (local?.answers || []).find((x) => x.rating_probability !== undefined)
+    const mine = { ...localProbs, ...(a.your_answers || {}) }
+    const qs = a.questions || []
     const agreeQ = qs.find((q) => q.agree_share != null)
     return {
       round_id: a.round_id, n_responses: Math.max(0, ...qs.map((q) => q.n || 0)), can_revise: a.can_revise,
       rating: null,
-      agree: agreeQ ? { share: agreeQ.agree_share, n: agreeQ.n, you: mine[agreeQ.question_id] } : null,
+      agree: agreeQ ? { share: agreeQ.agree_share, n: agreeQ.n,
+        you: mine[agreeQ.question_id] ?? (localRating ? localRating.rating_probability === 'agree' && localRating.rating_impact === 'agree' : undefined) } : null,
       forecasts: qs.filter((q) => q.dots).map((q) => ({
         question_id: q.question_id, values: [...q.dots].sort((x, y) => x - y), median: q.median, p25: q.p25, p75: q.p75, n: q.n,
         you: mine[q.question_id] ?? null,

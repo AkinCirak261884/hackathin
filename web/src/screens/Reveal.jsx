@@ -105,9 +105,9 @@ function FullReveal({ round, agg, tr, just, roundId }) {
                 title={tx(q, 'title')} sub={tx(q)} />
               <div className="kpis">
                 <div><span className="kpi-num">{asPct(f.median)}</span><span className="kpi-label">{t('group_median')}</span></div>
-                <div><span className="kpi-num you-ink">{asPct(f.you)}</span><span className="kpi-label">{t('you')}</span></div>
+                {f.you != null && <div><span className="kpi-num you-ink">{asPct(f.you)}</span><span className="kpi-label">{t('you')}</span></div>}
               </div>
-              <p className="takeaway">{forecastTakeaway(f)}</p>
+              {f.you != null && <p className="takeaway">{forecastTakeaway(f)}</p>}
               <ForecastDots {...f} />
               <ForecastLegend />
             </article>
