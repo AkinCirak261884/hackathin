@@ -65,15 +65,15 @@ def test_anonymous_and_pseudonymous_records_are_separate():
 
 # ---- leaderboard ----
 
-def test_leaderboard_has_no_tokens_and_marks_you():
+def test_leaderboard_is_moderator_only_and_has_no_tokens():
     for i in range(1, 4):
         post(i, 0.3 * i)
     resolve()
-    lb = client.get("/leaderboard?panel=TCD", headers=hdr(1)).json()
+    lb = client.get("/moderator/leaderboard?panel=TCD").json()
     dump = json.dumps(lb)
     assert "psd_" not in dump and "anon_" not in dump and "inv_" not in dump
     assert lb["panel"] == "TCD" and "entries" in lb
-    assert client.get("/leaderboard").status_code == 200  # headers optional
+    assert client.get("/leaderboard?panel=TCD", headers=hdr(1)).status_code == 410  # experts: gone
 
 
 def test_opt_out_is_stored():
