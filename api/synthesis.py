@@ -264,6 +264,10 @@ def peer_additions(round_id: str) -> dict:
     items = items_for(round_id)
     hit = cached(round_id)
     flagged = {d["response_id"] for d in (hit or {}).get("identifying_details", [])}
+    # misinformation guard: near-identical (copy-paste / coordinated) answers are never amplified to peers;
+    # the moderator still sees them with the coordination flag
+    coordinated = {rid for f in coordination_flags(items) for rid in f["response_ids"]}
+    flagged |= coordinated
     seen, adds = set(), []
     for it in items:
         if it["response_id"] in flagged:
@@ -287,4 +291,5 @@ def peer_additions(round_id: str) -> dict:
         source, clusters = "keywords", fallback_clusters(items) if items else []
     summary = [{"label": c["label"], "summary": c["summary"], "n": c["n"]} for c in clusters
                if not set(c.get("response_ids", [])) & flagged]
-    return {"additions": adds, "summary": {"source": source, "themes": summary} if summary else None}
+    return {"additions": adds, "summary": {"source": source, "themes": summary} if summary else None,
+            "withheld_coordinated": len(coordinated)}

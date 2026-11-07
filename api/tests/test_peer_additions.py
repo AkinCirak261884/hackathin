@@ -32,3 +32,18 @@ def test_additions_hidden_until_reveal_then_shown_without_authors():
     for a in t["additions"]:
         assert set(a) == {"kind", "bigger", "text"}  # no author, tier, time or id
     assert t["summary"]["source"] in ("ai", "keywords")
+
+
+def test_coordinated_copy_paste_is_not_amplified():
+    same = "Seeing, not on ACAPS's list (may be bigger than this risk): Army deserting the border posts tonight"
+    answer("inv_demo_01", same)
+    answer("inv_demo_02", same)
+    answer("inv_demo_03", "Seeing, not on ACAPS's list: Fuel prices doubled")
+    assert c.post(f"/moderator/rounds/{R}/advance", json={"to": "reveal"}).status_code == 200
+    t = c.get(f"/rounds/{R}/thread", headers={"X-Invite-Token": "inv_demo_03"}).json()
+    if not t["comments"]["enabled"]:
+        return
+    texts = [a["text"] for a in t["additions"]]
+    assert "Army deserting the border posts tonight" not in texts
+    assert "Fuel prices doubled" in texts
+    assert t["withheld_coordinated"] == 2
