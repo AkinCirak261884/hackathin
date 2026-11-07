@@ -40,37 +40,46 @@ export default function Home() {
           <span className="muted small">{t('reset_demo_d')}</span>
         </div>
       )}
-      {acaps?.risks?.length > 0 && <AcapsRisks data={acaps} openIds={rounds.map((r) => r.risk_id)} />}
+      {acaps?.risks?.length > 0 && <AcapsRisks data={acaps} rounds={rounds} />}
       <p className="center"><a href="#/signpost" className="muted small">{t('signpost')}</a></p>
     </section>
   )
 }
 
-// Latest ACAPS risks for this panel (ACAPS API via Lane B). Read-only context: not clickable, so no hover.
-function AcapsRisks({ data, openIds }) {
+// Latest ACAPS risks for this panel (ACAPS API via Lane B). Risks in one of your check-ins open that check-in
+// (whole row + a Start / "see the group" button); the rest are read-only context, so no hover.
+function AcapsRisks({ data, rounds }) {
   const { t, date } = useT()
   const live = data.source === 'live'
+  const roundOf = Object.fromEntries([...rounds].reverse().map((r) => [r.risk_id, r]))  // first round per risk wins
   return (
     <section className="acaps-risks">
       <Head eyebrow={live ? t('acaps_live') : t('acaps_snapshot')} title={t('acaps_title')} sub={t('acaps_sub')} />
       <div className="card risk-list">
-        {data.risks.map((r) => (
-          <div key={r.risk_id} className="risk-line">
-            <div className="risk-line-main">
-              <div className="chips">
-                {r.risk_level && <span className={`level ${r.risk_level.toLowerCase()}`}>{t(`lvl_${r.risk_level.toLowerCase()}`)}</span>}
-                <Chip>{r.risk_id}</Chip><Chip>{r.country}</Chip>
-                {openIds.includes(r.risk_id) && <Chip tone="new">{t('acaps_in_round')}</Chip>}
+        {data.risks.map((r) => {
+          const round = roundOf[r.risk_id]
+          const body = (
+            <>
+              <div className="risk-line-main">
+                <div className="chips">
+                  {r.risk_level && <span className={`level ${r.risk_level.toLowerCase()}`}>{t(`lvl_${r.risk_level.toLowerCase()}`)}</span>}
+                  <Chip>{r.risk_id}</Chip><Chip>{r.country}</Chip>
+                  {round && <Chip tone="new">{t('acaps_in_round')}</Chip>}
+                </div>
+                <p className="risk-line-title">{r.title}</p>
+                {round && <span className={`btn small-btn risk-line-cta ${round.answered ? 'answered' : ''}`}>{round.answered ? t('answered') : t('start')} →</span>}
               </div>
-              <p className="risk-line-title">{r.title}</p>
-            </div>
-            <dl className="risk-line-facts">
-              <div><dt>{t('probability')}</dt><dd>{r.probability ?? '—'}</dd></div>
-              <div><dt>{t('impact')}</dt><dd>{r.impact != null ? `${r.impact}/5` : '—'}</dd></div>
-              <div><dt>{t('acaps_trend')}</dt><dd>{r.trend ? t(`tr_${r.trend.toLowerCase()}`) : '—'}</dd></div>
-            </dl>
-          </div>
-        ))}
+              <dl className="risk-line-facts">
+                <div><dt>{t('probability')}</dt><dd>{r.probability ?? '—'}</dd></div>
+                <div><dt>{t('impact')}</dt><dd>{r.impact != null ? `${r.impact}/5` : '—'}</dd></div>
+                <div><dt>{t('acaps_trend')}</dt><dd>{r.trend ? t(`tr_${r.trend.toLowerCase()}`) : '—'}</dd></div>
+              </dl>
+            </>
+          )
+          return round
+            ? <a key={r.risk_id} className="risk-line in-round" href={`#/${round.answered ? 'reveal' : 'pulse'}/${round.round_id}`}>{body}</a>
+            : <div key={r.risk_id} className="risk-line">{body}</div>
+        })}
       </div>
       <p className="muted small">{live && data.updated_at ? t('acaps_updated', date(data.updated_at)) : t('acaps_snapshot_d')}</p>
     </section>
