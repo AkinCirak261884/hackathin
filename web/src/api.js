@@ -39,8 +39,28 @@ export function lastSubmission(roundId = MAIN_ROUND) {
 export const hasAnySubmission = () => Object.keys(allSubmissions()).length > 0
 // TEMPORARY demo helper: forget this browser's answers so the survey can be taken again
 export function resetDemoAnswers() {
-  try { ['gt_submissions', 'gt_submission', 'gt_forecast_updates'].forEach((k) => localStorage.removeItem(k)) } catch {}
+  try { ['gt_submissions', 'gt_submission', 'gt_forecast_updates', 'gt_revisions'].forEach((k) => localStorage.removeItem(k)) } catch {}
 }
+// Delphi step 2 (option B): after reading peer reasons the expert either keeps their answers or revises once.
+// Kept in this browser in both modes so the reveal knows whether to show the numbers yet.
+const REV_KEY = 'gt_revisions'
+function allRevisions() {
+  try { return JSON.parse(localStorage.getItem(REV_KEY)) || {} } catch { return {} }
+}
+export const revisionOf = (roundId) => allRevisions()[roundId] || null
+function saveRevision(roundId, rev) {
+  const all = allRevisions()
+  all[roundId] = { round_id: roundId, decided_at: new Date().toISOString(), ...rev }
+  try { localStorage.setItem(REV_KEY, JSON.stringify(all)) } catch {}
+}
+// blind answers with the revised probabilities laid over them: what the group view should show as "you"
+function latestSubmission(roundId) {
+  const sub = lastSubmission(roundId), rev = revisionOf(roundId)
+  if (!sub || rev?.decision !== 'revised') return sub
+  const p = Object.fromEntries(rev.answers.map((x) => [x.question_id, x.prob]))
+  return { ...sub, answers: sub.answers.map((x) => (p[x.question_id] != null ? { ...x, prob: p[x.question_id] } : x)) }
+}
+
 function saveSubmission(roundId, body) {
   const all = allSubmissions()
   all[roundId] = { round_id: roundId, submitted_at: new Date().toISOString(), ...body }
@@ -110,7 +130,10 @@ function personalTrackRecord(tr, sub) {
   const t = clone(tr)
   if (sub) {
     const byQ = Object.fromEntries(sub.answers.map((x) => [x.question_id, x]))
-    t.pending = t.pending.map((p) => ({ ...p, your_prob: byQ[p.question_id]?.prob ?? p.your_prob, submitted_at: sub.submitted_at }))
+    const rev = revisionOf(MAIN_ROUND)
+    const revP = rev?.decision === 'revised' ? Object.fromEntries(rev.answers.map((x) => [x.question_id, x.prob])) : {}
+    t.pending = t.pending.map((p) => ({ ...p, your_prob: byQ[p.question_id]?.prob ?? p.your_prob, submitted_at: sub.submitted_at,
+      revised_prob: revP[p.question_id] ?? null }))
   }
   // practice round answered: score it like any resolved forecast and add it to the record
   if (practice) {
@@ -142,7 +165,16 @@ export const api = {
     MOCK ? (saveSubmission(id, body), delay({ ...postReply, version: body.version }))
       : http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) }),
   aggregate: (id, token) =>
-    MOCK ? delay(personalise(AGGS[id] || aggregate, lastSubmission(id))) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
+    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
+  // keep = no second version; revise = POST version 2 with only the changed forecasts + "what changed your mind?"
+  keepAnswers: async (id) => { saveRevision(id, { decision: 'kept' }) },
+  revise: async (id, { answers, reason }) => {
+    const first = lastSubmission(id)
+    const body = { invite_token: DEMO_INVITE, tier: first?.tier || 'pseudonymous', version: 2, reasoning_text: reason || null, answers }
+    if (body.tier === 'anonymous') body.anon_token = await anonToken()
+    if (!MOCK) await http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) })
+    saveRevision(id, { decision: 'revised', answers, reason: reason || null })
+  },
   // mock: add ?new=1 to the URL hash to see a new expert who is not ranked yet
   trackRecord: (token) =>
     MOCK ? delay(withGroups(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission())))

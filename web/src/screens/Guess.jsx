@@ -37,6 +37,7 @@ export default function Guess({ questionId }) {
         {past && <span className={`beat ${past.beat_acaps ? 'yes' : 'no'}`}>{past.beat_acaps ? `▲ ${t('beat_acaps')}` : t('acaps_closer')}</span>}
         {past?.practice && <Chip tone="practice">{t('practice_tag')}</Chip>}
         {open?.submitted_at && <Chip tone="new">{t('submitted', date(open.submitted_at))}</Chip>}
+        {open?.revised_prob != null && <Chip>{t('rv_revised_to', asPct(open.revised_prob))}</Chip>}
       </div>
 
       <div className="grid two">

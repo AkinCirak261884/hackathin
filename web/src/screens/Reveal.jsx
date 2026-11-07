@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { api, DEMO_TOKEN, lastSubmission } from '../api.js'
+import { api, DEMO_TOKEN, lastSubmission, revisionOf } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
-import { asPct, r05, recordSummary, verdict } from '../stats.js'
+import { asPct, r05, recordSummary, verdict, likelihoodKey } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
 import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 import acapsUKR from '../mock/acaps_country_UKR.json' // public ACAPS snapshot, see _note in the file
@@ -15,8 +15,23 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const [agg] = useLoad(() => api.aggregate(roundId, DEMO_TOKEN), [roundId])
   const [round] = useLoad(() => api.round(roundId), [roundId])
   const [tr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  const [decision, setDecision] = useState(() => revisionOf(roundId)?.decision || null)
+  const [aggKey, setAggKey] = useState(0)
+  const [fresh] = useLoad(() => (aggKey ? api.aggregate(roundId, DEMO_TOKEN) : Promise.resolve(null)), [aggKey])
   if (!agg || !round) return <Loading />
   if (agg.suppressed) return <section className="page"><Head level={1} title={t('reveal')} sub={t('suppressed')} /></section>
+
+  // Option B: experts read peer reasons first and decide keep/revise; the numbers unlock after that.
+  // Practice rounds skip this (the outcome is shown, so revising would be hindsight).
+  const needsDecision = !round.practice && !!lastSubmission(roundId) && !decision
+  const decide = (d) => { setDecision(d); setAggKey((k) => k + 1); window.scrollTo(0, 0) }
+  if (needsDecision) return <ReasonsFirst round={round} agg={agg} just={just} rec={tr ? recordSummary(tr.history) : null} onDecided={decide} />
+  if (aggKey && !fresh) return <Loading />
+  return <FullReveal round={round} agg={fresh || agg} tr={tr} just={just && decision == null} roundId={roundId} />
+}
+
+function FullReveal({ round, agg, tr, just, roundId }) {
+  const { t, tx, date } = useT()
 
   const qById = Object.fromEntries(round.questions.map((q) => [q.question_id, q]))
   const ranking = round.questions.find((q) => q.kind === 'ranking')
@@ -45,6 +60,7 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
       <Head level={1} title={t('reveal')} sub={t('reveal_sub', n)} />
       {round.practice && round.outcome && <PracticeOutcome round={round} agg={agg} />}
       {ACAPS_COUNTRY[round.risk.iso] && <CountryNow c={ACAPS_COUNTRY[round.risk.iso]} />}
+      <RevisionNote round={round} roundId={roundId} />
 
       <div className="grid">
         <article className="card chart-card">
@@ -100,6 +116,8 @@ function MyAnswers({ round, agg }) {
   const r = byQ[rating.question_id] || { rating_probability: you.probability, rating_impact: you.impact }
   const picks = (ranking && byQ[ranking.question_id]?.ranking) || you.ranking || []
   const label = (id) => tx(ranking?.options.find((o) => o.option_id === id), 'label')
+  const rev = revisionOf(round.round_id)
+  const revised = rev?.decision === 'revised' ? Object.fromEntries(rev.answers.map((x) => [x.question_id, x.prob])) : {}
 
   return (
     <div className="card check-answers">
@@ -113,10 +131,11 @@ function MyAnswers({ round, agg }) {
           </div>
           {forecasts.map((q) => {
             const p = byQ[q.question_id]?.prob ?? agg.forecasts.find((f) => f.question_id === q.question_id)?.you
+            const p2 = revised[q.question_id]
             return (
               <div key={q.question_id} className="recap-row">
                 <span>{tx(q, 'title')}{byQ[q.question_id]?.seeing ? ` · ✓ ${t('a_seeing')}` : ''}</span>
-                {p != null && <div className="recap-prob"><ProbMeter p={p} /><b>{asPct(p)}</b></div>}
+                {p != null && <div className="recap-prob"><ProbMeter p={p2 ?? p} /><b>{p2 != null ? `${asPct(p)} → ${asPct(p2)}` : asPct(p)}</b></div>}
               </div>
             )
           })}
@@ -135,6 +154,7 @@ function MyAnswers({ round, agg }) {
                 <div className="chips">{(mine.reasoning_basis || []).length ? mine.reasoning_basis.map((b) => <span key={b} className="chip">{t(`b_${b}`)}</span>) : <b>{t('a_none')}</b>}</div>
               </div>
               <div className="recap-row"><span>{t('a_tier')}</span><b>{t(`tier_${mine.tier}`)}</b></div>
+              {rev?.reason && <div className="recap-row"><span>{t('rv_reason')}</span><b className="answer-text">{rev.reason}</b></div>}
             </>
           )}
         </div>
@@ -145,7 +165,7 @@ function MyAnswers({ round, agg }) {
 
 // Peer comments: what each expert wrote under "why do you think this?", with their record and guesses.
 // Anonymous comments show neither (a stable record would link them across rounds).
-function Comments({ comments, round }) {
+function Comments({ comments, round, hideNumbers = false }) {
   const { t, tx } = useT()
   const forecastQs = round.questions.filter((q) => q.kind === 'forecast')
   return (
@@ -174,7 +194,7 @@ function Comments({ comments, round }) {
               {c.basis?.length > 0 && (
                 <div className="chips">{c.basis.map((b) => <span key={b} className="chip">{t(`b_${b}`)}</span>)}</div>
               )}
-              {c.forecasts && (
+              {c.forecasts && !hideNumbers && (
                 <div className="c-guesses">
                   {forecastQs.filter((q) => c.forecasts[q.question_id] != null).map((q) => (
                     <span key={q.question_id} className="c-guess" title={tx(q, 'title')}>
@@ -249,5 +269,98 @@ function CountryNow({ c }) {
       <p className="muted small">{t('cn_needs')}: {c.priority_needs.join(', ')}</p>
       <p className="note">{t('cn_source')} <a href={c.source_url} target="_blank" rel="noopener noreferrer">acaps.org</a> · {date(c.fetched_at)}</p>
     </article>
+// Step 2, option B: peer reasons without numbers, then keep or revise once. First answer stays the scored one.
+function ReasonsFirst({ round, agg, just, rec, onDecided }) {
+  const { t } = useT()
+  const [revising, setRevising] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const keep = async () => { setBusy(true); await api.keepAnswers(round.round_id); onDecided('kept') }
+  return (
+    <section className="page">
+      {just && (
+        <div className="banner">
+          <div><b>✓ {t('thanks')}</b>{rec && <div className="small">{t('record_banner', rec.correct, rec.total)}</div>}</div>
+        </div>
+      )}
+      <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />
+      <Comments comments={agg.comments || []} round={round} hideNumbers />
+      <article className="card decide-card">
+        {!revising ? (
+          <>
+            <Head title={t('rv_q')} sub={t('rv_q_sub')} />
+            <div className="decide-actions">
+              <button className="btn ghost" disabled={busy} onClick={keep}>{t('rv_keep')}</button>
+              <button className="btn" disabled={busy} onClick={() => setRevising(true)}>{t('rv_update')}</button>
+            </div>
+          </>
+        ) : (
+          <RevisePanel round={round} onCancel={() => setRevising(false)} onSaved={() => onDecided('revised')} />
+        )}
+      </article>
+    </section>
+  )
+}
+
+function RevisePanel({ round, onCancel, onSaved }) {
+  const { t, tx } = useT()
+  const first = lastSubmission(round.round_id)
+  const qs = round.questions.filter((q) => q.kind === 'forecast')
+  const start = Object.fromEntries(qs.map((q) => [q.question_id, first?.answers.find((x) => x.question_id === q.question_id)?.prob ?? 0.5]))
+  const [prob, setProb] = useState(start)
+  const [reason, setReason] = useState('')
+  const [busy, setBusy] = useState(false)
+  const changed = qs.filter((q) => prob[q.question_id] !== start[q.question_id])
+  const save = async () => {
+    setBusy(true)
+    await api.revise(round.round_id, { answers: changed.map((q) => ({ question_id: q.question_id, prob: prob[q.question_id] })), reason: reason.trim() })
+    onSaved()
+  }
+  return (
+    <div className="revise">
+      <Head title={t('rv_update')} sub={t('rv_once')} />
+      {qs.map((q) => {
+        const p = prob[q.question_id]
+        return (
+          <div key={q.question_id} className="revise-q">
+            <span className="q-title">{tx(q, 'title')}</span>
+            <div className="prob-read">
+              <span className="big">{asPct(p)}</span>
+              <span className="muted">{t(likelihoodKey(p))}</span>
+              <span className="muted small revise-first">{t('rv_first', asPct(start[q.question_id]))}</span>
+            </div>
+            <input type="range" min="0" max="100" step="5" value={Math.round(p * 100)} aria-label={tx(q, 'title')}
+              onChange={(e) => setProb({ ...prob, [q.question_id]: e.target.value / 100 })} />
+          </div>
+        )
+      })}
+      <label className="field-label" htmlFor="rv-reason">{t('rv_reason')} <span className="muted">· {t('optional')}</span></label>
+      <textarea id="rv-reason" rows="2" maxLength={1000} value={reason} placeholder={t('rv_reason_ph')} onChange={(e) => setReason(e.target.value)} />
+      <div className="decide-actions">
+        <button className="btn ghost" disabled={busy} onClick={onCancel}>{t('back')}</button>
+        <button className="btn" disabled={busy || changed.length === 0} onClick={save}>{t('rv_save')}</button>
+      </div>
+      {changed.length === 0 && <p className="muted small">{t('rv_nochange')}</p>}
+    </div>
+  )
+}
+
+// Shown above the charts after a revision: what moved, and that the first answer is the scored one.
+function RevisionNote({ round, roundId }) {
+  const { t, tx } = useT()
+  const rev = revisionOf(roundId)
+  if (rev?.decision !== 'revised') return null
+  const first = lastSubmission(roundId)
+  const qById = Object.fromEntries(round.questions.map((q) => [q.question_id, q]))
+  return (
+    <div className="note revision-note">
+      <b>{t('rv_done')}</b>
+      <ul>
+        {rev.answers.map((a) => {
+          const p1 = first?.answers.find((x) => x.question_id === a.question_id)?.prob
+          return <li key={a.question_id}>{tx(qById[a.question_id], 'title')}: {p1 != null ? `${asPct(p1)} → ` : ''}<b>{asPct(a.prob)}</b></li>
+        })}
+      </ul>
+      <span className="muted">{t('rv_scored')}</span>
+    </div>
   )
 }
