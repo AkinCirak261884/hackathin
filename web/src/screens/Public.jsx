@@ -17,15 +17,21 @@ export default function PublicPage() {
       {list.map((s) => (
         <article key={s.round_id} className="card">
           <div className="chips"><Chip>{s.risk_id}</Chip><Chip>n = {s.n_responses}</Chip><Chip>{date(s.published_at)}</Chip></div>
-          <h2 className="q-title">{s.headline}</h2>
+          {s.headline && <h2 className="q-title">{s.headline}</h2>}
           <p className="q-sub">{s.summary_text}</p>
-          <RatingBar label={t('probability')} counts={s.rating_agreement.probability} />
-          <RatingBar label={t('impact')} counts={s.rating_agreement.impact} />
-          <RatingLegend />
+          {s.rating_agreement ? (
+            <>
+              <RatingBar label={t('probability')} counts={s.rating_agreement.probability} />
+              <RatingBar label={t('impact')} counts={s.rating_agreement.impact} />
+              <RatingLegend />
+            </>
+          ) : s.agree_share != null && (
+            <div className="item-prob"><span className="small">{t('public_agree')}</span><ProbMeter p={s.agree_share} /><b>{asPct(s.agree_share)}</b></div>
+          )}
           <div className="list">
             {s.forecasts.map((f) => (
               <div key={f.question_id} className="item-prob public-f">
-                <span className="small">{f.text}</span>
+                <span className="small">{f.text || f.question_id}</span>
                 <div className="item-prob"><ProbMeter p={f.median} /><b>{asPct(f.median)}</b></div>
               </div>
             ))}

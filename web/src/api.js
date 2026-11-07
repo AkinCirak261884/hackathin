@@ -22,7 +22,13 @@ export const MAIN_ROUND_ID = MAIN_ROUND
 export const PRACTICE_ROUND_ID = practiceRound.round_id
 const delay = (v) => new Promise((r) => setTimeout(() => r(clone(v)), 120))
 // Secrets travel in headers, never in the URL (URLs end up in server logs and browser history). Matches Lane B's API.
-const auth = () => ({ headers: { 'X-Invite-Token': DEMO_INVITE } })
+// X-Device-Secret carries the phone-side hash (see deviceKey), only once this device has answered anonymously.
+const auth = async () => {
+  const headers = { 'X-Invite-Token': DEMO_INVITE }
+  if (hasDeviceSecret()) headers['X-Device-Secret'] = await deviceKey()
+  return { headers }
+}
+const get = (path) => auth().then((o) => http(path, o))
 
 async function http(path, opts = {}) {
   const res = await fetch(BASE + path, { ...opts, headers: { 'Content-Type': 'application/json', ...opts.headers } })
@@ -159,29 +165,96 @@ function personalTrackRecord(tr, sub) {
   return t
 }
 
+// ---------------------------------------------------------------- Lane B API adapters (real mode only)
+// The screens keep the fixture shapes (contracts/); these map Lane B's responses onto them.
+// See status/A.md "Web ↔ API mismatches" W1–W16 for the list this closes.
+const fromApi = {
+  // W2: { panel, rounds: [{ risk_title, you_submitted, n_questions }] } → array of round cards
+  openRounds: (r) => (r.rounds || []).map((x) => ({
+    round_id: x.round_id, risk_id: x.risk_id, title: x.risk_title, stage: x.stage, closes_at: x.closes_at || null,
+    est_minutes: Math.max(2, x.n_questions || 3), answered: !!x.you_submitted || !!lastSubmission(x.round_id),
+  })),
+  // W3/W4: top-level triggers + risk_title; the API's yes/no "agree" item is shown as the rating step
+  round: (r) => {
+    const trig = Object.fromEntries((r.triggers || []).map((t) => [t.trigger_id, t]))
+    return {
+      ...r,
+      risk: { ...r.risk, title: r.risk_title, triggers: r.triggers || [] },
+      questions: r.questions.map((q) => (q.kind === 'agree'
+        ? { ...q, kind: 'rating', api_kind: 'agree', title: q.title || 'ACAPS rating', title_fr: q.title_fr || 'Évaluation ACAPS' }
+        : { ...q, title: q.title || trig[q.trigger_id]?.title || null })),
+    }
+  },
+  // W10/W11: /thread → group view. Locked until the moderator opens the reveal; peers see approved themes, not replies.
+  aggregate: (a) => {
+    if (a.locked) return { locked: true, stage: a.stage, round_id: a.round_id }
+    if (a.suppressed) return { suppressed: true }
+    const qs = a.questions || [], mine = a.your_answers || {}
+    const agreeQ = qs.find((q) => q.agree_share != null)
+    return {
+      round_id: a.round_id, n_responses: Math.max(0, ...qs.map((q) => q.n || 0)), can_revise: a.can_revise,
+      rating: null,
+      agree: agreeQ ? { share: agreeQ.agree_share, n: agreeQ.n, you: mine[agreeQ.question_id] } : null,
+      forecasts: qs.filter((q) => q.dots).map((q) => ({
+        question_id: q.question_id, values: [...q.dots].sort((x, y) => x - y), median: q.median, p25: q.p25, p75: q.p75, n: q.n,
+        you: mine[q.question_id] ?? null,
+      })),
+      ranking: [],
+      comments: (a.themes || []).map((th, i) => ({ comment_id: `theme-${i}`, is_theme: true, tier: 'anonymous', text: th.text })),
+    }
+  },
+  trackRecord: (tr) => ({ ...tr, history: tr.history || [], pending: tr.pending || [], impact: tr.impact || [] }),
+  // W14: { summaries: [{ n, agree_share, questions, approved_text }] } → public cards
+  publicSummaries: (r) => (r.summaries || []).map((x) => ({
+    round_id: x.round_id, risk_id: x.risk_id, published_at: x.published_at, n_responses: x.n,
+    headline: x.headline || null, summary_text: x.approved_text, agree_share: x.agree_share,
+    forecasts: (x.questions || []).map((q) => ({ question_id: q.question_id, text: q.text || null, median: q.median, n: q.n })),
+  })),
+}
+
+// Web response body → Lane B's ResponseIn. W5: 3-way rating collapses to agree = both "about right";
+// top-3 ranking isn't stored by the API yet. W6: lists, never null. W7: device_secret = the phone-side hash.
+async function toApiResponse(body) {
+  const answers = [], triggers = []
+  for (const x of body.answers) {
+    if (x.rating_probability !== undefined) answers.push({ question_id: x.question_id, agree: x.rating_probability === 'agree' && x.rating_impact === 'agree' })
+    else if (x.prob != null) answers.push({ question_id: x.question_id, prob: x.prob })
+    if (x.seeing) { const m = /-(T\d+)$/.exec(x.question_id); if (m) triggers.push(m[1]) }
+  }
+  const out = {
+    invite_token: body.invite_token, tier: body.tier, version: body.version, answers, triggers_observed: triggers,
+    missing_text: body.missing_text ?? null, reasoning_text: body.reasoning_text ?? null, reasoning_basis: body.reasoning_basis || [],
+  }
+  if (body.tier === 'anonymous') out.device_secret = await deviceKey()
+  return out
+}
+const postResponse = async (id, body) => http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(await toApiResponse(body)) })
+
 export const api = {
   openRounds: (panel = 'TCD') =>
-    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : http(`/rounds/open?panel=${panel}`, auth()),
-  round: (id) => (MOCK ? delay(ROUNDS[id] || round) : http(`/rounds/${id}`)),
-  submit: (id, body) =>
-    MOCK ? (saveSubmission(id, body), delay({ ...postReply, version: body.version }))
-      : http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) }),
+    MOCK ? delay(roundsOpen.map((r) => ({ ...r, answered: !!lastSubmission(r.round_id) }))) : get(`/rounds/open?panel=${panel}`).then(fromApi.openRounds),
+  round: (id) => (MOCK ? delay(ROUNDS[id] || round) : http(`/rounds/${id}`).then(fromApi.round)),
+  // the first answer is also kept in this browser (both modes): step 2 and "Check my answers" read it
+  submit: async (id, body) => {
+    const reply = MOCK ? await delay({ ...postReply, version: body.version }) : await postResponse(id, body)
+    saveSubmission(id, body)
+    return reply
+  },
   aggregate: (id, token) =>
-    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : http(`/rounds/${id}/aggregate`, auth()),
+    MOCK ? delay(personalise(AGGS[id] || aggregate, latestSubmission(id))) : get(`/rounds/${id}/thread`).then(fromApi.aggregate),
   // keep = no second version; revise = POST version 2 with only the changed forecasts + "what changed your mind?"
   keepAnswers: async (id) => { saveRevision(id, { decision: 'kept' }) },
   revise: async (id, { answers, reason }) => {
     const first = lastSubmission(id)
-    const body = { invite_token: DEMO_INVITE, tier: first?.tier || 'pseudonymous', version: 2, reasoning_text: reason || null, answers }
-    if (body.tier === 'anonymous') body.anon_token = await anonToken()
-    if (!MOCK) await http(`/rounds/${id}/responses`, { method: 'POST', body: JSON.stringify(body) })
+    const body = { invite_token: DEMO_INVITE, tier: first?.tier || 'pseudonymous', version: 2, reasoning_text: reason || null, reasoning_basis: [], answers }
+    if (MOCK) { if (body.tier === 'anonymous') body.anon_token = await anonToken() } else await postResponse(id, body)
     saveRevision(id, { decision: 'revised', answers, reason: reason || null })
   },
   // mock: add ?new=1 to the URL hash to see a new expert who is not ranked yet
   trackRecord: (token) =>
     MOCK ? delay(withGroups(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission())))
-      : http('/me/track-record', auth()),
-  publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries')),
+      : get('/me/track-record').then(fromApi.trackRecord),
+  publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries').then(fromApi.publicSummaries)),
   // Latest published ACAPS risks for a panel. Lane B proxies the ACAPS API server-side (token never reaches the browser).
   // Shape: { source: 'live' | 'snapshot', panel, updated_at?, risks: [{ risk_id, title, country, probability, impact, risk_level, trend, ... }] }
   acapsRisks: (panel = 'TCD') =>
@@ -200,13 +273,19 @@ export const demoPseudonym = () => (isNewcomerDemo() ? 'Alder' : DEMO_PSEUDONYM)
 const randomHex = () => [...crypto.getRandomValues(new Uint8Array(32))].map((b) => b.toString(16).padStart(2, '0')).join('')
 
 // Anonymous tier: device-held secret, server only ever sees sha256(secret).
-export async function anonToken() {
+// The raw secret never leaves the phone: only sha256(secret) is sent (as the API's device_secret / X-Device-Secret),
+// and the server derives its anon token from that. Same value every time on this device, so the record is stable.
+const hasDeviceSecret = () => { try { return !!localStorage.getItem('gt_device_secret') } catch { return false } }
+export async function deviceKey() {
   let secret
   try {
     secret = localStorage.getItem('gt_device_secret')
     if (!secret) { secret = randomHex(); localStorage.setItem('gt_device_secret', secret) }
   } catch { secret = randomHex() }
-  if (!crypto.subtle) return 'anon_insecure_context_demo' // plain-HTTP LAN testing; real deploy is HTTPS
+  if (!crypto.subtle) return 'insecure_context_demo_key' // plain-HTTP LAN testing; real deploy is HTTPS
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(secret))
-  return 'anon_' + [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+export async function anonToken() {
+  return 'anon_' + (await deviceKey())
 }

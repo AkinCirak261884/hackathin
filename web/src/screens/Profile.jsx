@@ -43,7 +43,7 @@ export default function Profile() {
         </a>
         <a className="card" href="#/accuracy">
           <Head title={t('brier_title')} sub={t('brier_sub')} />
-          <BrierCompare you={tr.mean_brier} acaps={tr.acaps_baseline_brier} />
+          {tr.n_resolved > 0 ? <BrierCompare you={tr.mean_brier} acaps={tr.acaps_baseline_brier} /> : <p className="muted small">{t('brier_none')}</p>}
           <p className="takeaway">{t('beat_acaps_n', tr.n_beat_acaps, tr.n_resolved)}</p>
           <span className="item-more">{t('g_details')}</span>
         </a>

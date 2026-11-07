@@ -20,10 +20,18 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
   const [fresh] = useLoad(() => (aggKey ? api.aggregate(roundId, DEMO_TOKEN) : Promise.resolve(null)), [aggKey])
   if (!agg || !round) return <Loading />
   if (agg.suppressed) return <section className="page"><Head level={1} title={t('reveal')} sub={t('suppressed')} /></section>
+  // Lane B API: the group view opens when the moderator moves the round to "reveal", not on your own submit
+  if (agg.locked) return (
+    <section className="page">
+      {just && <div className="banner"><div><b>{t('thanks')}</b></div></div>}
+      <Head level={1} title={t('reveal')} sub={t('locked_wait')} />
+      <a className="btn ghost" href="#/">{t('back')}</a>
+    </section>
+  )
 
   // Option B: experts read peer reasons first and decide keep/revise; the numbers unlock after that.
   // Practice rounds skip this (the outcome is shown, so revising would be hindsight).
-  const needsDecision = !round.practice && !!lastSubmission(roundId) && !decision
+  const needsDecision = !round.practice && !!lastSubmission(roundId) && !decision && agg.can_revise !== false
   const decide = (d) => { setDecision(d); setAggKey((k) => k + 1); window.scrollTo(0, 0) }
   if (needsDecision) return <ReasonsFirst round={round} agg={agg} just={just} rec={tr ? recordSummary(tr.history) : null} onDecided={decide} />
   if (aggKey && !fresh) return <Loading />
@@ -47,7 +55,7 @@ function FullReveal({ round, agg, tr, just, roundId }) {
     if (lower > others.length / 2) return t('t_forecast_lower', lower, others.length)
     return t('t_forecast_same')
   }
-  const pr = agg.rating.probability
+  const pr = agg.rating?.probability
 
   return (
     <section className="page">
@@ -63,13 +71,23 @@ function FullReveal({ round, agg, tr, just, roundId }) {
       <RevisionNote round={round} roundId={roundId} />
 
       <div className="grid">
-        <article className="card chart-card">
-          <Head eyebrow={round.risk.risk_id} title={t('r_rating')} sub={t('r_rating_sub')} />
-          <p className="takeaway">{t('t_rating', pr.agree, n, pr.too_low, pr.too_high)}</p>
-          <RatingBar label={`${t('probability')} · ${round.risk.probability}`} counts={agg.rating.probability} you={agg.rating.you.probability} />
-          <RatingBar label={`${t('impact')} · ${round.risk.impact}/5`} counts={agg.rating.impact} you={agg.rating.you.impact} />
-          <RatingLegend />
-        </article>
+        {agg.rating ? (
+          <article className="card chart-card">
+            <Head eyebrow={round.risk.risk_id} title={t('r_rating')} sub={t('r_rating_sub')} />
+            <p className="takeaway">{t('t_rating', pr.agree, n, pr.too_low, pr.too_high)}</p>
+            <RatingBar label={`${t('probability')} · ${round.risk.probability}`} counts={agg.rating.probability} you={agg.rating.you.probability} />
+            <RatingBar label={`${t('impact')} · ${round.risk.impact}/5`} counts={agg.rating.impact} you={agg.rating.you.impact} />
+            <RatingLegend />
+          </article>
+        ) : agg.agree && (
+          // Lane B API reports one yes/no "agree with ACAPS's rating" share instead of the 3-way split
+          <article className="card chart-card">
+            <Head eyebrow={round.risk.risk_id} title={t('r_rating')} sub={t('r_agree_sub')} />
+            <p className="takeaway">{t('t_agree', Math.round(agg.agree.share * agg.agree.n), agg.agree.n)}</p>
+            <div className="item-prob"><ProbMeter p={agg.agree.share} /><b>{asPct(agg.agree.share)}</b></div>
+            {agg.agree.you != null && <p className="muted small">{agg.agree.you ? t('you_agreed') : t('you_disagreed')}</p>}
+          </article>
+        )}
 
         {agg.forecasts.map((f) => {
           const q = qById[f.question_id]
@@ -112,7 +130,7 @@ function MyAnswers({ round, agg }) {
   const rating = round.questions.find((q) => q.kind === 'rating')
   const ranking = round.questions.find((q) => q.kind === 'ranking')
   const forecasts = round.questions.filter((q) => q.kind === 'forecast')
-  const you = agg.rating.you
+  const you = agg.rating?.you || {}
   const r = byQ[rating.question_id] || { rating_probability: you.probability, rating_impact: you.impact }
   const picks = (ranking && byQ[ranking.question_id]?.ranking) || you.ranking || []
   const label = (id) => tx(ranking?.options.find((o) => o.option_id === id), 'label')
@@ -178,13 +196,13 @@ function Comments({ comments, round, hideNumbers = false }) {
           return (
             <article key={c.comment_id} className={`card comment ${c.is_you ? 'you' : ''}`}>
               <div className="c-head">
-                <div className={`c-avatar ${anon ? 'anon' : ''}`} aria-hidden="true">{anon ? '?' : c.display_name[0]}</div>
+                <div className={`c-avatar ${anon ? 'anon' : ''}`} aria-hidden="true">{c.is_theme ? '·' : anon ? '?' : c.display_name[0]}</div>
                 <div className="c-who">
-                  <span className="c-name">{anon ? t('anon_expert') : c.display_name}
+                  <span className="c-name">{c.is_theme ? t('theme_label') : anon ? t('anon_expert') : c.display_name}
                     {c.is_you && <span className="you-tag">{t('you')}</span>}
                   </span>
                   <span className="c-record">
-                    {anon ? t('c_anon_note')
+                    {c.is_theme ? t('theme_note') : anon ? t('c_anon_note')
                       : c.record && c.record.resolved > 0 ? t('c_record', c.record.correct, c.record.resolved)
                       : t('c_new')}
                   </span>
