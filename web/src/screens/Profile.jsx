@@ -11,6 +11,7 @@ import { PastCard } from './Record.jsx'
 export default function Profile() {
   const { t, tx, date } = useT()
   const [tr, trErr] = useLoad(() => api.trackRecord(DEMO_TOKEN), [])
+  const [rounds] = useLoad(() => api.openRounds('TCD'), [])
   if (trErr) return <LoadError error={trErr} />
   if (!tr) return <Loading />
   const rec = recordSummary(tr.history)
@@ -27,6 +28,9 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      <ImpactCard impact={tr.impact || []} />
+      <NextCard rounds={rounds} pending={tr.pending || []} />
 
       {!counted && (
         <article className="card progress-card">
@@ -70,18 +74,66 @@ export default function Profile() {
       <div className="list">
         {tr.history.map((r) => <PastCard key={r.question_id} r={r} />)}
       </div>
+    </section>
+  )
+}
 
-      {tr.impact?.length > 0 && (
+// Why come back, part 1: proof that what you said changed ACAPS's analysis (the strongest motivator for experts).
+function ImpactCard({ impact }) {
+  const { t, date } = useT()
+  const n = impact.length
+  return (
+    <article className="card impact-hero">
+      <div className="eyebrow">{t('impact_eyebrow')}</div>
+      {n > 0 ? (
         <>
-          <Head title={t('impact_title')} sub={t('impact_sub')} />
-          {tr.impact.map((i) => (
-            <article key={i.date + i.risk_id} className="card impact">
-              <div className="chips"><Chip>{i.risk_id}</Chip><span className="muted small">{date(i.date)}</span></div>
-              <p className="small">{i.note}</p>
-            </article>
-          ))}
+          <h2 className="impact-headline"><span className="impact-num">{n}</span>{t('impact_count', n)}</h2>
+          <p className="muted small">{t('impact_sub')}</p>
+          <ul className="impact-list">
+            {impact.map((i) => (
+              <li key={i.date + i.risk_id}>
+                <div className="chips"><Chip>{i.risk_id}</Chip><span className="muted small">{date(i.date)}</span></div>
+                <p>{i.note}</p>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <>
+          <h2 className="impact-headline">{t('impact_empty_title')}</h2>
+          <p className="muted small">{t('impact_empty')}</p>
         </>
       )}
-    </section>
+    </article>
+  )
+}
+
+// Why come back, part 2: something waiting now, and a date when you'll find out how your forecasts did.
+// Deliberately no streaks or points: the brief asks for quality of information, not engagement metrics.
+function NextCard({ rounds, pending }) {
+  const { t, date } = useT()
+  const open = (rounds || []).filter((r) => !r.answered)
+  const next = open[0]
+  const first = pending.map((p) => p.closes_at).filter(Boolean).sort()[0]
+  const nFirst = first ? pending.filter((p) => p.closes_at && p.closes_at.slice(0, 10) === first.slice(0, 10)).length : 0
+  return (
+    <article className="card next-card">
+      <Head title={t('next_title')} />
+      <div className="next-row">
+        <div>
+          <b>{open.length ? t('next_waiting', open.length) : t('next_none')}</b>
+          <span className="muted small">{next ? `${next.title} · ${t('minutes', next.est_minutes)}` : t('next_none_d')}</span>
+        </div>
+        {next && <a className="btn small-btn" href={`#/pulse/${next.round_id}`}>{t('start')}</a>}
+      </div>
+      {first && (
+        <div className="next-row">
+          <div>
+            <b>{t('next_results', nFirst, date(first))}</b>
+            <span className="muted small">{t('next_results_d')}</span>
+          </div>
+        </div>
+      )}
+    </article>
   )
 }

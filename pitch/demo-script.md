@@ -41,7 +41,7 @@ Spoken lines are in quotes. Taps are for the Driver. Timings are cumulative.
 | 1:07 | **Step 2: Why others answered the way they did.** Scroll slowly through 2–3 comments (Adré water points, drones in French). | "Here's our key idea. Before seeing anyone's numbers, they read the panel's *reasons*. No averages, no majority to follow. Just arguments: water-point incidents in Adré, drones near the border every night." |
 | 1:17 | Tap **Update my forecast**. Drag **Attacks on strategic infrastructure** from 10% to **35%**. Tap **Save update and see the group**. | "The drone report changes this expert's mind, so they update once. Their blind answer is still the one that's scored, so copying the group can't help anyone's record." |
 | 1:25 | Group view: point at the dots chart for the first trigger. | "Only now do the numbers unlock: every answer as a dot, theirs in orange, the middle half shaded." |
-| 1:30 | Tap **My profile**. Show the record card (x of y correct) and the accuracy card. | "Over time every expert builds a track record against ACAPS's own rating. That's how ACAPS learns whose judgement to trust." |
+| 1:30 | Tap **My profile**. Point at **Your input at work** at the top, then the record card (x of y validated) and the accuracy card. | "First thing they see: where their input changed ACAPS's analysis, and when their forecasts resolve. Over time every expert builds a track record against ACAPS's own rating. That's how ACAPS learns whose judgement to trust." |
 
 ### 1:35–2:00 · What ACAPS gets (slide)
 
