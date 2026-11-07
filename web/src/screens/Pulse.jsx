@@ -210,7 +210,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       window.location.hash = `#/reveal/${roundId}?just=1`
     } catch (e) {
       // 409: this invite already answered (maybe anonymously in another window), or first answers are closed
-      setSubmitErr(e.status === 409 ? (round.stage && round.stage !== 'blind' ? 'submit_closed' : 'submit_elsewhere') : 'submit_failed')
+      setSubmitErr(e.status === 409 ? (round.stage === 'closed' ? 'submit_closed' : 'submit_elsewhere') : 'submit_failed')
       setBusy(false)
     }
   }
@@ -400,6 +400,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       <section className="pulse-main">
         <div className="progress" aria-hidden="true"><div style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
         {round.practice && <p className="practice-note">{t('practice_note', date(round.as_of))}</p>}
+        {!MOCK && round.stage === 'reveal' && step === 0 && <p className="practice-note">{t('late_start')}</p>}
         <Head level={1} eyebrow={t('step', step + 1, steps.length)} title={s.title} sub={s.sub} />
         <div className="step-body" key={s.key}>{s.body}</div>
         {submitErr && last && <p className="note submit-err" role="alert">{t(submitErr)}</p>}

@@ -70,6 +70,7 @@ function FullReveal({ round, agg, tr, just, roundId }) {
         </div>
       )}
       <Head level={1} title={t('reveal')} sub={t('reveal_sub', n)} />
+      {agg.late && <p className="note">{t('late_note')}</p>}
       {round.practice && round.outcome && <PracticeOutcome round={round} agg={agg} />}
       {ACAPS_COUNTRY[round.risk.iso] && <CountryNow c={ACAPS_COUNTRY[round.risk.iso]} />}
       <RevisionNote round={round} roundId={roundId} />
@@ -330,6 +331,7 @@ function ReasonsFirst({ round, agg, just, rec, onDecided }) {
       {(agg.comments_policy || round.comments_policy)?.enabled === false
         ? <Head level={1} eyebrow={t('rv_step')} title={t('rv_title_off')} sub={t('rv_sub_off')} />
         : <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />}
+      {agg.late && <p className="note">{t('late_note')}</p>}
       <CommentsPolicyLine policy={agg.comments_policy || round.comments_policy} />
       {(agg.comments_policy || round.comments_policy)?.enabled !== false && <>
         <Comments comments={agg.comments || []} round={round} hideNumbers />
