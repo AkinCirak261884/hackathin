@@ -1,8 +1,19 @@
 import React, { useState } from 'react'
-import { api, MOCK, hasAnySubmission, resetDemoAnswers } from '../api.js'
+import { api, MOCK, hasAnySubmission, resetDemoAnswers, revisionOf } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
+
+// What the round's button does: start, update after the reveal (in the window that answered), or see the group.
+// No button, a note instead: answered elsewhere (anonymous, other window/device), or first answers already closed.
+function roundAction(r, t) {
+  if (r.elsewhere) return { note: 'answered_elsewhere' }
+  if (!r.answered && !MOCK && r.stage === 'reveal') return { note: 'submit_closed' }
+  if (!r.answered) return { href: `#/pulse/${r.round_id}`, label: t('start'), cls: '' }
+  const decided = r.decided || !!revisionOf(r.round_id)?.decision
+  if (!r.practice && !decided && (MOCK || r.stage === 'reveal')) return { href: `#/reveal/${r.round_id}`, label: t('update_answers'), cls: '' }
+  return { href: `#/reveal/${r.round_id}`, label: t('answered'), cls: 'answered' }
+}
 
 export default function Home() {
   const { t, date } = useT()
@@ -27,9 +38,12 @@ export default function Home() {
             <h2 className="q-title">{r.title}</h2>
             {r.practice && <p className="q-sub">{t('practice_card')}</p>}
             {r.demo && <p className="q-sub">{t('demo_off_card')}</p>}
-            <a className={`btn block ${r.answered ? 'answered' : ''}`} href={`#/${r.answered ? 'reveal' : 'pulse'}/${r.round_id}`}>
-              {r.answered ? t('answered') : t('start')}
-            </a>
+            {(() => {
+              const act = roundAction(r, t)
+              return act.href
+                ? <a className={`btn block ${act.cls}`} href={act.href}>{act.label}</a>
+                : <p className="note round-note">{t(act.note)}</p>
+            })()}
           </article>
         ))}
       </div>
@@ -58,6 +72,7 @@ function AcapsRisks({ data, rounds }) {
       <div className="card risk-list">
         {data.risks.map((r) => {
           const round = roundOf[r.risk_id]
+          const act = round && roundAction(round, t)
           const body = (
             <>
               <div className="risk-line-main">
@@ -67,7 +82,7 @@ function AcapsRisks({ data, rounds }) {
                   {round && <Chip tone="new">{t('acaps_in_round')}</Chip>}
                 </div>
                 <p className="risk-line-title">{r.title}</p>
-                {round && <span className={`btn small-btn risk-line-cta ${round.answered ? 'answered' : ''}`}>{round.answered ? t('answered') : t('start')} →</span>}
+                {act?.href && <span className={`btn small-btn risk-line-cta ${act.cls}`}>{act.label} →</span>}
               </div>
               <dl className="risk-line-facts">
                 <div><dt>{t('probability')}</dt><dd>{r.probability ?? '—'}</dd></div>
@@ -76,8 +91,8 @@ function AcapsRisks({ data, rounds }) {
               </dl>
             </>
           )
-          return round
-            ? <a key={r.risk_id} className="risk-line in-round" href={`#/${round.answered ? 'reveal' : 'pulse'}/${round.round_id}`}>{body}</a>
+          return act?.href
+            ? <a key={r.risk_id} className="risk-line in-round" href={act.href}>{body}</a>
             : <div key={r.risk_id} className="risk-line">{body}</div>
         })}
       </div>

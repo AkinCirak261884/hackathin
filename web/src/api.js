@@ -227,9 +227,13 @@ const fromApi = {
   // W2: { panel, rounds: [{ risk_title, you_submitted, n_questions }] } → array of round cards
   openRounds: (r) => (r.rounds || []).map((x) => {
     if (x.you_submitted === false) forgetRound(x.round_id)
+    const answered = !!x.you_submitted || !!lastSubmission(x.round_id)
     return {
       round_id: x.round_id, risk_id: x.risk_id, title: x.risk_title, stage: x.stage, closes_at: x.closes_at || null,
-      est_minutes: Math.max(2, x.n_questions || 3), answered: !!x.you_submitted || !!lastSubmission(x.round_id),
+      est_minutes: Math.max(2, x.n_questions || 3), answered,
+      // this invite answered, but anonymously from another window/device: counted, only that window can show or update it
+      elsewhere: !answered && !!x.invite_answered,
+      decided: !!x.invite_revised || !!revisionOf(x.round_id)?.decision,
     }
   }),
   // W3/W4: top-level triggers + risk_title; the API's yes/no "agree" item is shown as the rating step

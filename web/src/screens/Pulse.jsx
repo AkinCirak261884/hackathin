@@ -164,6 +164,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
   const [round, roundErr] = useLoad(() => api.round(roundId), [roundId])
   const [step, setStep] = useState(0)
   const [busy, setBusy] = useState(false)
+  const [submitErr, setSubmitErr] = useState(null)
   const [a, setA] = useState({
     rating_probability: null, rating_impact: null, seeing: {}, prob: {}, ranking: [],
     missing: '', why: '', basis: [], tier: 'anonymous',
@@ -186,6 +187,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
 
   async function submit() {
     setBusy(true)
+    setSubmitErr(null)
     const body = {
       invite_token: inviteToken(),
       tier: a.tier,
@@ -202,9 +204,15 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       seeing_other: a.signals.length ? a.signals.map((s) => ({ ...s, prob: s.prob ?? 0.5 })) : null,
       other_risk_prob: a.other_risk.trim() ? (a.other_risk_prob ?? 0.5) : null,
     }
-    if (a.tier === 'anonymous') body.anon_token = await anonToken()
-    await api.submit(roundId, body)
-    window.location.hash = `#/reveal/${roundId}?just=1`
+    try {
+      if (a.tier === 'anonymous') body.anon_token = await anonToken()
+      await api.submit(roundId, body)
+      window.location.hash = `#/reveal/${roundId}?just=1`
+    } catch (e) {
+      // 409: this invite already answered (maybe anonymously in another window), or first answers are closed
+      setSubmitErr(e.status === 409 ? (round.stage && round.stage !== 'blind' ? 'submit_closed' : 'submit_elsewhere') : 'submit_failed')
+      setBusy(false)
+    }
   }
 
   const ViewPicker = ({ field, label, current }) => (
@@ -394,6 +402,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
         {round.practice && <p className="practice-note">{t('practice_note', date(round.as_of))}</p>}
         <Head level={1} eyebrow={t('step', step + 1, steps.length)} title={s.title} sub={s.sub} />
         <div className="step-body" key={s.key}>{s.body}</div>
+        {submitErr && last && <p className="note submit-err" role="alert">{t(submitErr)}</p>}
         <div className="actionbar">
           {step > 0 ? <button className="btn ghost" onClick={() => go(-1)}>{t('back')}</button> : <a className="btn ghost" href="#/">{t('back')}</a>}
           <button className="btn" disabled={busy} onClick={() => (last ? submit() : go(1))}>{last ? t('submit') : t('next')}</button>

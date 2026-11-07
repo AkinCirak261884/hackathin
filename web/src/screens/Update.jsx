@@ -9,6 +9,27 @@ import { RiskSummary, ProbPicker } from './Pulse.jsx'
 // Delphi step 2, "Update my forecast", on its own page: by the time the group view opens the expert may have
 // forgotten the round, so everything needed to decide is shown again: the risk (with Read more), each full
 // question, their first answer and what they wrote. The group's numbers stay hidden until they save.
+// No answer for this round in this window. Either the expert hasn't answered (offer Start), or this invite answered
+// from another window/device, anonymously or with no copy here: counted, but only that window can show or update it.
+export function NotInThisWindow({ roundId, title }) {
+  const { t } = useT()
+  const [rounds] = useLoad(() => api.openRounds('TCD').catch(() => []), [roundId])
+  if (!rounds) return <Loading />
+  const r = rounds.find((x) => x.round_id === roundId)
+  if (r && (r.elsewhere || r.answered)) return (
+    <section className="page">
+      <Head level={1} title={title} sub={t('up_elsewhere')} />
+      <a className="btn ghost" href="#/">{t('back')}</a>
+    </section>
+  )
+  return (
+    <section className="page">
+      <Head level={1} title={title} sub={t('must_answer')} />
+      <a className="btn" href={`#/pulse/${roundId}`}>{t('start')}</a>
+    </section>
+  )
+}
+
 export default function Update({ roundId }) {
   const { t, tx, date } = useT()
   const [round, roundErr] = useLoad(() => api.round(roundId), [roundId])
@@ -20,15 +41,16 @@ export default function Update({ roundId }) {
   if (!round || !agg) return <Loading />
 
   const first = lastSubmission(roundId)
-  if (!first || agg.mustAnswer) return (
+  if (!first || agg.mustAnswer) return <NotInThisWindow roundId={roundId} title={t('rv_update')} />
+  if (agg.locked) return (
     <section className="page">
-      <Head level={1} title={t('rv_update')} sub={t('must_answer')} />
-      <a className="btn" href={`#/pulse/${roundId}`}>{t('start')}</a>
+      <Head level={1} title={t('rv_update')} sub={t('up_wait')} />
+      <a className="btn ghost" href="#/">{t('back')}</a>
     </section>
   )
-  if (round.practice || revisionOf(roundId)?.decision || agg.locked || agg.can_revise === false) return (
+  if (round.practice || revisionOf(roundId)?.decision || agg.can_revise === false) return (
     <section className="page">
-      <Head level={1} title={t('rv_update')} sub={t('up_closed')} />
+      <Head level={1} title={t('rv_update')} sub={t('up_done')} />
       <a className="btn" href={`#/reveal/${roundId}`}>{t('reveal')}</a>
     </section>
   )
