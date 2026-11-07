@@ -31,7 +31,6 @@ export default function Home() {
           </article>
         ))}
       </div>
-      {acaps?.risks?.length > 0 && <AcapsRisks data={acaps} openIds={rounds.map((r) => r.risk_id)} />}
       {/* TEMPORARY: demo-only reset, remove before the pilot */}
       {MOCK && hasAnySubmission() && (
         <div className="demo-reset">
@@ -39,6 +38,7 @@ export default function Home() {
           <span className="muted small">{t('reset_demo_d')}</span>
         </div>
       )}
+      {acaps?.risks?.length > 0 && <AcapsRisks data={acaps} openIds={rounds.map((r) => r.risk_id)} />}
       <p className="center"><a href="#/signpost" className="muted small">{t('signpost')}</a></p>
     </section>
   )

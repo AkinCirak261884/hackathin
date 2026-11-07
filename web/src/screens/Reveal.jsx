@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { api, DEMO_TOKEN, lastSubmission, revisionOf } from '../api.js'
+import { api, DEMO_TOKEN, MOCK, lastSubmission, revisionOf, resetDemoAnswers } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, r05, recordSummary, verdict, likelihoodKey } from '../stats.js'
@@ -124,6 +124,13 @@ function FullReveal({ round, agg, tr, just, roundId }) {
 
       <Comments comments={agg.comments || []} round={round} />
       <MyAnswers round={round} agg={agg} />
+      {/* TEMPORARY: demo-only, so a presenter can run the check-in again straight from the results */}
+      {MOCK && (
+        <div className="demo-reset">
+          <button className="btn ghost small-btn" onClick={() => { resetDemoAnswers(); window.location.hash = '#/' }}>{t('reset_demo')}</button>
+          <span className="muted small">{t('reset_demo_d')}</span>
+        </div>
+      )}
     </section>
   )
 }
