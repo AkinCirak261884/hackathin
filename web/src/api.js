@@ -99,8 +99,9 @@ function personalise(agg, sub) {
   const rank = Object.values(byQ).find((x) => x.ranking)
   if (rank && a.ranking.length) {
     const pts = Object.fromEntries(a.ranking.map((r) => [r.option_id, r]))
-    a.rating.you.ranking.forEach((id, i) => { pts[id].points -= 3 - i; if (i === 0) pts[id].first_choice -= 1 })
-    rank.ranking.forEach((id, i) => { pts[id].points += 3 - i; if (i === 0) pts[id].first_choice += 1 })
+    // the expert's own addition ('OTHER') isn't a listed option, so it scores no group points
+    a.rating.you.ranking.forEach((id, i) => { if (!pts[id]) return; pts[id].points -= 3 - i; if (i === 0) pts[id].first_choice -= 1 })
+    rank.ranking.forEach((id, i) => { if (!pts[id]) return; pts[id].points += 3 - i; if (i === 0) pts[id].first_choice += 1 })
     a.rating.you.ranking = rank.ranking
     a.ranking.sort((x, y) => y.points - x.points)
   }
@@ -219,6 +220,17 @@ const fromApi = {
   })),
 }
 
+// Expert additions (not-listed developments, own top-3 risk) travel in missing_text until the API has fields for
+// them; it's the moderator-only free-text channel, so they show up on the moderator page and in AI synthesis.
+function foldAdditions(body) {
+  const lines = []
+  if (body.missing_text) lines.push(body.missing_text)
+  for (const s of body.seeing_other || []) lines.push(`Seeing, not on ACAPS's list${s.bigger ? ' (may be bigger than this risk)' : ''}: ${s.text}`)
+  const other = body.answers.find((x) => x.ranking_other)?.ranking_other
+  if (other) lines.push(`Risk missing from the top-3 list: ${other}`)
+  return lines.length ? lines.join('\n').slice(0, 2000) : null
+}
+
 // Web response body → Lane B's ResponseIn. W5: 3-way rating collapses to agree = both "about right";
 // top-3 ranking isn't stored by the API yet. W6: lists, never null. W7: device_secret = the phone-side hash.
 async function toApiResponse(body) {
@@ -230,7 +242,7 @@ async function toApiResponse(body) {
   }
   const out = {
     invite_token: body.invite_token, tier: body.tier, version: body.version, answers, triggers_observed: triggers,
-    missing_text: body.missing_text ?? null, reasoning_text: body.reasoning_text ?? null, reasoning_basis: body.reasoning_basis || [],
+    missing_text: foldAdditions(body), reasoning_text: body.reasoning_text ?? null, reasoning_basis: body.reasoning_basis || [],
   }
   if (body.tier === 'anonymous') out.device_secret = await deviceKey()
   return out

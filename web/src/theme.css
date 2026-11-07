@@ -264,3 +264,18 @@ a.card { color: inherit; text-decoration: none; cursor: pointer; }
 .record-bar { height: 10px; max-width: 260px; margin: 14px auto 6px; background: var(--bg-deep); border-radius: var(--radius-sm); overflow: hidden; }
 .record-bar-fill { height: 100%; background: var(--good); }
 .record-pct { margin-bottom: 10px; font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+
+/* expert additions: things ACAPS hasn't listed */
+.add-own { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; border-style: dashed; }
+.add-own .q-title { margin: 0; }
+.own-item { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+.own-text { flex: 1; min-width: 0; font-weight: 600; }
+.own-form { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.own-form input[type=text] { width: 100%; min-height: 44px; padding: 10px 12px; font-size: 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); }
+.own-form input[type=text]:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 1px var(--accent); }
+.own-form .btn { align-self: flex-start; }
+.own-flag { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--fg2); cursor: pointer; }
+.own-flag input { width: 18px; height: 18px; accent-color: var(--accent); }
+.own-note { margin: 2px 0 0; }
+.own-remove { align-self: flex-start; font-size: 13px; padding: 0 0 8px; min-height: 0; }
+.additions-note { margin: 0 0 16px; font-size: 14px; }

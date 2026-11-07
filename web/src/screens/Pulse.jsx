@@ -29,6 +29,68 @@ function RiskSummary({ risk }) {
   )
 }
 
+const OTHER = 'OTHER'
+
+// "Something else is happening": developments the expert sees that ACAPS hasn't listed, optionally flagged as
+// possibly bigger than the risk itself. Goes to the ACAPS moderator only (never shown word for word to peers).
+function SignalAdder({ signals, onChange }) {
+  const { t } = useT()
+  const [text, setText] = useState('')
+  const [bigger, setBigger] = useState(false)
+  const add = (e) => {
+    e.preventDefault()
+    if (!text.trim()) return
+    onChange([...signals, { text: text.trim(), bigger }])
+    setText(''); setBigger(false)
+  }
+  return (
+    <div className="card add-own">
+      <b className="q-title">{t('sig_title')}</b>
+      <span className="q-sub">{t('sig_sub')}</span>
+      {signals.map((s, i) => (
+        <div key={i} className="own-item">
+          <span className="own-text">{s.text}</span>
+          {s.bigger && <span className="chip hot">{t('sig_bigger_tag')}</span>}
+          <button type="button" className="link" onClick={() => onChange(signals.filter((_, j) => j !== i))}>{t('remove')}</button>
+        </div>
+      ))}
+      {signals.length < 3 && (
+        <form className="own-form" onSubmit={add}>
+          <input type="text" maxLength={200} value={text} placeholder={t('sig_ph')} aria-label={t('sig_title')} onChange={(e) => setText(e.target.value)} />
+          <label className="own-flag"><input type="checkbox" checked={bigger} onChange={(e) => setBigger(e.target.checked)} /> {t('sig_bigger')}</label>
+          <button type="submit" className="btn ghost small-btn" disabled={!text.trim()}>{t('add')}</button>
+        </form>
+      )}
+      <p className="muted small own-note">{t('own_private')}</p>
+    </div>
+  )
+}
+
+// "A bigger risk isn't on the list?": the expert's own option, ranked like the others.
+function OtherRisk({ value, rank, full, onToggle, onChange }) {
+  const { t } = useT()
+  const [draft, setDraft] = useState('')
+  if (value) return (
+    <>
+      <button type="button" disabled={full && rank < 0} className={`row ${rank >= 0 ? 'on' : ''}`} onClick={onToggle}>
+        <span className="rank">{rank >= 0 ? rank + 1 : ''}</span>
+        <span className="row-text">{value}</span>
+        <span className="pill">{t('own_tag')}</span>
+      </button>
+      <button type="button" className="link own-remove" onClick={() => onChange('')}>{t('remove')} · {t('own_tag')}</button>
+    </>
+  )
+  return (
+    <form className="card add-own own-form" onSubmit={(e) => { e.preventDefault(); if (draft.trim()) { onChange(draft.trim()); setDraft('') } }}>
+      <b className="q-title">{t('other_title')}</b>
+      <span className="q-sub">{t('other_sub')}</span>
+      <input type="text" maxLength={120} value={draft} placeholder={t('other_ph')} aria-label={t('other_title')} onChange={(e) => setDraft(e.target.value)} />
+      <button type="submit" className="btn ghost small-btn" disabled={!draft.trim()}>{t('add')}</button>
+      <p className="muted small own-note">{t('own_private')}</p>
+    </form>
+  )
+}
+
 export default function Pulse({ roundId = 'RD-R1043-1' }) {
   const { t, tx, date } = useT()
   const [round, roundErr] = useLoad(() => api.round(roundId), [roundId])
@@ -37,6 +99,8 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
   const [a, setA] = useState({
     rating_probability: null, rating_impact: null, seeing: {}, prob: {}, ranking: [],
     missing: '', why: '', basis: [], tier: 'anonymous',
+    signals: [],     // things the expert sees that ACAPS hasn't listed: [{ text, bigger }]
+    other_risk: '',  // a risk missing from the top-3 list (contract: ranking_other, ranked as 'OTHER')
   })
   const set = (patch) => setA((s) => ({ ...s, ...patch }))
   if (roundErr) return <LoadError error={roundErr} />
@@ -47,7 +111,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
   const forecasts = questions.filter((q) => q.kind === 'forecast')
   const ranking = questions.find((q) => q.kind === 'ranking')
   const trig = Object.fromEntries(risk.triggers.map((x) => [x.trigger_id, x]))
-  const optLabel = (id) => tx(ranking?.options.find((o) => o.option_id === id), 'label')
+  const optLabel = (id) => (id === OTHER ? a.other_risk : tx(ranking?.options.find((o) => o.option_id === id), 'label'))
 
   async function submit() {
     setBusy(true)
@@ -61,8 +125,9 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       answers: [
         { question_id: rating.question_id, rating_probability: a.rating_probability || 'agree', rating_impact: a.rating_impact || 'agree' },
         ...forecasts.map((q) => ({ question_id: q.question_id, prob: a.prob[q.question_id] ?? 0.5, seeing: !!a.seeing[q.trigger_id] })),
-        ...(ranking ? [{ question_id: ranking.question_id, ranking: a.ranking, ranking_other: null }] : []),
+        ...(ranking ? [{ question_id: ranking.question_id, ranking: a.ranking, ranking_other: a.other_risk.trim() || null }] : []),
       ],
+      seeing_other: a.signals.length ? a.signals : null, // moderator-only, like missing_text
     }
     if (a.tier === 'anonymous') body.anon_token = await anonToken()
     await api.submit(roundId, body)
@@ -96,7 +161,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
     },
     {
       key: 'triggers', title: t('s_triggers'), sub: t('s_triggers_sub'),
-      body: risk.triggers.map((x) => (
+      body: <>{risk.triggers.map((x) => (
         <label key={x.trigger_id} className={`card check ${a.seeing[x.trigger_id] ? 'on' : ''}`}>
           <input type="checkbox" checked={!!a.seeing[x.trigger_id]}
             onChange={(e) => set({ seeing: { ...a.seeing, [x.trigger_id]: e.target.checked } })} />
@@ -106,7 +171,9 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
             <span className="q-sub">{x.description}</span>
           </span>
         </label>
-      )),
+      ))}
+      <SignalAdder signals={a.signals} onChange={(signals) => set({ signals })} />
+      </>,
     },
     {
       key: 'forecast', title: t('s_forecast'), sub: t('s_forecast_sub'),
@@ -156,6 +223,13 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
               </button>
             )
           })}
+          <OtherRisk value={a.other_risk} rank={a.ranking.indexOf(OTHER)} full={a.ranking.length >= 3}
+            onToggle={() => set({ ranking: a.ranking.includes(OTHER) ? a.ranking.filter((x) => x !== OTHER) : [...a.ranking, OTHER] })}
+            onChange={(text) => set({
+              other_risk: text,
+              ranking: !text ? a.ranking.filter((x) => x !== OTHER)
+                : a.ranking.includes(OTHER) || a.ranking.length >= 3 ? a.ranking : [...a.ranking, OTHER],
+            })} />
         </>
       ),
     },
@@ -183,6 +257,13 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
                 </div>
               )
             })}
+            {a.signals.length > 0 && (
+              <div className="recap-row">
+                <span>{t('sig_title')}</span>
+                <b>{a.signals.map((s) => s.text + (s.bigger ? ` (${t('sig_bigger_tag')})` : '')).join(' · ')}</b>
+                <button type="button" className="link" onClick={() => goTo('triggers')}>{t('edit')}</button>
+              </div>
+            )}
             {ranking && (
               <div className="recap-row">
                 <span>{t('s_ranking')}</span>

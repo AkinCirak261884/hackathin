@@ -77,6 +77,7 @@ function FullReveal({ round, agg, tr, just, roundId }) {
       {round.practice && round.outcome && <PracticeOutcome round={round} agg={agg} />}
       {ACAPS_COUNTRY[round.risk.iso] && <CountryNow c={ACAPS_COUNTRY[round.risk.iso]} />}
       <RevisionNote round={round} roundId={roundId} />
+      <AdditionsNote round={round} roundId={roundId} />
 
       <div className="grid">
         {agg.rating ? (
@@ -148,7 +149,8 @@ function MyAnswers({ round, agg }) {
   const you = agg.rating?.you || {}
   const r = byQ[rating.question_id] || { rating_probability: you.probability, rating_impact: you.impact }
   const picks = (ranking && byQ[ranking.question_id]?.ranking) || you.ranking || []
-  const label = (id) => tx(ranking?.options.find((o) => o.option_id === id), 'label')
+  const otherText = ranking && byQ[ranking.question_id]?.ranking_other
+  const label = (id) => (id === 'OTHER' ? `${otherText} (${t('own_tag')})` : tx(ranking?.options.find((o) => o.option_id === id), 'label'))
   const rev = revisionOf(round.round_id)
   const revised = rev?.decision === 'revised' ? Object.fromEntries(rev.answers.map((x) => [x.question_id, x.prob])) : {}
 
@@ -180,6 +182,10 @@ function MyAnswers({ round, agg }) {
           )}
           {mine && (
             <>
+              {mine.seeing_other?.length > 0 && (
+                <div className="recap-row"><span>{t('sig_title')}</span>
+                  <b className="answer-text">{mine.seeing_other.map((s) => s.text + (s.bigger ? ` (${t('sig_bigger_tag')})` : '')).join('\n')}</b></div>
+              )}
               <div className="recap-row"><span>{t('a_missing')}</span><b className="answer-text">{mine.missing_text || t('a_none')}</b></div>
               <div className="recap-row"><span>{t('a_why')}</span><b className="answer-text">{mine.reasoning_text || t('a_none')}</b></div>
               <div className="recap-row">
@@ -401,4 +407,16 @@ function RevisionNote({ round, roundId }) {
       <span className="muted">{t('rv_scored')}</span>
     </div>
   )
+}
+
+// If the expert added something ACAPS hadn't listed, say where it went (the moderator), and that peers won't see it.
+function AdditionsNote({ round, roundId }) {
+  const { t } = useT()
+  const mine = lastSubmission(roundId)
+  if (!mine) return null
+  const ranking = round.questions.find((q) => q.kind === 'ranking')
+  const other = ranking && mine.answers.find((x) => x.question_id === ranking.question_id)?.ranking_other
+  const n = (mine.seeing_other?.length || 0) + (other ? 1 : 0)
+  if (!n) return null
+  return <div className="note additions-note"><b>{t('own_flagged', n)}</b> {t('own_flagged_d', n)}</div>
 }

@@ -119,6 +119,7 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 - [ ] (B → C) **Collective view only** (team decision 7 Nov): `/aggregate` and `/thread` no longer return `your_answers`. The reveal screen should drop the "you" markers (dots, rating bars, your pick, check-your-answers) and show only group numbers.
 - [x] (C → B) Follows the track-record decision above: `GET /leaderboard` still returns every expert's pseudonym and score to any invite holder. Please remove it or put it behind the moderator key (`X-Moderator-Key`, see PR #3). The web app no longer calls it.
 - [ ] (B → A, C, FYI) **Moderator page:** `http://localhost:8000/ui/moderator` (served by the API, key-protected via `X-Moderator-Key` when `GT_MODERATOR_KEY` is set). Rounds, advance, round-1 vs final, revision shifts, comments on/off, AI synthesis, free text, contributors, leaderboard. Lane A: reuse or replace with your Streamlit dashboard as you like. `/leaderboard` is now 410 → `/moderator/leaderboard` (C's request: done).
+- [ ] (C → B) Experts can now add what ACAPS hasn't listed: up to 3 "something else is happening" items (each with a "may be bigger than this risk" flag) and their own top-3 risk (`ranking_other`, ranked as `OTHER`). Until the API has fields for them, the web app appends them to `missing_text` (moderator-only), so they already show on `/ui/moderator` and in AI synthesis. Optional later: `seeing_other: [{text, bigger}]` + store `ranking`/`ranking_other`.
 - [ ] (from → to) what is needed
 
 ## Integration log
