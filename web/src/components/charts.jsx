@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Icon } from './ui.jsx'
 import { useT } from '../i18n.jsx'
 import { asPct, r05 } from '../stats.js'
 
@@ -134,17 +133,19 @@ export function RankingBars({ ranking, options, yours = [] }) {
   )
 }
 
-const ICON = { correct: 'check', wrong: 'cross', nocall: 'dash' }
 
-export function RecordHero({ correct, total, verdicts }) {
+// "x of y" validated, then a filled bar and the percentage (no-calls at exactly 50% don't count either way)
+export function RecordHero({ correct, total }) {
   const { t } = useT()
+  const share = total ? correct / total : 0
   return (
     <div className="record-hero">
       <div className="hero-num">{t('correct_of', correct, total)}</div>
       <div className="hero-label">{t('correct_label')}</div>
-      <div className="verdict-row" aria-hidden="true">
-        {verdicts.map((v, i) => <span key={i} className={`vchip ${v}`}><Icon name={ICON[v]} /></span>)}
+      <div className="record-bar" role="img" aria-label={total ? t('record_pct', asPct(share)) : t('correct_label')}>
+        <div className="record-bar-fill" style={{ width: `${share * 100}%` }} />
       </div>
+      <div className="record-pct">{total ? t('record_pct', asPct(share)) : '—'}</div>
       <div className="muted small">{t('correct_hint')}</div>
     </div>
   )
