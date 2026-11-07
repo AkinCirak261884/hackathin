@@ -17,11 +17,12 @@ EXPERT_AND_PUBLIC = [
     ("get", "/rounds/open?panel=TCD", None),
     ("get", f"/rounds/{RID}", None),
     ("post", f"/rounds/{RID}/responses", ANSWER),
-    ("get", "/leaderboard?panel=TCD", None),
     ("get", "/public/summaries", None),
 ]
 MODERATOR = [
     ("get", f"/moderator/rounds/{RID}", None),
+    ("get", "/moderator/rounds", None),
+    ("get", "/moderator/leaderboard?panel=TCD", None),
     ("post", f"/moderator/rounds/{RID}/publish", {"approved_text": "ok"}),
 ]
 

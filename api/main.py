@@ -3,15 +3,17 @@ leaderboard. Still mock: AI clusters (moderator), publish flow and /public/summa
 
 Run:  uvicorn api.main:app --reload     (from the repo root)
 """
+import hmac
 import json
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal, Optional
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 
 from api import db, records, rounds, seed, synthesis, trust
@@ -35,6 +37,19 @@ async def lifespan(_app):
 
 
 app = FastAPI(title="Ground Truth API", version="0.2.0", lifespan=lifespan)
+
+# Moderator endpoints expose reasoning text, known-tier identities, invites and publishing. When hosted,
+# GT_MODERATOR_KEY is set and every /moderator/* call must send it as X-Moderator-Key. Unset = local dev/tests.
+MODERATOR_KEY = os.environ.get("GT_MODERATOR_KEY")
+
+
+@app.middleware("http")
+async def moderator_key(request: Request, call_next):
+    if MODERATOR_KEY and request.url.path.startswith("/moderator") and request.method != "OPTIONS":
+        given = request.headers.get("x-moderator-key", "")
+        if not hmac.compare_digest(given.encode(), MODERATOR_KEY.encode()):
+            return JSONResponse({"detail": "moderator key required"}, status_code=401)
+    return await call_next(request)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -131,10 +146,9 @@ def track_record(x_invite_token: str = Header(...), x_device_secret: Optional[st
 
 
 @app.get("/leaderboard")
-def leaderboard(panel: str = "TCD", x_invite_token: Optional[str] = Header(None),
-                x_device_secret: Optional[str] = Header(None)):
-    """Peer leaderboard: display names only, no tokens. Headers optional (marks is_you)."""
-    return records.leaderboard(panel, x_invite_token, x_device_secret)
+def leaderboard_gone():
+    """Removed for experts (team decision 7 Nov: peers never see each other's records)."""
+    raise HTTPException(410, "leaderboard is moderator-only: GET /moderator/leaderboard with X-Moderator-Key")
 
 
 @app.post("/me/leaderboard-opt-out")
@@ -148,6 +162,28 @@ def public_summaries():
 
 
 # ---------- moderator ----------
+
+STATIC = Path(__file__).parent / "static"
+
+
+@app.get("/ui/moderator", response_class=HTMLResponse, include_in_schema=False)
+def moderator_page():
+    """The moderator page itself holds no data: it asks for the key and calls /moderator/* with it."""
+    return HTMLResponse((STATIC / "moderator.html").read_text(encoding="utf-8"),
+                        headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
+                                 "X-Frame-Options": "DENY"})
+
+
+@app.get("/moderator/rounds")
+def moderator_rounds(panel: Optional[str] = None):
+    """Every round (all stages, closed too) for the moderator page."""
+    return rounds.list_all(panel)
+
+
+@app.get("/moderator/leaderboard")
+def moderator_leaderboard(panel: str = "TCD"):
+    """Leaderboard for ACAPS only: display names and scores, no tokens."""
+    return records.leaderboard(panel, None, None)
 
 @app.post("/moderator/rounds", status_code=201)
 def create_round(body: RoundIn):

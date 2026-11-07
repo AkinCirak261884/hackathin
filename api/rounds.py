@@ -320,6 +320,20 @@ def list_open(panel: str, invite_token: Optional[str] = None, device_secret: Opt
     return {"panel": panel.upper(), "rounds": out}
 
 
+def list_all(panel: Optional[str] = None) -> dict:
+    """Moderator: every round with stage and n, newest first."""
+    with db.main_db() as m:
+        q = "SELECT * FROM rounds" + (" WHERE panel = ?" if panel else "") + " ORDER BY opened_at DESC, round_id"
+        rnds = m.execute(q, (panel.upper(),) if panel else ()).fetchall()
+        out = []
+        for r in rnds:
+            risk = _risk(m, r["risk_id"])
+            out.append({"round_id": r["round_id"], "risk_id": r["risk_id"], "panel": r["panel"],
+                        "stage": r["stage"], "opened_at": r["opened_at"], "risk_title": risk.get("title"),
+                        "country": risk.get("country"), "n_responses": _n_authors(m, r["round_id"])})
+    return {"rounds": out}
+
+
 def round_detail(round_id: str) -> dict:
     rnd = get_round(round_id)
     with db.main_db() as m:

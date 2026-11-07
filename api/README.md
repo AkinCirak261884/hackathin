@@ -85,3 +85,13 @@ back and easy to steer, so comments are off there.
 - Data: `api/data/presence_3w.json`, built from OCHA 3W/5W on HDX (CC BY; Chad Sep 2026, Sudan Jan–Jul
   2026, Ukraine Jan–Sep 2026). Rebuild: `uv run --with openpyxl python -m api.build_presence_3w <dir>`.
 - Examples: R1043 eastern Chad 146 orgs → on · R1051 West Kordofan 17 → off · R0248 East Darfur 19 → off.
+
+## Moderator page + key (`/ui/moderator`)
+
+- Open `http://localhost:8000/ui/moderator`. The page holds no data; it calls `/moderator/*` with the key.
+  Shows rounds (all stages), advance button, round-1 vs final distributions, revision shifts, comments
+  on/off + reason, "what's missing" groups + "Run AI synthesis", free text, contributors, leaderboard.
+- `GT_MODERATOR_KEY` set (hosted) → every `/moderator/*` call needs `X-Moderator-Key` (same code as PR #3).
+  Unset = local dev and tests.
+- Leaderboard is moderator-only: `GET /moderator/leaderboard`. The old `GET /leaderboard` returns 410.
+- `GET /moderator/rounds` lists every round with stage and n.

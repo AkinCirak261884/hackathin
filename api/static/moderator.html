@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Ground Truth Moderator</title>
+<style>
+  :root {
+    --bg: #f4f2ee; --card: #ffffff; --fg: #1d1f22; --fg2: #4a4f57; --muted: #767b84; --line: #e2ded6;
+    --accent: #1f5f8b; --accent-bg: #e3eef6; --ok: #1d7a46; --ok-bg: #e2f3e9; --warn: #9a5b00; --warn-bg: #fbefd9;
+    --bad: #b3261e; --bad-bg: #fbe4e2; --dot: #1f5f8b; --dot2: #c46b1a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171a; --card: #1e2125; --fg: #e9e9ea; --fg2: #c2c5ca; --muted: #8d939b; --line: #30343a;
+      --accent: #7db7e0; --accent-bg: #1d3446; --ok: #7fd3a1; --ok-bg: #173526; --warn: #f0c070; --warn-bg: #3a2e15;
+      --bad: #f19a93; --bad-bg: #3c1f1d; --dot: #7db7e0; --dot2: #f0a35e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { background: var(--card); border-bottom: 1px solid var(--line); padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; flex: 1; min-width: 180px; }
+  header h1 small { color: var(--muted); font-weight: 400; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: 300px 1fr; }
+  @media (max-width: 820px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  h3 { font-size: 14px; margin: 16px 0 8px; color: var(--fg2); }
+  input, button, select { font: inherit; }
+  input[type=password] { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); width: 220px; max-width: 100%; }
+  button { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .muted { color: var(--muted); } .small { font-size: 13px; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--accent-bg); color: var(--accent); }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); } .pill.warn { background: var(--warn-bg); color: var(--warn); } .pill.bad { background: var(--bad-bg); color: var(--bad); }
+  .rounds { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .rounds button { width: 100%; text-align: left; background: var(--bg); color: var(--fg); border: 1px solid var(--line); display: grid; gap: 2px; }
+  .rounds button[aria-current="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 10px 0; }
+  .facts div { background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+  .facts dt { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .facts dd { margin: 0; font-weight: 650; }
+  .q { border-top: 1px solid var(--line); padding: 10px 0; }
+  .q-text { font-size: 14px; margin-bottom: 6px; }
+  .strip { display: grid; grid-template-columns: 70px 1fr 150px; gap: 8px; align-items: center; font-size: 13px; }
+  .strip svg { width: 100%; height: 26px; display: block; }
+  .comments { border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+  .comments.on { background: var(--ok-bg); } .comments.off { background: var(--warn-bg); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .scroll { overflow-x: auto; }
+  .ft { background: var(--bg); border-radius: 8px; padding: 8px 10px; margin: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .err { background: var(--bad-bg); color: var(--bad); border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
+  .note { font-size: 13px; color: var(--fg2); background: var(--accent-bg); border-radius: 8px; padding: 8px 10px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tabs button[aria-selected="false"] { background: transparent; color: var(--accent); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Ground Truth · Moderator <small>ACAPS only</small></h1>
+  <form id="keyForm" class="row" autocomplete="off">
+    <label class="small muted" for="key">Moderator key</label>
+    <input id="key" type="password" placeholder="leave empty on local dev">
+    <button type="submit">Connect</button>
+  </form>
+</header>
+
+<main>
+  <aside class="card">
+    <h2>Rounds</h2>
+    <div id="roundsErr"></div>
+    <ul class="rounds" id="rounds"><li class="muted small">Connect to load rounds.</li></ul>
+  </aside>
+
+  <section class="card" id="detail">
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabRound" aria-selected="true">Round</button>
+      <button role="tab" id="tabBoard" aria-selected="false">Leaderboard</button>
+    </div>
+    <div id="roundView"><p class="muted">Pick a round on the left.</p></div>
+    <div id="boardView" hidden></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+// Everything user-written is inserted with textContent only (free text comes from experts).
+const $ = (id) => document.getElementById(id);
+const KEY = "gt_moderator_key";
+let key = "";
+try { key = sessionStorage.getItem(KEY) || ""; } catch (e) {}
+$("key").value = key;
+let current = null;
+
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  return n;
+}
+const pct = (p) => p == null ? "–" : Math.round(p * 100) + "%";
+const err = (msg) => el("div", { class: "err", role: "alert" }, msg);
+
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (key) headers["X-Moderator-Key"] = key;
+  const res = await fetch(path, { ...opts, headers, referrerPolicy: "no-referrer" });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(res.status === 401 ? "Wrong or missing moderator key." : (body.detail ? JSON.stringify(body.detail) : `HTTP ${res.status}`));
+  return body;
+}
+
+$("keyForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  key = $("key").value.trim();
+  try { key ? sessionStorage.setItem(KEY, key) : sessionStorage.removeItem(KEY); } catch (e) {}
+  loadRounds();
+});
+
+function tab(which) {
+  $("tabRound").setAttribute("aria-selected", which === "round");
+  $("tabBoard").setAttribute("aria-selected", which === "board");
+  $("roundView").hidden = which !== "round";
+  $("boardView").hidden = which !== "board";
+  if (which === "board") loadBoard();
+}
+$("tabRound").onclick = () => tab("round");
+$("tabBoard").onclick = () => tab("board");
+
+const STAGE_PILL = { blind: "pill warn", reveal: "pill", closed: "pill ok" };
+
+async function loadRounds() {
+  $("roundsErr").replaceChildren();
+  try {
+    const { rounds } = await api("/moderator/rounds");
+    $("rounds").replaceChildren(...(rounds.length ? rounds.map((r) => el("li", {},
+      el("button", { "aria-current": r.round_id === current, onclick: () => openRound(r.round_id) },
+        el("span", { class: "row" }, el("b", {}, r.round_id), el("span", { class: STAGE_PILL[r.stage] || "pill" }, r.stage)),
+        el("span", { class: "small muted" }, `${r.country || ""} · n = ${r.n_responses}`),
+        el("span", { class: "small" }, (r.risk_title || r.risk_id).slice(0, 90))))) : [el("li", { class: "muted small" }, "No rounds yet.")]));
+    if (!current && rounds[0]) openRound(rounds[0].round_id);
+  } catch (e) { $("roundsErr").replaceChildren(err(e.message)); }
+}
+
+function dotStrip(dots, median, p25, p75) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 200 26"); svg.setAttribute("preserveAspectRatio", "none");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", dots ? `answers: ${dots.map(pct).join(", ")}` : "no answers");
+  const add = (tag, a) => { const n = document.createElementNS(ns, tag); for (const k in a) n.setAttribute(k, a[k]); svg.append(n); return n; };
+  add("line", { x1: 0, x2: 200, y1: 13, y2: 13, stroke: "var(--line)", "stroke-width": 2 });
+  if (p25 != null) add("rect", { x: p25 * 200, y: 6, width: Math.max(1, (p75 - p25) * 200), height: 14, rx: 3, fill: "var(--accent-bg)" });
+  (dots || []).forEach((d, i) => add("circle", { cx: 4 + d * 192, cy: 13 + ((i % 3) - 1) * 4, r: 3.5, fill: "var(--dot)", "fill-opacity": .85 }));
+  if (median != null) add("line", { x1: median * 200, x2: median * 200, y1: 2, y2: 24, stroke: "var(--dot2)", "stroke-width": 2.5 });
+  return svg;
+}
+
+function statLine(label, s) {
+  if (!s) return el("div", { class: "strip" }, el("span", { class: "muted" }, label), el("span", { class: "muted" }, "–"), el("span"));
+  return el("div", { class: "strip" },
+    el("span", { class: "muted" }, label),
+    s.dots ? dotStrip(s.dots, s.median, s.p25, s.p75) : el("span", { class: "muted small" }, s.agree_share != null ? "" : "no probabilities"),
+    el("span", {}, s.median != null ? `median ${pct(s.median)} · ${pct(s.p25)}–${pct(s.p75)}` : "",
+      s.agree_share != null ? `agree ${pct(s.agree_share)}` : "", el("span", { class: "muted" }, ` (n ${s.n})`)));
+}
+
+function commentsBox(c) {
+  if (!c) return null;
+  return el("div", { class: `comments ${c.enabled ? "on" : "off"}` },
+    el("div", { class: "row" }, el("b", {}, "Peer comments"), el("span", { class: c.enabled ? "pill ok" : "pill warn" }, c.enabled ? "ON" : "OFF"),
+      c.n_orgs != null ? el("span", { class: "small muted" }, `${c.n_orgs} organisations · threshold ${c.min_orgs}`) : null),
+    el("div", { class: "small" }, c.reason),
+    c.source ? el("div", { class: "small muted" }, "Source: ", el("a", { href: c.source.url, target: "_blank", rel: "noopener noreferrer" }, c.source.title), ` (as of ${c.source.as_of}, ${c.source.licence})`) : null);
+}
+
+async function openRound(id) {
+  current = id;
+  document.querySelectorAll(".rounds button").forEach((b) => b.setAttribute("aria-current", b.textContent.startsWith(id)));
+  tab("round");
+  const v = $("roundView");
+  v.replaceChildren(el("p", { class: "muted" }, "Loading…"));
+  try {
+    const [m, pub] = await Promise.all([api(`/moderator/rounds/${encodeURIComponent(id)}`), api(`/rounds/${encodeURIComponent(id)}`)]);
+    const qText = Object.fromEntries((pub.questions || []).map((q) => [q.question_id, q.text]));
+    const r1 = Object.fromEntries(m.questions.round_1.map((q) => [q.question_id, q]));
+    const fin = Object.fromEntries(m.questions.final.map((q) => [q.question_id, q]));
+    const shifts = Object.fromEntries((m.revision_shifts || []).map((s) => [s.question_id, s]));
+    const next = m.can_advance_to;
+
+    const advanceBtn = el("button", { disabled: !next, onclick: async () => {
+      if (!confirm(`Move ${id} from "${m.stage}" to "${next}"? This can't be undone.`)) return;
+      try { await api(`/moderator/rounds/${encodeURIComponent(id)}/advance`, { method: "POST", body: JSON.stringify({ to: next }) }); await loadRounds(); openRound(id); }
+      catch (e) { v.prepend(err(e.message)); }
+    } }, next ? `Advance to ${next}` : "Round closed");
+
+    const synthBtn = el("button", { class: "ghost", onclick: async () => {
+      synthBtn.disabled = true; synthBtn.textContent = "Running…";
+      try { await api(`/moderator/rounds/${encodeURIComponent(id)}/synthesis`, { method: "POST" }); openRound(id); }
+      catch (e) { v.prepend(err(e.message)); synthBtn.disabled = false; synthBtn.textContent = "Run AI synthesis"; }
+    } }, "Run AI synthesis");
+
+    const ftById = Object.fromEntries((m.free_text || []).map((f) => [f.response_id, f]));
+    v.replaceChildren(
+      el("div", { class: "row" }, el("h2", { style: "margin:0;flex:1" }, `${id} · ${m.risk_id}`), el("span", { class: STAGE_PILL[m.stage] }, m.stage), advanceBtn),
+      el("p", { class: "small" }, pub.risk_title || ""),
+      el("dl", { class: "facts" },
+        el("div", {}, el("dt", {}, "Responses"), el("dd", {}, m.n_responses)),
+        el("div", {}, el("dt", {}, "Revised"), el("dd", {}, m.n_revised)),
+        el("div", {}, el("dt", {}, "ACAPS rating"), el("dd", {}, `${m.acaps_rating.probability || "–"} · impact ${m.acaps_rating.impact ?? "–"}`)),
+        el("div", {}, el("dt", {}, "Agree with rating"), el("dd", {}, pct(m.agree_share)))),
+      m.stage === "blind" ? el("p", { class: "note" }, "Blind stage: experts can't see the group yet. Advance to reveal once at least 3 have answered.") : null,
+      commentsBox(m.comments),
+
+      el("h3", {}, "Questions · round 1 vs final"),
+      el("p", { class: "small muted" }, "Dots = answers, band = middle half (p25–p75), orange line = median. You see from n = 1; experts only from n = 3."),
+      ...Object.keys(r1).map((qid) => el("div", { class: "q" },
+        el("div", { class: "q-text" }, el("b", {}, qid), " ", qText[qid] || ""),
+        statLine("Round 1", r1[qid]), statLine("Final", fin[qid]),
+        shifts[qid] ? el("div", { class: "small muted" }, `${shifts[qid].n_revised} revised · mean shift ${shifts[qid].mean_shift > 0 ? "+" : ""}${Math.round(shifts[qid].mean_shift * 100)} pts`) : null)),
+
+      el("h3", {}, "What's missing · grouped"),
+      el("div", { class: "row" }, synthBtn, el("span", { class: "small muted" }, `source: ${m.synthesis_source || "–"}${m.model ? " · " + m.model : ""}${m.fallback_reason ? " · " + m.fallback_reason : ""}`)),
+      ...(m.missing_clusters || []).map((c) => el("div", { class: "ft" }, el("b", {}, `${c.label} (${c.n})`), "\n", c.summary,
+        "\n", el("span", { class: "small muted" }, "answers: " + c.response_ids.map((i) => "#" + i).join(", ")))),
+      (m.identifying_details || []).length ? el("div", { class: "err" }, "Identifying details flagged in: " + m.identifying_details.map((d) => `#${d.response_id} (${d.reason})`).join("; ")) : null,
+      (m.coordination_flags || []).length ? el("div", { class: "err" }, "Possible coordination: " + m.coordination_flags.map((f) => f.response_ids.map((i) => "#" + i).join("+") + ` (${f.reason})`).join("; ")) : null,
+
+      el("h3", {}, "Free text (moderator only, never published verbatim)"),
+      ...((m.free_text || []).length ? m.free_text.map((f) => el("div", { class: "ft" },
+        el("span", { class: "small muted" }, `#${f.response_id} · v${f.version} · ${f.tier}${f.reasoning_basis.length ? " · basis: " + f.reasoning_basis.join(", ") : ""}`),
+        f.missing_text ? el("div", {}, el("b", {}, "Missing: "), f.missing_text) : null,
+        f.reasoning_text ? el("div", {}, el("b", {}, "Why: "), f.reasoning_text) : null)) : [el("p", { class: "muted small" }, "No free text yet.")]),
+
+      el("h3", {}, "Contributors"),
+      el("div", { class: "scroll" }, el("table", {},
+        el("thead", {}, el("tr", {}, el("th", {}, "#"), el("th", {}, "Tier"), el("th", {}, "Identity"))),
+        el("tbody", {}, ...(m.contributors || []).map((c, i) => el("tr", {},
+          el("td", {}, i + 1), el("td", {}, c.tier),
+          el("td", {}, c.identity ? c.identity.name : el("span", { class: "muted" }, c.tier === "anonymous" ? "anonymous" : "not shown (pseudonymous)"))))))),
+    );
+  } catch (e) { v.replaceChildren(err(e.message)); }
+}
+
+async function loadBoard() {
+  const b = $("boardView");
+  b.replaceChildren(el("p", { class: "muted" }, "Loading…"));
+  try {
+    const lb = await api("/moderator/leaderboard?panel=TCD");
+    b.replaceChildren(
+      el("h2", {}, `Leaderboard · panel ${lb.panel}`),
+      el("p", { class: "small muted" }, `Ranked after ${lb.min_resolved} resolved forecasts · Brier shrunk towards the group mean · ${lb.n_not_yet_ranked} not ranked yet. Moderator only: experts never see each other's records.`),
+      el("div", { class: "scroll" }, el("table", {},
+        el("thead", {}, el("tr", {}, ...["#", "Expert", "Resolved", "Brier (shrunk)", "vs calibrated ACAPS", ""].map((h) => el("th", {}, h)))),
+        el("tbody", {}, ...(lb.entries.length ? lb.entries.map((e) => el("tr", {},
+          el("td", {}, e.rank), el("td", {}, e.display_name), el("td", {}, e.n_resolved),
+          el("td", {}, e.shrunk_brier?.toFixed(3) ?? "–"),
+          el("td", {}, e.calibrated_acaps_brier_same_questions != null ? e.calibrated_acaps_brier_same_questions.toFixed(3) : "–"),
+          el("td", {}, e.super_estimator ? el("span", { class: "pill ok" }, "★ super estimator") : ""))) : [el("tr", {}, el("td", { colspan: 6, class: "muted" }, "Nobody has enough resolved forecasts yet."))])))));
+  } catch (e) { b.replaceChildren(err(e.message)); }
+}
+
+loadRounds();
+</script>
+</body>
+</html>
