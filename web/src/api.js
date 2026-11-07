@@ -227,12 +227,14 @@ const fromApi = {
   // W2: { panel, rounds: [{ risk_title, you_submitted, n_questions }] } → array of round cards
   openRounds: (r) => (r.rounds || []).map((x) => {
     if (x.you_submitted === false) forgetRound(x.round_id)
-    const answered = !!x.you_submitted || !!lastSubmission(x.round_id)
+    const here = !!lastSubmission(x.round_id)
+    const answered = !!x.you_submitted || here
     return {
       round_id: x.round_id, risk_id: x.risk_id, title: x.risk_title, stage: x.stage, closes_at: x.closes_at || null,
       est_minutes: Math.max(2, x.n_questions || 3), answered,
-      // this invite answered, but anonymously from another window/device: counted, only that window can show or update it
-      elsewhere: !answered && !!x.invite_answered,
+      // this invite answered from another window/device (no copy here): counted, the group view opens here,
+      // but only that window can show or update the answer
+      elsewhere: !here && (answered || !!x.invite_answered),
       decided: !!x.invite_revised || !!revisionOf(x.round_id)?.decision,
     }
   }),
@@ -261,7 +263,9 @@ const fromApi = {
     const qs = a.questions || []
     const agreeQ = qs.find((q) => q.agree_share != null)
     return {
-      round_id: a.round_id, n_responses: Math.max(0, ...qs.map((q) => q.n || 0)), can_revise: a.can_revise,
+      // suppressed questions report n as "<3" (text), so count only numbers
+      round_id: a.round_id, n_responses: Math.max(0, ...qs.map((q) => (typeof q.n === 'number' ? q.n : 0))), can_revise: a.can_revise,
+      elsewhere: !!a.answered_elsewhere,
       rating: null,
       agree: agreeQ ? { share: agreeQ.agree_share, n: agreeQ.n,
         you: mine[agreeQ.question_id] ?? (localRating ? localRating.rating_probability === 'agree' && localRating.rating_impact === 'agree' : undefined) } : null,
