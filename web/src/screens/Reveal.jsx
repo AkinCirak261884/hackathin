@@ -202,9 +202,11 @@ function Comments({ comments, round, hideNumbers = false }) {
                     {c.is_you && <span className="you-tag">{t('you')}</span>}
                   </span>
                   <span className="c-record">
+                    {/* Records are never shown to peers (people would follow the high scorer, and a stable record
+                        helps re-identify someone). You see your own; the moderator sees all. */}
                     {c.is_theme ? t('theme_note') : anon ? t('c_anon_note')
-                      : c.record && c.record.resolved > 0 ? t('c_record', c.record.correct, c.record.resolved)
-                      : t('c_new')}
+                      : c.is_you ? (c.record?.resolved > 0 ? t('c_record_you', c.record.correct, c.record.resolved) : t('c_new'))
+                      : t('c_record_private')}
                   </span>
                 </div>
               </div>

@@ -24,7 +24,7 @@ const delay = (v) => new Promise((r) => setTimeout(() => r(clone(v)), 120))
 // Secrets travel in headers, never in the URL (URLs end up in server logs and browser history). Matches Lane B's API.
 // X-Device-Secret carries the phone-side hash (see deviceKey), only once this device has answered anonymously.
 const auth = async () => {
-  const headers = { 'X-Invite-Token': DEMO_INVITE }
+  const headers = { 'X-Invite-Token': inviteToken() }
   if (hasDeviceSecret()) headers['X-Device-Secret'] = await deviceKey()
   return { headers }
 }
@@ -246,7 +246,7 @@ export const api = {
   keepAnswers: async (id) => { saveRevision(id, { decision: 'kept' }) },
   revise: async (id, { answers, reason }) => {
     const first = lastSubmission(id)
-    const body = { invite_token: DEMO_INVITE, tier: first?.tier || 'pseudonymous', version: 2, reasoning_text: reason || null, reasoning_basis: [], answers }
+    const body = { invite_token: inviteToken(), tier: first?.tier || 'pseudonymous', version: 2, reasoning_text: reason || null, reasoning_basis: [], answers }
     if (MOCK) { if (body.tier === 'anonymous') body.anon_token = await anonToken() } else await postResponse(id, body)
     saveRevision(id, { decision: 'revised', answers, reason: reason || null })
   },
@@ -266,6 +266,35 @@ const isNewcomerDemo = () => window.location.hash.includes('new=1')
 
 // Demo identity: in the real app this comes from the invite link (?invite=…).
 export const DEMO_INVITE = 'inv_demo_01' // Lane B seeds inv_demo_01 … inv_demo_08
+
+// Personal invite links: https://…/#/?invite=inv_demo_02 (preferred: the part after # is never sent to the
+// server, so the token stays out of hosting logs) or ?invite=… (removed from the address bar on load).
+// The invite is remembered in this browser; opening a link with a different invite starts fresh.
+const INVITE_KEY = 'gt_invite'
+const INVITE_RE = /^[A-Za-z0-9_-]{4,64}$/
+function readInviteFromUrl() {
+  try {
+    const url = new URL(window.location.href)
+    const hashQuery = new URLSearchParams(url.hash.split('?')[1] || '')
+    const invite = url.searchParams.get('invite') || hashQuery.get('invite')
+    if (!invite || !INVITE_RE.test(invite)) return
+    const previous = localStorage.getItem(INVITE_KEY)
+    if (previous && previous !== invite) { // another expert on this browser: don't mix answers or anonymous identity
+      resetDemoAnswers()
+      localStorage.removeItem('gt_device_secret')
+    }
+    localStorage.setItem(INVITE_KEY, invite)
+    url.searchParams.delete('invite')
+    hashQuery.delete('invite')
+    const rest = hashQuery.toString()
+    url.hash = url.hash.split('?')[0] + (rest ? `?${rest}` : '')
+    window.history.replaceState(null, '', url.toString())
+  } catch { /* no window (tests) or storage blocked: fall back to the demo invite */ }
+}
+readInviteFromUrl()
+export function inviteToken() {
+  try { return localStorage.getItem(INVITE_KEY) || DEMO_INVITE } catch { return DEMO_INVITE }
+}
 export const DEMO_TOKEN = 'E01'
 export const DEMO_PSEUDONYM = 'Kestrel'
 export const demoPseudonym = () => (isNewcomerDemo() ? 'Alder' : DEMO_PSEUDONYM)
