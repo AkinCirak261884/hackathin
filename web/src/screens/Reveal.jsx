@@ -4,6 +4,7 @@ import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, r05, recordSummary, verdict, likelihoodKey } from '../stats.js'
 import { Head, Chip, Loading, LoadError, CommentsPolicyLine } from '../components/ui.jsx'
+import { NotInThisWindow } from './Update.jsx'
 import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 import acapsUKR from '../mock/acaps_country_UKR.json' // public ACAPS snapshot, see _note in the file
 
@@ -21,12 +22,7 @@ export default function Reveal({ roundId = 'RD-R1043-1' }) {
   if (aggErr || roundErr) return <LoadError error={aggErr || roundErr} />
   if (!agg || !round) return <Loading />
   // Lane B API refuses the group view to anyone who hasn't answered yet (blind first)
-  if (agg.mustAnswer) return (
-    <section className="page">
-      <Head level={1} title={t('reveal')} sub={t('must_answer')} />
-      <a className="btn" href={`#/pulse/${roundId}`}>{t('start')}</a>
-    </section>
-  )
+  if (agg.mustAnswer) return <NotInThisWindow roundId={roundId} title={t('reveal')} />
   if (agg.suppressed) return <section className="page"><Head level={1} title={t('reveal')} sub={t('suppressed')} /></section>
   // Lane B API: the group view opens when the moderator moves the round to "reveal", not on your own submit
   if (agg.locked) return (
