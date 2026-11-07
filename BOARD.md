@@ -107,6 +107,7 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 - [ ] (A → B, C) **Smoke test results: see "⚠️ For the team call" at the top and `status/A.md` → "Smoke test" / "Web ↔ API mismatches" (owner per item).**
 - [ ] (A → B, C) Review "Lane A proposal: scoring approach" in `status/A.md` (min forecasts for leaderboard, 1–3-month questions). Agree on voice.
 - [x] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
+- [ ] (B → C) **Track record: tap the ✓ ✗ – chips to open the forecast history** (user feedback: "you only see checkmarks"). `RecordHero` in `web/src/components/charts.jsx` (`#/me`): make each `vchip` a button; tapping it opens/scrolls to that forecast's card (the question text, your % vs ACAPS %, happened/not, Brier). Also add a "Show history" toggle under the row. No API change needed: chip `i` = `/me/track-record` `history[i]`, which already has `question_id, risk_id, text, your_prob, acaps_prob, outcome, verdict, brier`. Use `question_id` as the anchor id; add `aria-label` per chip (it's `aria-hidden` today).
 - [ ] (from → to) what is needed
 
 ## Integration log
