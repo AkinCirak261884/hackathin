@@ -358,6 +358,15 @@ def _submitted(m, round_id: str, tokens: list[str]) -> bool:
 
 def list_open(panel: str, invite_token: Optional[str] = None, device_secret: Optional[str] = None) -> dict:
     tokens = _caller(invite_token, device_secret) if invite_token else []
+    # "This invite already answered / revised round R": what the double-submit guard already knows (round_participation
+    # has no author token). Tells the invite holder only that, never which answer, so an anonymous answer stays
+    # unlinkable; it lets another window say "answered elsewhere" instead of offering a second vote.
+    part: dict[str, set] = {}
+    if invite_token:
+        with db.vault_db() as v:
+            for r in v.execute("SELECT round_id, version FROM round_participation WHERE invite_token = ?",
+                               (invite_token,)).fetchall():
+                part.setdefault(r["round_id"], set()).add(r["version"])
     with db.main_db() as m:
         rnds = m.execute("SELECT * FROM rounds WHERE panel = ? AND stage != 'closed' ORDER BY opened_at, round_id",
                          (panel.upper(),)).fetchall()
@@ -367,7 +376,9 @@ def list_open(panel: str, invite_token: Optional[str] = None, device_secret: Opt
             out.append({"round_id": r["round_id"], "risk_id": r["risk_id"], "stage": r["stage"],
                         "opened_at": r["opened_at"], "risk_title": risk.get("title"),
                         "n_questions": len(_round_questions(m, dict(r))),
-                        "you_submitted": _submitted(m, r["round_id"], tokens) if tokens else None})
+                        "you_submitted": _submitted(m, r["round_id"], tokens) if tokens else None,
+                        "invite_answered": (1 in part.get(r["round_id"], set())) if invite_token else None,
+                        "invite_revised": (2 in part.get(r["round_id"], set())) if invite_token else None})
     return {"panel": panel.upper(), "rounds": out}
 
 
