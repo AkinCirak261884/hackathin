@@ -10,6 +10,10 @@ Lifecycle  blind -> reveal -> closed  (moderator advances; never backwards)
 Always: v1 once per invite per round; v2 once, same author token as v1; aggregates only after your
 own v1; each question suppressed until n >= MIN_N distinct authors; dots sorted (unlinkable).
 """
+from functools import lru_cache
+from pathlib import Path
+import re
+import csv
 import statistics
 from datetime import datetime, timezone
 from typing import Optional
@@ -334,6 +338,27 @@ def list_all(panel: Optional[str] = None) -> dict:
     return {"rounds": out}
 
 
+@lru_cache(maxsize=1)
+def _radar_rows() -> dict:
+    """Risk Radar export by risk id (public ACAPS fields the round card shows: rationale, trend, exposure)."""
+    path = Path(__file__).resolve().parent.parent / "data" / "risk-radar-export.csv"
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8-sig") as f:
+        return {r["Risk ID"]: r for r in csv.DictReader(f)}
+
+
+def _radar_extra(risk_id: str) -> dict:
+    """Fills the gap Lane A's smoke test found (W3): the expert app shows rationale, trend and exposure."""
+    r = _radar_rows().get(risk_id)
+    if not r:
+        return {}
+    text = re.sub(r"\s+", " ", r.get("Rationale") or "").strip()
+    short = " ".join(re.split(r"(?<=[.!?])\s+", text)[:2])[:400]
+    return {"rationale_short": short or None, "trend": (r.get("Risk trend") or "").strip() or None,
+            "expected_exposure": (r.get("Expected exposure") or "").strip() or None}
+
+
 def round_detail(round_id: str) -> dict:
     rnd = get_round(round_id)
     with db.main_db() as m:
@@ -341,14 +366,15 @@ def round_detail(round_id: str) -> dict:
         questions = list(_round_questions(m, rnd).values())
         tids = sorted({q["trigger_id"] for q in questions if q["trigger_id"]})
         triggers = [dict(t) for t in m.execute(
-            f"SELECT trigger_id, title, completion_rate FROM triggers WHERE risk_id = ? AND trigger_id IN "
+            f"SELECT trigger_id, title, description, completion_rate FROM triggers WHERE risk_id = ? AND trigger_id IN "
             f"({','.join('?' * len(tids))}) ORDER BY trigger_id", (rnd["risk_id"], *tids))] if tids else []
     for q in questions:
         q["kind"] = "agree" if q["trigger_id"] is None else "forecast"
         q.pop("outcome", None)  # never reveal resolution data through the round card
     return {"round_id": round_id, "risk_id": rnd["risk_id"], "stage": rnd["stage"], "panel": rnd["panel"],
             "opened_at": rnd["opened_at"], "risk_title": risk.get("title"),
-            "risk": {k: risk.get(k) for k in ("risk_id", "country", "probability", "impact", "level", "status")},
+            "risk": {**{k: risk.get(k) for k in ("risk_id", "country", "probability", "impact", "level", "status")},
+                     **_radar_extra(rnd["risk_id"])},
             "triggers": triggers, "questions": questions, "comments": comments_policy.decide(risk)}
 
 
