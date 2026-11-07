@@ -3,7 +3,7 @@ import { api, DEMO_TOKEN, MOCK, lastSubmission, revisionOf, resetDemoAnswers } f
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, r05, recordSummary, verdict, likelihoodKey } from '../stats.js'
-import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
+import { Head, Chip, Loading, LoadError, CommentsPolicyLine } from '../components/ui.jsx'
 import { RatingBar, RatingLegend, ForecastDots, ForecastLegend, RankingBars, ProbMeter, VerdictBadge } from '../components/charts.jsx'
 import acapsUKR from '../mock/acaps_country_UKR.json' // public ACAPS snapshot, see _note in the file
 
@@ -123,8 +123,11 @@ function FullReveal({ round, agg, tr, just, roundId }) {
         )}
       </div>
 
-      <Comments comments={agg.comments || []} round={round} />
-      <PanelAdditions agg={agg} />
+      <CommentsPolicyLine policy={agg.comments_policy || round.comments_policy} />
+      {(agg.comments_policy || round.comments_policy)?.enabled !== false && <>
+        <Comments comments={agg.comments || []} round={round} />
+        <PanelAdditions agg={agg} />
+      </>}
       <MyAnswers round={round} agg={agg} />
       {/* TEMPORARY: demo-only, so a presenter can run the check-in again straight from the results */}
       {MOCK && (
@@ -189,6 +192,7 @@ function MyAnswers({ round, agg }) {
               )}
               <div className="recap-row"><span>{t('a_missing')}</span><b className="answer-text">{mine.missing_text || t('a_none')}</b></div>
               <div className="recap-row"><span>{t('a_why')}</span><b className="answer-text">{mine.reasoning_text || t('a_none')}</b></div>
+              {mine.source_other && <div className="recap-row"><span>{t('b_other_label')}</span><b className="answer-text">{mine.source_other}</b></div>}
               <div className="recap-row">
                 <span>{t('a_basis')}</span>
                 <div className="chips">{(mine.reasoning_basis || []).length ? mine.reasoning_basis.map((b) => <span key={b} className="chip">{t(`b_${b}`)}</span>) : <b>{t('a_none')}</b>}</div>
@@ -328,8 +332,11 @@ function ReasonsFirst({ round, agg, just, rec, onDecided }) {
         </div>
       )}
       <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />
-      <Comments comments={agg.comments || []} round={round} hideNumbers />
-      <PanelAdditions agg={agg} />
+      <CommentsPolicyLine policy={agg.comments_policy || round.comments_policy} />
+      {(agg.comments_policy || round.comments_policy)?.enabled !== false && <>
+        <Comments comments={agg.comments || []} round={round} hideNumbers />
+        <PanelAdditions agg={agg} />
+      </>}
       <article className="card decide-card">
         {!revising ? (
           <>
@@ -442,6 +449,7 @@ function PanelAdditions({ agg }) {
           <p className="muted small">{ai ? t('pa_ai_note') : t('pa_kw_note')}</p>
         </article>
       )}
+      {agg.withheld_coordinated > 0 && <p className="note small">{t('pa_withheld', agg.withheld_coordinated)}</p>}
       {adds.length > 0 && (
         <div className="card pa-list">
           {adds.map((a) => (

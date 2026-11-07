@@ -39,6 +39,26 @@ export function LoadError({ error }) {
   )
 }
 
+// Peer comments on/off for this round (OCHA 3W operational presence via HDX). On: one quiet line with the source.
+// Off: a card explaining that with few organisations in the area, comments can't be cross-checked and are easier
+// to trace back, so what experts write goes to the ACAPS moderator only.
+export function CommentsPolicyLine({ policy }) {
+  const { t, date } = useT()
+  if (!policy) return null
+  const where = policy.areas?.length ? policy.areas.join(', ') : t('cp_country')
+  const src = policy.source && (
+    <> · <a href={policy.source.url} target="_blank" rel="noopener noreferrer">{policy.source.title}</a>{policy.source.as_of ? `, ${date(policy.source.as_of)}` : ''}</>
+  )
+  if (policy.enabled) return <p className="muted small cp-line">{t('cp_on', policy.n_orgs, where)}{src}</p>
+  return (
+    <div className="card cp-off" role="note">
+      <b>{t('cp_off_title')}</b>
+      <p className="small">{policy.n_orgs == null ? t('cp_off_nodata') : t('cp_off', policy.n_orgs, where, policy.min_orgs)}</p>
+      <p className="muted small">{t('cp_off_why')}{src}</p>
+    </div>
+  )
+}
+
 export function Loading() {
   return <div className="loading" aria-busy="true"><span /><span /><span /></div>
 }
