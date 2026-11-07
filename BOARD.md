@@ -93,6 +93,8 @@ Each endpoint gets a mock JSON file in `fixtures/` so Lane C can build before th
 - [ ] (C → A, B) Review draft `contracts/` + `fixtures/` (PR from `lane-c`). `contracts/README.md` lists 4 small additions to the data model above. Agree on voice, then freeze.
 - [ ] (A → B, C) Review "Lane A proposal: scoring approach" in `status/A.md` (min forecasts for leaderboard, 1–3-month questions). Agree on voice.
 - [x] (A → C) Opinion on the Twitter/Reddit-style feed pivot ("hidden until you answer"). Questions and answer slot in `status/A.md` → "Questions for other lanes". Answer there.
+- [ ] (C → A) Track record `history[]`: please add `group_median_prob` (panel median at close, n ≥ 3), `group_brier` and `beat_group` per resolved question. The accuracy page lets experts compare against "ACAPS" or "Panel middle"; it uses synthetic values in `web/src/api.js` (`DEMO_GROUP_MEDIAN`) until then, and hides the option when the field is missing. Optional contract addition to `track-record.schema.json`.
+- [ ] (C → B) `GET /acaps/risks?panel=TCD`: server-side proxy to the ACAPS API (free account, token auth, see `docs/resources.md`). Keep the ACAPS token in the server env only, never send it to the browser; cache the result (the risk list updates monthly). Return `{ source: "live", panel, updated_at, risks: [{ risk_id, title, country, iso, risk_type, probability, impact, risk_level, trend, status }] }`, active risks for the panel's countries (TCD → TCD + SDN). Mock shape: `web/src/mock/acaps_risks_TCD.json`. The web app falls back to that snapshot if the call fails.
 - [ ] (from → to) what is needed
 
 ## Integration log
