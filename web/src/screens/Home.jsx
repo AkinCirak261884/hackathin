@@ -25,7 +25,7 @@ export default function Home() {
             <h2 className="q-title">{r.title}</h2>
             {r.practice && <p className="q-sub">{t('practice_card')}</p>}
             <a className={`btn block ${r.answered ? 'answered' : ''}`} href={`#/${r.answered ? 'reveal' : 'pulse'}/${r.round_id}`}>
-              {r.answered ? `✓ ${t('answered')}` : t('start')}
+              {r.answered ? t('answered') : t('start')}
             </a>
           </article>
         ))}
@@ -34,7 +34,7 @@ export default function Home() {
       {/* TEMPORARY: demo-only reset, remove before the pilot */}
       {MOCK && hasAnySubmission() && (
         <div className="demo-reset">
-          <button className="btn ghost small-btn" onClick={reset}>↺ {t('reset_demo')}</button>
+          <button className="btn ghost small-btn" onClick={reset}>{t('reset_demo')}</button>
           <span className="muted small">{t('reset_demo_d')}</span>
         </div>
       )}

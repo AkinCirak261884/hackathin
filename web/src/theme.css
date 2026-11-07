@@ -241,3 +241,8 @@ a.card { color: inherit; text-decoration: none; cursor: pointer; }
 .revision-note { margin: 0 0 16px; font-size: 14px; }
 .revision-note ul { margin: 6px 0; padding-left: 18px; }
 @media (min-width: 768px) { .decide-actions .btn { flex: 0 0 auto; min-width: 200px; } }
+
+/* line icons (replace emoji/glyphs) */
+.icon { display: block; flex: none; }
+.vchip .icon { width: 16px; height: 16px; }
+.seg3 b { display: flex; align-items: center; justify-content: center; height: 24px; }

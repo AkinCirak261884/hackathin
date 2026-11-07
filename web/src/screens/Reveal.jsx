@@ -53,7 +53,7 @@ function FullReveal({ round, agg, tr, just, roundId }) {
     <section className="page">
       {just && (
         <div className="banner">
-          <div><b>✓ {t('thanks')}</b>{rec && <div className="small">{t('record_banner', rec.correct, rec.total)}</div>}</div>
+          <div><b>{t('thanks')}</b>{rec && <div className="small">{t('record_banner', rec.correct, rec.total)}</div>}</div>
           <a className="btn small-btn" href="#/me">{t('see_profile')}</a>
         </div>
       )}
@@ -134,7 +134,7 @@ function MyAnswers({ round, agg }) {
             const p2 = revised[q.question_id]
             return (
               <div key={q.question_id} className="recap-row">
-                <span>{tx(q, 'title')}{byQ[q.question_id]?.seeing ? ` · ✓ ${t('a_seeing')}` : ''}</span>
+                <span>{tx(q, 'title')}{byQ[q.question_id]?.seeing ? ` · ${t('a_seeing')}` : ''}</span>
                 {p != null && <div className="recap-prob"><ProbMeter p={p2 ?? p} /><b>{p2 != null ? `${asPct(p)} → ${asPct(p2)}` : asPct(p)}</b></div>}
               </div>
             )
@@ -185,7 +185,7 @@ function Comments({ comments, round, hideNumbers = false }) {
                   </span>
                   <span className="c-record">
                     {anon ? t('c_anon_note')
-                      : c.record && c.record.resolved > 0 ? <><b>✓</b> {t('c_record', c.record.correct, c.record.resolved)}</>
+                      : c.record && c.record.resolved > 0 ? t('c_record', c.record.correct, c.record.resolved)
                       : t('c_new')}
                   </span>
                 </div>
@@ -229,7 +229,7 @@ function PracticeOutcome({ round, agg }) {
         <div className="outcome-score">
           <VerdictBadge verdict={verdict(you, out)} />
           <span>{t('you_said', asPct(you))} · {t('acaps_said', asPct(o.acaps_prob))}</span>
-          <span className={`beat ${b < ab ? 'yes' : 'no'}`}>{b < ab ? `▲ ${t('beat_acaps')}` : t('acaps_closer')}</span>
+          <span className={`beat ${b < ab ? 'yes' : 'no'}`}>{b < ab ? t('beat_acaps') : t('acaps_closer')}</span>
         </div>
       )}
       <p className="muted small">{t('practice_scored')}</p>
@@ -282,7 +282,7 @@ function ReasonsFirst({ round, agg, just, rec, onDecided }) {
     <section className="page">
       {just && (
         <div className="banner">
-          <div><b>✓ {t('thanks')}</b>{rec && <div className="small">{t('record_banner', rec.correct, rec.total)}</div>}</div>
+          <div><b>{t('thanks')}</b>{rec && <div className="small">{t('record_banner', rec.correct, rec.total)}</div>}</div>
         </div>
       )}
       <Head level={1} eyebrow={t('rv_step')} title={t('rv_title')} sub={t('rv_sub')} />

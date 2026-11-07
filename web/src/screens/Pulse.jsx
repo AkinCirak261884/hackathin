@@ -4,7 +4,7 @@ import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
 import { asPct, likelihoodKey } from '../stats.js'
 import TierPicker from '../components/TierPicker.jsx'
-import { Head, Chip, Loading } from '../components/ui.jsx'
+import { Head, Chip, Loading, Icon } from '../components/ui.jsx'
 import { ProbMeter } from '../components/charts.jsx'
 
 const PRESETS = [0.1, 0.3, 0.5, 0.7, 0.9]
@@ -75,7 +75,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
         {['too_low', 'agree', 'too_high'].map((v) => (
           <button key={v} type="button" className={`${v} ${a[field] === v ? 'on' : ''}`} aria-pressed={a[field] === v}
             onClick={() => set({ [field]: v })}>
-            <b>{{ too_low: '↓', agree: '✓', too_high: '↑' }[v]}</b>{t(v)}
+            <b><Icon name={{ too_low: 'down', agree: 'check', too_high: 'up' }[v]} size={20} /></b>{t(v)}
           </button>
         ))}
       </div>
@@ -202,7 +202,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
               )
             })}
           </div>
-          <p className="note">🔒 {t('why_private')}</p>
+          <p className="note">{t('why_private')}</p>
         </>
       ),
     },
@@ -222,7 +222,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
       <aside className="desktop-only pulse-aside card"><RiskSummary risk={risk} /></aside>
       <section className="pulse-main">
         <div className="progress" aria-hidden="true"><div style={{ width: `${((step + 1) / steps.length) * 100}%` }} /></div>
-        {round.practice && <p className="practice-note">🕘 {t('practice_note', date(round.as_of))}</p>}
+        {round.practice && <p className="practice-note">{t('practice_note', date(round.as_of))}</p>}
         <Head level={1} eyebrow={t('step', step + 1, steps.length)} title={s.title} sub={s.sub} />
         <div className="step-body" key={s.key}>{s.body}</div>
         <div className="actionbar">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Icon } from './ui.jsx'
 import { useT } from '../i18n.jsx'
 import { asPct, r05 } from '../stats.js'
 
@@ -133,7 +134,7 @@ export function RankingBars({ ranking, options, yours = [] }) {
   )
 }
 
-const ICON = { correct: '✓', wrong: '✗', nocall: '–' }
+const ICON = { correct: 'check', wrong: 'cross', nocall: 'dash' }
 
 export function RecordHero({ correct, total, verdicts }) {
   const { t } = useT()
@@ -142,7 +143,7 @@ export function RecordHero({ correct, total, verdicts }) {
       <div className="hero-num">{t('correct_of', correct, total)}</div>
       <div className="hero-label">{t('correct_label')}</div>
       <div className="verdict-row" aria-hidden="true">
-        {verdicts.map((v, i) => <span key={i} className={`vchip ${v}`}>{ICON[v]}</span>)}
+        {verdicts.map((v, i) => <span key={i} className={`vchip ${v}`}><Icon name={ICON[v]} /></span>)}
       </div>
       <div className="muted small">{t('correct_hint')}</div>
     </div>
@@ -151,7 +152,7 @@ export function RecordHero({ correct, total, verdicts }) {
 
 export function VerdictBadge({ verdict }) {
   const { t } = useT()
-  return <span className={`vbadge ${verdict}`}>{ICON[verdict]} {t(`v_${verdict}`)}</span>
+  return <span className={`vbadge ${verdict}`}>{t(`v_${verdict}`)}</span>
 }
 
 // `vs` picks the baseline row: 'acaps' (default) or 'group' (panel middle answer)

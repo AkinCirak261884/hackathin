@@ -22,7 +22,7 @@ export default function Profile() {
         <div>
           <Head level={1} title={`${t('profile')} · ${demoPseudonym()}`} sub={t('profile_sub')} />
           <div className="chips">
-            {tr.super_estimator && <span className="badge-star" title={t('super_est_d')}>★ {t('super_est')}</span>}
+            {tr.super_estimator && <span className="badge-star" title={t('super_est_d')}>{t('super_est')}</span>}
           </div>
         </div>
       </div>

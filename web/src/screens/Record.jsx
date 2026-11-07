@@ -16,7 +16,7 @@ export function PastCard({ r }) {
       <div className="item-top">
         <span className="chips">
           <VerdictBadge verdict={verdict(r.your_prob, r.outcome)} />
-          <span className={`beat ${r.beat_acaps ? 'yes' : 'no'}`}>{r.beat_acaps ? `▲ ${t('beat_acaps')}` : t('acaps_closer')}</span>
+          <span className={`beat ${r.beat_acaps ? 'yes' : 'no'}`}>{r.beat_acaps ? t('beat_acaps') : t('acaps_closer')}</span>
         </span>
         <span className="muted small">{r.outcome ? t('happened') : t('not_happened')}</span>
       </div>
@@ -114,7 +114,7 @@ export function AccuracyPage() {
           <p className="takeaway">{t(vs === 'group' ? 'beat_group_n' : 'beat_acaps_n', nBeat, n)}</p>
           <p className="muted small">
             {!counted ? t('not_ranked', tr.forecasts_until_counted)
-              : tr.super_estimator ? `★ ${t('acc_super_yes')}` : t('acc_super_no')}
+              : tr.super_estimator ? t('acc_super_yes') : t('acc_super_no')}
           </p>
         </article>
         <article className="card">
@@ -133,7 +133,7 @@ export function AccuracyPage() {
         {h.map((r) => (
           <a key={r.question_id} className="card item" href={`#/guess/${r.question_id}`}>
             <div className="item-top">
-              <span className={`beat ${r[b.beat] ? 'yes' : 'no'}`}>{r[b.beat] ? `▲ ${t(b.win)}` : t(b.lose)}</span>
+              <span className={`beat ${r[b.beat] ? 'yes' : 'no'}`}>{r[b.beat] ? t(b.win) : t(b.lose)}</span>
               <span className="muted small">
                 {t('you_said', asPct(r.your_prob))} · {t(b.label)} {asPct(r[b.prob])} · {r.outcome ? t('happened') : t('not_happened')}
               </span>

@@ -34,7 +34,7 @@ export default function Guess({ questionId }) {
         sub={open ? tx(open) : past.text.split('? ')[1] ? past.text.split('? ')[0] + '?' : null} />
       <div className="chips guess-chips">
         {past && <VerdictBadge verdict={verdict(past.your_prob, past.outcome)} />}
-        {past && <span className={`beat ${past.beat_acaps ? 'yes' : 'no'}`}>{past.beat_acaps ? `▲ ${t('beat_acaps')}` : t('acaps_closer')}</span>}
+        {past && <span className={`beat ${past.beat_acaps ? 'yes' : 'no'}`}>{past.beat_acaps ? t('beat_acaps') : t('acaps_closer')}</span>}
         {past?.practice && <Chip tone="practice">{t('practice_tag')}</Chip>}
         {open?.submitted_at && <Chip tone="new">{t('submitted', date(open.submitted_at))}</Chip>}
         {open?.revised_prob != null && <Chip>{t('rv_revised_to', asPct(open.revised_prob))}</Chip>}
