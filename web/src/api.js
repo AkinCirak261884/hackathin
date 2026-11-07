@@ -266,6 +266,7 @@ const fromApi = {
       // suppressed questions report n as "<3" (text), so count only numbers
       round_id: a.round_id, n_responses: Math.max(0, ...qs.map((q) => (typeof q.n === 'number' ? q.n : 0))), can_revise: a.can_revise,
       elsewhere: !!a.answered_elsewhere,
+      late: !!a.late,   // you answered after the group view opened: the numbers shown are the on-time answers
       rating: null,
       agree: agreeQ ? { share: agreeQ.agree_share, n: agreeQ.n,
         you: mine[agreeQ.question_id] ?? (localRating ? localRating.rating_probability === 'agree' && localRating.rating_impact === 'agree' : undefined) } : null,

@@ -5,10 +5,10 @@ import { useT } from '../i18n.jsx'
 import { Head, Chip, Loading, LoadError } from '../components/ui.jsx'
 
 // What the round's button does: start, update after the reveal (in the window that answered), or see the group.
-// No button, a note instead: answered elsewhere (anonymous, other window/device), or first answers already closed.
+// Answered elsewhere (anonymous, other window/device): a note + See the group. Not answered: Start, also after the
+// reveal (late first answers are accepted; the group view opens only after your own answer).
 function roundAction(r, t) {
   if (r.elsewhere) return { href: `#/reveal/${r.round_id}`, label: t('see_group'), cls: 'answered', note: 'answered_elsewhere' }
-  if (!r.answered && !MOCK && r.stage === 'reveal') return { note: 'submit_closed' }
   if (!r.answered) return { href: `#/pulse/${r.round_id}`, label: t('start'), cls: '' }
   const decided = r.decided || !!revisionOf(r.round_id)?.decision
   if (!r.practice && !decided && (MOCK || r.stage === 'reveal')) return { href: `#/reveal/${r.round_id}`, label: t('update_answers'), cls: '' }
