@@ -154,7 +154,7 @@ function MyAnswers({ round, agg }) {
   const r = byQ[rating.question_id] || { rating_probability: you.probability, rating_impact: you.impact }
   const picks = (ranking && byQ[ranking.question_id]?.ranking) || you.ranking || []
   const otherText = ranking && byQ[ranking.question_id]?.ranking_other
-  const label = (id) => (id === 'OTHER' ? `${otherText} (${t('own_tag')})` : tx(ranking?.options.find((o) => o.option_id === id), 'label'))
+  const label = (id) => (id === 'OTHER' ? `${otherText}${mine?.other_risk_prob != null ? ` · ${asPct(mine.other_risk_prob)}` : ''} (${t('own_tag')})` : tx(ranking?.options.find((o) => o.option_id === id), 'label'))
   const rev = revisionOf(round.round_id)
   const revised = rev?.decision === 'revised' ? Object.fromEntries(rev.answers.map((x) => [x.question_id, x.prob])) : {}
 
@@ -188,7 +188,7 @@ function MyAnswers({ round, agg }) {
             <>
               {mine.seeing_other?.length > 0 && (
                 <div className="recap-row"><span>{t('sig_title')}</span>
-                  <b className="answer-text">{mine.seeing_other.map((s) => s.text + (s.bigger ? ` (${t('sig_bigger_tag')})` : '')).join('\n')}</b></div>
+                  <b className="answer-text">{mine.seeing_other.map((s) => `${s.text}${s.prob != null ? ` · ${asPct(s.prob)}` : ''}` + (s.bigger ? ` (${t('sig_bigger_tag')})` : '')).join('\n')}</b></div>
               )}
               <div className="recap-row"><span>{t('a_missing')}</span><b className="answer-text">{mine.missing_text || t('a_none')}</b></div>
               <div className="recap-row"><span>{t('a_why')}</span><b className="answer-text">{mine.reasoning_text || t('a_none')}</b></div>
@@ -456,6 +456,7 @@ function PanelAdditions({ agg }) {
             <div key={a.kind + a.text} className="pa-item">
               <div className="chips">
                 <span className="chip">{a.kind === 'risk' ? t('pa_risk') : t('pa_signal')}</span>
+                {a.prob != null && <span className="chip">{t('own_prob_chip', asPct(a.prob))}</span>}
                 {a.bigger && <span className="chip hot">{t('sig_bigger_tag')}</span>}
                 {a.you && <span className="you-tag">{t('you')}</span>}
               </div>

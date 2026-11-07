@@ -31,6 +31,27 @@ function RiskSummary({ risk }) {
 
 const OTHER = 'OTHER'
 
+// Slider + quick presets + reading, shared by ACAPS's trigger questions and the expert's own additions.
+function ProbPicker({ p, touched, label, onChange }) {
+  const { t } = useT()
+  const v = p ?? 0.5
+  return (
+    <>
+      <div className={`prob-read ${touched ? '' : 'untouched'}`}>
+        <span className="big">{asPct(v)}</span>
+        <span className="muted">{t(likelihoodKey(v))}</span>
+      </div>
+      <input type="range" min="0" max="100" step="5" value={Math.round(v * 100)} aria-label={label}
+        onChange={(e) => onChange(e.target.value / 100)} />
+      <div className="presets">
+        {PRESETS.map((x) => (
+          <button key={x} type="button" className={touched && v === x ? 'on' : ''} onClick={() => onChange(x)}>{asPct(x)}</button>
+        ))}
+      </div>
+    </>
+  )
+}
+
 // "Something else is happening": developments the expert sees that ACAPS hasn't listed, optionally flagged as
 // possibly bigger than the risk itself. Goes to the ACAPS moderator only (never shown word for word to peers).
 function SignalAdder({ signals, policy, onChange }) {
@@ -67,7 +88,7 @@ function SignalAdder({ signals, policy, onChange }) {
 }
 
 // "A bigger risk isn't on the list?": the expert's own option, ranked like the others.
-function OtherRisk({ value, rank, full, policy, onToggle, onChange }) {
+function OtherRisk({ value, rank, full, policy, prob, onProb, onToggle, onChange }) {
   const { t } = useT()
   const [draft, setDraft] = useState('')
   if (value) return (
@@ -77,6 +98,10 @@ function OtherRisk({ value, rank, full, policy, onToggle, onChange }) {
         <span className="row-text">{value}</span>
         <span className="pill">{t('own_tag')}</span>
       </button>
+      <div className="card qcard own-q own-risk-prob">
+        <p className="q-sub">{t('own_risk_prob_q')}</p>
+        <ProbPicker p={prob} touched={prob != null} label={value} onChange={onProb} />
+      </div>
       <button type="button" className="link own-remove" onClick={() => onChange('')}>{t('remove')} · {t('own_tag')}</button>
     </>
   )
@@ -102,6 +127,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
     signals: [],     // things the expert sees that ACAPS hasn't listed: [{ text, bigger }]
     other_risk: '',  // a risk missing from the top-3 list (contract: ranking_other, ranked as 'OTHER')
     source_other: '', // "Based on: other": the expert's own source, in their words (moderator-only)
+    other_risk_prob: null, // likelihood the expert gives their own top-3 risk
   })
   const set = (patch) => setA((s) => ({ ...s, ...patch }))
   if (roundErr) return <LoadError error={roundErr} />
@@ -130,7 +156,8 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
         ...forecasts.map((q) => ({ question_id: q.question_id, prob: a.prob[q.question_id] ?? 0.5, seeing: !!a.seeing[q.trigger_id] })),
         ...(ranking ? [{ question_id: ranking.question_id, ranking: a.ranking, ranking_other: a.other_risk.trim() || null }] : []),
       ],
-      seeing_other: a.signals.length ? a.signals : null, // moderator-only, like missing_text
+      seeing_other: a.signals.length ? a.signals.map((s) => ({ ...s, prob: s.prob ?? 0.5 })) : null,
+      other_risk_prob: a.other_risk.trim() ? (a.other_risk_prob ?? 0.5) : null,
     }
     if (a.tier === 'anonymous') body.anon_token = await anonToken()
     await api.submit(roundId, body)
@@ -180,7 +207,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
     },
     {
       key: 'forecast', title: t('s_forecast'), sub: t('s_forecast_sub'),
-      body: forecasts.map((q, i) => {
+      body: <>{forecasts.map((q, i) => {
         const p = a.prob[q.question_id] ?? 0.5
         const touched = a.prob[q.question_id] != null
         return (
@@ -192,22 +219,26 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
             </div>
             <h3 className="q-title">{tx(q, 'title')}</h3>
             <p className="q-sub">{tx(q)}</p>
-            <div className={`prob-read ${touched ? '' : 'untouched'}`}>
-              <span className="big">{asPct(p)}</span>
-              <span className="muted">{t(likelihoodKey(p))}</span>
-            </div>
-            <input type="range" min="0" max="100" step="5" value={Math.round(p * 100)}
-              aria-label={tx(q, 'title')}
-              onChange={(e) => set({ prob: { ...a.prob, [q.question_id]: e.target.value / 100 } })} />
-            <div className="presets">
-              {PRESETS.map((v) => (
-                <button key={v} type="button" className={touched && p === v ? 'on' : ''}
-                  onClick={() => set({ prob: { ...a.prob, [q.question_id]: v } })}>{asPct(v)}</button>
-              ))}
-            </div>
+            <ProbPicker p={p} touched={touched} label={tx(q, 'title')}
+              onChange={(v) => set({ prob: { ...a.prob, [q.question_id]: v } })} />
           </div>
         )
-      }),
+      })}
+      {/* the expert's own "something else is happening" items get a likelihood too */}
+      {a.signals.map((s, i) => (
+        <div key={'sig' + i} className="card qcard own-q">
+          <div className="chips">
+            <span className="pill">{t('own_tag')}</span>
+            {s.bigger && <span className="chip hot">{t('sig_bigger_tag')}</span>}
+            <Chip>{t('deadline', date(forecasts[0]?.closes_at || round.closes_at))}</Chip>
+          </div>
+          <h3 className="q-title">{s.text}</h3>
+          <p className="q-sub">{t('own_prob_q')}</p>
+          <ProbPicker p={s.prob} touched={s.prob != null} label={s.text}
+            onChange={(v) => set({ signals: a.signals.map((x, j) => (j === i ? { ...x, prob: v } : x)) })} />
+        </div>
+      ))}
+      </>,
     },
     ranking && {
       key: 'ranking', title: t('s_ranking'), sub: t('s_ranking_sub'),
@@ -227,6 +258,7 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
             )
           })}
           <OtherRisk value={a.other_risk} rank={a.ranking.indexOf(OTHER)} full={a.ranking.length >= 3} policy={policy}
+            prob={a.other_risk_prob} onProb={(v) => set({ other_risk_prob: v })}
             onToggle={() => set({ ranking: a.ranking.includes(OTHER) ? a.ranking.filter((x) => x !== OTHER) : [...a.ranking, OTHER] })}
             onChange={(text) => set({
               other_risk: text,
@@ -263,14 +295,14 @@ export default function Pulse({ roundId = 'RD-R1043-1' }) {
             {a.signals.length > 0 && (
               <div className="recap-row">
                 <span>{t('sig_title')}</span>
-                <b>{a.signals.map((s) => s.text + (s.bigger ? ` (${t('sig_bigger_tag')})` : '')).join(' · ')}</b>
+                <b>{a.signals.map((s) => `${s.text} · ${asPct(s.prob ?? 0.5)}` + (s.bigger ? ` (${t('sig_bigger_tag')})` : '')).join('  ·  ')}</b>
                 <button type="button" className="link" onClick={() => goTo('triggers')}>{t('edit')}</button>
               </div>
             )}
             {ranking && (
               <div className="recap-row">
                 <span>{t('s_ranking')}</span>
-                <b>{a.ranking.length ? a.ranking.map((id, i) => `${i + 1}. ${optLabel(id)}`).join('  ') : '—'}</b>
+                <b>{a.ranking.length ? a.ranking.map((id, i) => `${i + 1}. ${optLabel(id)}${id === OTHER ? ` · ${asPct(a.other_risk_prob ?? 0.5)}` : ''}`).join('  ') : '—'}</b>
                 <button type="button" className="link" onClick={() => goTo('ranking')}>{t('edit')}</button>
               </div>
             )}

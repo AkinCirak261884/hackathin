@@ -79,9 +79,9 @@ function saveSubmission(roundId, body) {
 // DEMO ONLY (pitch site): what other panel members added that ACAPS hadn't listed, and an AI summary of it.
 // Synthetic, like all fixture data. On the live site both come from the API (/thread: additions, summary).
 const DEMO_ADDITIONS = [
-  { kind: 'signal', bigger: true, text: 'Armed men recruiting young refugees around the Adré transit sites' },
-  { kind: 'signal', bigger: false, text: 'Fuel and sorghum prices in Abéché up sharply since September' },
-  { kind: 'risk', bigger: false, text: 'Cholera and hepatitis E in the overcrowded eastern camps' },
+  { kind: 'signal', bigger: true, prob: 0.7, text: 'Armed men recruiting young refugees around the Adré transit sites' },
+  { kind: 'signal', bigger: false, prob: 0.85, text: 'Fuel and sorghum prices in Abéché up sharply since September' },
+  { kind: 'risk', bigger: false, prob: 0.4, text: 'Cholera and hepatitis E in the overcrowded eastern camps' },
 ]
 const DEMO_SUMMARY = { source: 'ai', synthetic: true, themes: [
   { label: 'Armed recruitment around camps', n: 2, summary: 'Two experts report armed recruitment of young refugees near Adré and think it could grow beyond the cross-border risk ACAPS describes.' },
@@ -103,8 +103,8 @@ function withAdditions(agg, sub) {
   agg = { ...agg, comments_policy: DEMO_COMMENTS[agg.round_id] || null }
   if (agg.round_id !== MAIN_ROUND) return agg
   const ranking = sub?.answers?.find((x) => x.ranking_other)?.ranking_other
-  const mine = [...(sub?.seeing_other || []).map((s) => ({ kind: 'signal', bigger: !!s.bigger, text: s.text, you: true })),
-    ...(ranking ? [{ kind: 'risk', bigger: false, text: ranking, you: true }] : [])]
+  const mine = [...(sub?.seeing_other || []).map((s) => ({ kind: 'signal', bigger: !!s.bigger, prob: s.prob ?? null, text: s.text, you: true })),
+    ...(ranking ? [{ kind: 'risk', bigger: false, prob: sub.other_risk_prob ?? null, text: ranking, you: true }] : [])]
   return { ...agg, additions: [...mine, ...DEMO_ADDITIONS], summary: DEMO_SUMMARY }
 }
 
@@ -264,9 +264,10 @@ const fromApi = {
 function foldAdditions(body) {
   const lines = []
   if (body.missing_text) lines.push(body.missing_text)
-  for (const s of body.seeing_other || []) lines.push(`Seeing, not on ACAPS's list${s.bigger ? ' (may be bigger than this risk)' : ''}: ${s.text}`)
+  const pct = (p) => (p == null ? '' : ` · ${Math.round(p * 100)}% likely`)
+  for (const s of body.seeing_other || []) lines.push(`Seeing, not on ACAPS's list${s.bigger ? ' (may be bigger than this risk)' : ''}${pct(s.prob)}: ${s.text}`)
   const other = body.answers.find((x) => x.ranking_other)?.ranking_other
-  if (other) lines.push(`Risk missing from the top-3 list: ${other}`)
+  if (other) lines.push(`Risk missing from the top-3 list${pct(body.other_risk_prob)}: ${other}`)
   return lines.length ? lines.join('\n').slice(0, 2000) : null
 }
 
