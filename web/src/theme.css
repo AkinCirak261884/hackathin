@@ -279,3 +279,15 @@ a.card { color: inherit; text-decoration: none; cursor: pointer; }
 .own-note { margin: 2px 0 0; }
 .own-remove { align-self: flex-start; font-size: 13px; padding: 0 0 8px; min-height: 0; }
 .additions-note { margin: 0 0 16px; font-size: 14px; }
+
+/* what the panel added */
+.panel-adds { margin-top: 20px; }
+.pa-summary { border-left: 3px solid var(--accent); }
+.pa-summary .eyebrow { display: flex; gap: 8px; align-items: center; }
+.pa-theme { padding: 10px 0; border-top: 1px solid var(--line); }
+.pa-theme:first-of-type { border-top: 0; padding-top: 4px; }
+.pa-theme p { margin: 4px 0 0; font-size: 15px; line-height: 1.5; }
+.pa-list { padding-top: 4px; padding-bottom: 4px; }
+.pa-item { padding: 12px 0; border-top: 1px solid var(--line); }
+.pa-item:first-child { border-top: 0; }
+.pa-item p { margin: 6px 0 0; font-size: 15px; line-height: 1.45; }
