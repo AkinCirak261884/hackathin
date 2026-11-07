@@ -154,12 +154,13 @@ export function VerdictBadge({ verdict }) {
   return <span className={`vbadge ${verdict}`}>{ICON[verdict]} {t(`v_${verdict}`)}</span>
 }
 
-export function BrierCompare({ you, acaps }) {
+// `vs` picks the baseline row: 'acaps' (default) or 'group' (panel middle answer)
+export function BrierCompare({ you, acaps, vs = 'acaps' }) {
   const { t } = useT()
   const max = Math.max(0.25, you, acaps)
   const rows = [
     { k: 'you', label: t('you'), v: you },
-    { k: 'acaps', label: t('acaps_baseline'), v: acaps },
+    { k: vs, label: vs === 'group' ? t('vs_group') : t('acaps_baseline'), v: acaps },
   ]
   return (
     <div className="brier">

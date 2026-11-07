@@ -8,6 +8,7 @@ import postReply from '@fixtures/post_response_201.json'
 import trackRecord from '@fixtures/me_track_record.json'
 import trackRecordNew from '@fixtures/me_track_record_new.json'
 import publicSummaries from '@fixtures/public_summaries.json'
+import acapsRisksTCD from './mock/acaps_risks_TCD.json' // snapshot from the CSV until Lane B's /acaps/risks exists
 import { pct, r05, recordSummary } from './stats.js'
 
 const BASE = import.meta.env.VITE_API_URL
@@ -17,6 +18,8 @@ const clone = (v) => JSON.parse(JSON.stringify(v))
 const ROUNDS = { [round.round_id]: round, [practiceRound.round_id]: practiceRound }
 const AGGS = { [aggregate.round_id]: aggregate, [practiceAggregate.round_id]: practiceAggregate }
 const MAIN_ROUND = round.round_id
+export const MAIN_ROUND_ID = MAIN_ROUND
+export const PRACTICE_ROUND_ID = practiceRound.round_id
 const delay = (v) => new Promise((r) => setTimeout(() => r(clone(v)), 120))
 
 async function http(path, opts) {
@@ -89,6 +92,18 @@ function personalise(agg, sub) {
   return a
 }
 
+// MOCK ONLY: panel middle answer per resolved question, until Lane A adds group_median_prob to history
+// (requested in BOARD.md). Synthetic, like all fixture data. The practice question uses its real aggregate.
+const DEMO_GROUP_MEDIAN = { R1014: 0.7, R0094: 0.4, R0248: 0.7, R1028: 0.3, R0073: 0.4, R0301: 0.75, R0089: 0.45, R0002: 0.7,
+  R0120: 0.55, R0242: 0.45 }
+function withGroup(h) {
+  if (h.group_median_prob != null) return h
+  const g = h.practice ? practiceAggregate.forecasts.find((f) => f.question_id === h.question_id)?.median : DEMO_GROUP_MEDIAN[h.risk_id]
+  if (g == null) return h
+  const gb = +((g - h.outcome) ** 2).toFixed(4)
+  return { ...h, group_median_prob: g, group_brier: gb, beat_group: h.brier < gb }
+}
+
 function personalTrackRecord(tr, sub) {
   const practice = lastSubmission(practiceRound.round_id)
   if (!sub && !practice) return tr
@@ -106,7 +121,7 @@ function personalTrackRecord(tr, sub) {
       const b = +((p - o) ** 2).toFixed(4), ab = +((q.acaps_baseline - o) ** 2).toFixed(4)
       t.history.unshift({ question_id: q.question_id, risk_id: q.risk_id, text: `${q.text} (Ukraine, practice)`, closes_at: q.closes_at,
         outcome: o, outcome_label: o ? 'happened' : "didn't happen", your_prob: p, brier: b,
-        acaps_prob: q.acaps_baseline, acaps_brier: ab, beat_acaps: b < ab, practice: true })
+        acaps_prob: q.acaps_baseline, acaps_brier: ab, beat_acaps: b < ab, practice: true, round_id: practiceRound.round_id })
     }
     const h = t.history, n = h.length
     t.n_resolved = n
@@ -130,11 +145,16 @@ export const api = {
     MOCK ? delay(personalise(AGGS[id] || aggregate, lastSubmission(id))) : http(`/rounds/${id}/aggregate?token=${encodeURIComponent(token)}`),
   // mock: add ?new=1 to the URL hash to see a new expert who is not ranked yet
   trackRecord: (token) =>
-    MOCK ? delay(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission()))
+    MOCK ? delay(withGroups(personalTrackRecord(isNewcomerDemo() ? trackRecordNew : trackRecord, lastSubmission())))
       : http(`/me/track-record?token=${encodeURIComponent(token)}`),
   publicSummaries: () => (MOCK ? delay(publicSummaries) : http('/public/summaries')),
+  // Latest published ACAPS risks for a panel. Lane B proxies the ACAPS API server-side (token never reaches the browser).
+  // Shape: { source: 'live' | 'snapshot', panel, updated_at?, risks: [{ risk_id, title, country, probability, impact, risk_level, trend, ... }] }
+  acapsRisks: (panel = 'TCD') =>
+    MOCK ? delay(acapsRisksTCD) : http(`/acaps/risks?panel=${panel}`).catch(() => clone(acapsRisksTCD)),
 }
 
+const withGroups = (tr) => ({ ...tr, history: tr.history.map(withGroup) })
 const isNewcomerDemo = () => window.location.hash.includes('new=1')
 
 // Demo identity: in the real app this comes from the invite link (?invite=…).

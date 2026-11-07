@@ -8,6 +8,7 @@ export default function Home() {
   const { t, date } = useT()
   const [version, setVersion] = useState(0)
   const [rounds] = useLoad(() => api.openRounds('TCD'), [version])
+  const [acaps] = useLoad(() => api.acapsRisks('TCD'), [])
   if (!rounds) return <Loading />
   const reset = () => { resetDemoAnswers(); setVersion((v) => v + 1) }
   return (
@@ -29,6 +30,7 @@ export default function Home() {
           </article>
         ))}
       </div>
+      {acaps?.risks?.length > 0 && <AcapsRisks data={acaps} openIds={rounds.map((r) => r.risk_id)} />}
       {/* TEMPORARY: demo-only reset, remove before the pilot */}
       {MOCK && hasAnySubmission() && (
         <div className="demo-reset">
@@ -37,6 +39,37 @@ export default function Home() {
         </div>
       )}
       <p className="center"><a href="#/signpost" className="muted small">{t('signpost')}</a></p>
+    </section>
+  )
+}
+
+// Latest ACAPS risks for this panel (ACAPS API via Lane B). Read-only context: not clickable, so no hover.
+function AcapsRisks({ data, openIds }) {
+  const { t, date } = useT()
+  const live = data.source === 'live'
+  return (
+    <section className="acaps-risks">
+      <Head eyebrow={live ? t('acaps_live') : t('acaps_snapshot')} title={t('acaps_title')} sub={t('acaps_sub')} />
+      <div className="card risk-list">
+        {data.risks.map((r) => (
+          <div key={r.risk_id} className="risk-line">
+            <div className="risk-line-main">
+              <div className="chips">
+                {r.risk_level && <span className={`level ${r.risk_level.toLowerCase()}`}>{t(`lvl_${r.risk_level.toLowerCase()}`)}</span>}
+                <Chip>{r.risk_id}</Chip><Chip>{r.country}</Chip>
+                {openIds.includes(r.risk_id) && <Chip tone="new">{t('acaps_in_round')}</Chip>}
+              </div>
+              <p className="risk-line-title">{r.title}</p>
+            </div>
+            <dl className="risk-line-facts">
+              <div><dt>{t('probability')}</dt><dd>{r.probability ?? '—'}</dd></div>
+              <div><dt>{t('impact')}</dt><dd>{r.impact != null ? `${r.impact}/5` : '—'}</dd></div>
+              <div><dt>{t('acaps_trend')}</dt><dd>{r.trend ? t(`tr_${r.trend.toLowerCase()}`) : '—'}</dd></div>
+            </dl>
+          </div>
+        ))}
+      </div>
+      <p className="muted small">{live && data.updated_at ? t('acaps_updated', date(data.updated_at)) : t('acaps_snapshot_d')}</p>
     </section>
   )
 }

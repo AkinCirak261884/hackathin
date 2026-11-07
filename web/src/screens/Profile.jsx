@@ -2,9 +2,10 @@ import React from 'react'
 import { api, DEMO_TOKEN, demoPseudonym } from '../api.js'
 import { useLoad } from '../useLoad.js'
 import { useT } from '../i18n.jsx'
-import { asPct, recordSummary, verdict } from '../stats.js'
+import { asPct, recordSummary } from '../stats.js'
 import { Head, Chip, Loading } from '../components/ui.jsx'
-import { RecordHero, BrierCompare, ProbMeter, VerdictBadge } from '../components/charts.jsx'
+import { RecordHero, BrierCompare, ProbMeter } from '../components/charts.jsx'
+import { PastCard } from './Record.jsx'
 
 // Track record follows Lane A's analysis/leaderboard.py track_record() output (contracts/schemas/track-record).
 export default function Profile() {
@@ -36,18 +37,22 @@ export default function Profile() {
       )}
 
       <div className="grid two">
-        <article className="card"><RecordHero {...rec} /></article>
-        <article className="card">
+        <a className="card" href="#/record">
+          <RecordHero {...rec} />
+          <span className="item-more center">{t('g_details')}</span>
+        </a>
+        <a className="card" href="#/accuracy">
           <Head title={t('brier_title')} sub={t('brier_sub')} />
           <BrierCompare you={tr.mean_brier} acaps={tr.acaps_baseline_brier} />
           <p className="takeaway">{t('beat_acaps_n', tr.n_beat_acaps, tr.n_resolved)}</p>
-        </article>
+          <span className="item-more">{t('g_details')}</span>
+        </a>
       </div>
 
       <Head title={t('latest')} sub={t('latest_sub')} />
       <div className="list">
         {tr.pending.map((p) => (
-          <article key={p.question_id} className="card item">
+          <a key={p.question_id} className="card item" href={`#/guess/${p.question_id}`}>
             <div className="chips">
               <Chip>{t('deadline', date(p.closes_at))}</Chip>
               {p.submitted_at && <Chip tone="new">{t('submitted', date(p.submitted_at))}</Chip>}
@@ -55,35 +60,25 @@ export default function Profile() {
             <h3 className="q-title">{tx(p, 'title')}</h3>
             <p className="q-sub">{tx(p)}</p>
             <div className="item-prob"><ProbMeter p={p.your_prob} /><b>{asPct(p.your_prob)}</b></div>
-          </article>
+            <span className="item-more">{t('g_details')}</span>
+          </a>
         ))}
       </div>
 
       <Head title={t('past')} sub={t('past_sub')} />
       <div className="list">
-        {tr.history.map((r) => (
-          <article key={r.question_id} className="card item">
-            <div className="item-top">
-              <span className="chips">
-                <VerdictBadge verdict={verdict(r.your_prob, r.outcome)} />
-                <span className={`beat ${r.beat_acaps ? 'yes' : 'no'}`}>{r.beat_acaps ? `▲ ${t('beat_acaps')}` : t('acaps_closer')}</span>
-              </span>
-              <span className="muted small">{r.outcome ? t('happened') : t('not_happened')}</span>
-            </div>
-            <p className="q-sub">{r.text}</p>
-            <div className="item-prob">
-              <ProbMeter p={r.your_prob} marker={r.acaps_prob} />
-              <b>{t('you_said', asPct(r.your_prob))}</b>
-            </div>
-            <div className="muted small">{t('acaps_said', asPct(r.acaps_prob))} · Brier {r.brier.toFixed(2)} vs {r.acaps_brier.toFixed(2)}</div>
-          </article>
-        ))}
+        {tr.history.map((r) => <PastCard key={r.question_id} r={r} />)}
       </div>
 
       {tr.impact?.length > 0 && (
         <>
-          <Head title={t('impact_title')} />
-          {tr.impact.map((i) => <p key={i.date} className="card small">★ {i.note}</p>)}
+          <Head title={t('impact_title')} sub={t('impact_sub')} />
+          {tr.impact.map((i) => (
+            <article key={i.date + i.risk_id} className="card impact">
+              <div className="chips"><Chip>{i.risk_id}</Chip><span className="muted small">{date(i.date)}</span></div>
+              <p className="small">{i.note}</p>
+            </article>
+          ))}
         </>
       )}
     </section>

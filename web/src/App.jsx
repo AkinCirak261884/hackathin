@@ -7,8 +7,10 @@ import Reveal from './screens/Reveal.jsx'
 import Profile from './screens/Profile.jsx'
 import PublicPage from './screens/Public.jsx'
 import Signpost from './screens/Signpost.jsx'
+import Guess from './screens/Guess.jsx'
+import { RecordPage, AccuracyPage } from './screens/Record.jsx'
 
-// Tiny hash router: #/pulse/RD-R1043-1, #/reveal/RD-R1043-1, #/me, #/public, #/signpost
+// Tiny hash router: #/pulse/RD-R1043-1, #/reveal/RD-R1043-1, #/me, #/guess/Q-R1014-MAT, #/public, #/signpost
 function useRoute() {
   const get = () => window.location.hash.replace(/^#\/?/, '').split('?')[0].split('/')
   const [route, setRoute] = useState(get)
@@ -35,12 +37,15 @@ function Shell() {
     { href: '#/me', key: 'me', label: t('nav_me'), icon: Icon.me },
     { href: '#/public', key: 'public', label: t('nav_public'), icon: Icon.public },
   ]
-  const current = page === 'reveal' || page === 'pulse' ? '' : page
+  const current = page === 'reveal' || page === 'pulse' ? '' : ['guess', 'record', 'accuracy'].includes(page) ? 'me' : page
   const screens = {
     '': <Home />,
     pulse: <Pulse roundId={id} />,
     reveal: <Reveal roundId={id} />,
     me: <Profile />,
+    guess: <Guess questionId={id} />,
+    record: <RecordPage />,
+    accuracy: <AccuracyPage />,
     public: <PublicPage />,
     signpost: <Signpost />,
   }
