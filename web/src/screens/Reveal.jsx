@@ -269,6 +269,9 @@ function CountryNow({ c }) {
       <p className="muted small">{t('cn_needs')}: {c.priority_needs.join(', ')}</p>
       <p className="note">{t('cn_source')} <a href={c.source_url} target="_blank" rel="noopener noreferrer">acaps.org</a> · {date(c.fetched_at)}</p>
     </article>
+  )
+}
+
 // Step 2, option B: peer reasons without numbers, then keep or revise once. First answer stays the scored one.
 function ReasonsFirst({ round, agg, just, rec, onDecided }) {
   const { t } = useT()
