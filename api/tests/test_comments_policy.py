@@ -71,3 +71,40 @@ def test_round_endpoints_carry_comments_block():
         assert rnd["comments"]["enabled"] is True and rnd["comments"]["source"]["as_of"]
         mod = client.get("/moderator/rounds/RND-R1043-1").json()
         assert mod["comments"] == rnd["comments"]
+
+
+# ---- area size (decided 7 Nov by the team owner while Lane B was offline) ----
+
+def test_named_village_turns_comments_off():
+    r = d("Clashes near Farchana camp in Ouaddai", "Chad")
+    assert r["enabled"] is False and r["basis"] == "small_place" and r["place"]["name"] == "Farchana"
+
+
+def test_city_name_is_not_a_small_place():
+    # "Port Sudan" is also the name of a small village in OSM, but it is a city: falls through to the area rules
+    r = d("Drone strikes on the port of Port Sudan", "Sudan")
+    assert r["basis"] != "small_place"
+
+
+def test_admin_areas_and_countries_are_never_towns():
+    for title, country in [("Escalating cross-border insecurity linked to the Sudan conflict in eastern Chad", "Chad"),
+                           ("Fighting in West Darfur displaces thousands", "Sudan")]:
+        assert d(title, country)["basis"] != "small_place"
+
+
+def test_few_people_affected_turns_comments_off():
+    # R0233 (Chad protests) has expected exposure "<20,000" in the Risk Radar
+    r = cp.decide({"risk_id": "R0233", "title": "Protests and violent clashes in N'Djamena", "country": "Chad"})
+    assert r["enabled"] is False and r["basis"] == "few_people" and r["people"] == "<20,000"
+
+
+def test_large_area_with_many_people_and_orgs_is_on():
+    r = cp.decide({"risk_id": "R1043", "title": "Escalating cross-border insecurity linked to the Sudan conflict "
+                   "increases protection risks and humanitarian needs in eastern Chad", "country": "Chad"})
+    assert r["enabled"] is True and r["basis"] == "large_area" and r["people"] == ">500,000"
+    assert any("Populated Places" in s["title"] for s in r["sources"])
+
+
+def test_people_bucket_parsing():
+    assert cp.people_upper("<20,000") == 20000 and cp.people_upper("20,000-100,000") == 100000
+    assert cp.people_upper(">500,000") == float("inf") and cp.people_upper("") is None
