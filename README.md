@@ -57,6 +57,8 @@ npm run dev          # http://localhost:5173, also reachable from a phone on the
 
 Use "Reset my answers (demo)" on the home page to take the check-in again.
 
+**Personal invite links (live API):** each expert opens `https://groundtruth-acaps-live.vercel.app/#/?invite=<their invite>`, for example `inv_demo_02` … `inv_demo_08` for the synthetic panel. The invite sits after `#`, so it is never sent to the server; the app removes it from the address bar and remembers it in that browser.
+
 **With the API (Lane B):**
 
 ```bash
