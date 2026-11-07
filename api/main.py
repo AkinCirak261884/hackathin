@@ -3,8 +3,10 @@ leaderboard. Still mock: AI clusters (moderator), publish flow and /public/summa
 
 Run:  uvicorn api.main:app --reload     (from the repo root)
 """
+import hmac
 import json
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal, Optional
@@ -29,12 +31,28 @@ async def lifespan(_app):
     # No IP logging (BOARD.md): uvicorn's access log prints client IP:port, so switch it off here
     # rather than trusting everyone to pass --no-access-log.
     logging.getLogger("uvicorn.access").disabled = True
-    init_db()
-    seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
+    # Hosted (Vercel + Supabase): schema and seed are applied once with `python -m api.seed`, not on
+    # every serverless cold start, so GT_SKIP_STARTUP_SEED=1 there.
+    if not os.environ.get("GT_SKIP_STARTUP_SEED"):
+        init_db()
+        seed.seed()  # idempotent: R1043 round + panel (Lane A's if present, else inv_demo_01..08)
     yield
 
 
 app = FastAPI(title="Ground Truth API", version="0.2.0", lifespan=lifespan)
+
+# Moderator endpoints expose reasoning text, known-tier identities, invites and publishing. When hosted,
+# GT_MODERATOR_KEY is set and every /moderator/* call must send it as X-Moderator-Key. Unset = local dev/tests.
+MODERATOR_KEY = os.environ.get("GT_MODERATOR_KEY")
+
+
+@app.middleware("http")
+async def moderator_key(request: Request, call_next):
+    if MODERATOR_KEY and request.url.path.startswith("/moderator") and request.method != "OPTIONS":
+        given = request.headers.get("x-moderator-key", "")
+        if not hmac.compare_digest(given.encode(), MODERATOR_KEY.encode()):
+            return JSONResponse({"detail": "moderator key required"}, status_code=401)
+    return await call_next(request)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 

@@ -1,0 +1,14 @@
+# API deploy (vercel.json): never upload secrets or unrelated folders
+.env
+.env.*
+**/.env
+**/.env.*
+api/var/
+web/
+pitch/
+notebooks/
+references/
+fixtures/
+data/*.xlsx
+**/__pycache__/
+.pytest_cache/
