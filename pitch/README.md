@@ -1,5 +1,33 @@
 # pitch/ (Lane C)
 
+Everything for the 3-minute pitch on Sunday 8 November.
+
+| What | Where |
+|---|---|
+| Slide deck (6 slides + 3 backup slides for questions) | https://claude.ai/artifact/LUYp9dww5VgcuRADFiZ6V2 (private until shared from its Share menu; download PDF/PPTX there) |
+| Backup demo video (75 s, no sound) | [`backup-demo.mp4`](backup-demo.mp4) |
+| Demo taps, fallbacks, likely jury questions | [`demo-script.md`](demo-script.md) |
+| Submission text (repo link + short description) | [`submission.md`](submission.md) |
+
+## Links
+
+- Pitch site (demo data, no login): https://groundtruth-acaps.vercel.app
+- Live site on the API (personal invites): https://groundtruth-acaps-live.vercel.app/#/?invite=inv_demo_02
+- Moderator page (needs the moderator key): https://ground-truth-api.vercel.app/ui/moderator
+- Repo: https://github.com/AkinCirak261884/hackathin
+
+## Deck order
+
+1. Cover · 2. Live demo (the 6 steps + QR code to the pitch site) · 3. What the moderator sees · 4. Does it work? (backtest) · 5. Trust and anonymity · 6. Ready to pilot (QR code)
+Backup: who sees what per anonymity level · when peer comments switch off · retention and scoring
+
+## Before going on stage
+
+- Download the deck as PDF onto the presenting laptop (works without wifi).
+- Phone: open the pitch site, **Reset my answers (demo)**, EN, brightness up, Do Not Disturb on, auto-lock off.
+- If possible, mirror the phone onto the same laptop that shows the slides (QuickTime → New Movie Recording → pick the iPhone, or iPhone Mirroring), so there's no switching between inputs.
+- Keep `backup-demo.mp4` open in a player, ready to play if the phone or wifi fails.
+
 ## Screen sketches (built as stubs in `web/`)
 
 ```
@@ -18,19 +46,3 @@
 │ Rounds · Me · Public │    │ Rounds · Me · Public │    │   note was added     │
 └──────────────────────┘    └──────────────────────┘    └──────────────────────┘
  steps: rating → triggers → forecasts → top-3 → missing → anonymity tier (anon default)
-```
-
-## 3-minute pitch (draft outline)
-
-| Time | Beat |
-|---|---|
-| 0:00–0:20 | **Hook.** The people closest to a crisis sense it shifting first, and that knowledge disappears in informal chats. |
-| 0:20–1:35 | **Live demo on a phone, R1043 Chad:** check-in → anonymity tier → reasons first → revise once → group view → track record. |
-| 1:35–2:00 | **Moderator view:** agreement vs ACAPS rating, region split (n<3 hidden), "what's missing" clusters, publish. |
-| 2:00–2:25 | **Does it work?** ACAPS's ratings on 99 resolved risks: Brier 0.213 vs 0.239 for always saying the base rate (Lane A backtest). |
-| 2:25–2:45 | **Trust:** invite-only, 3 tiers, min-3 rule, no verbatim text, no IP logging. Witnesses get signposted to ICC/eyeWitness, not taken in. |
-| 2:45–3:00 | **Pilot:** one link, no account, experts see the impact of their input. Ready for December. |
-
-## Demo script
-
-See [demo-script.md](demo-script.md): exact taps and lines, roles, setup checklist, fallbacks, likely judge questions, backup video.
