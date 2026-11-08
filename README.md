@@ -30,7 +30,7 @@ The people closest to a crisis often sense it shifting first, but that knowledge
 
 **For ACAPS and the public**
 
-- Moderator side (API, in progress): answers before and after revision, "what's missing" themes with AI-assisted clustering; the publish flow is still mocked.
+- Moderator page (served by the API, key-protected): answers before and after revision, field-based vs remote split, peer comments on/off per round, "what's missing" with AI-assisted grouping, contributors by tier; the publish flow is still mocked.
 - Public page: aggregates only, never who said what, hidden below 3 responses.
 
 ## Does it work?
@@ -87,7 +87,7 @@ python3 -m unittest discover analysis
 
 ## Status and next steps
 
-Working: the full expert flow on demo data, track record, public page, EN/FR, API for rounds, responses and records, scoring and backtest. In progress: wiring the app to the API end to end, and publishing to the public page.
+Working: the full expert flow on demo data, track record, public page, EN/FR, API for rounds, responses and records, scoring and backtest. The live site runs on the API end to end with personal invite links (see "Run it"). Still mocked: publishing moderator summaries to the public page.
 Next for a pilot: live risk list from the ACAPS API, Arabic (covers about a third of ACAPS risks, including the rest of the Chad panel), agreement by region, and comparing the panel against other sources where the questions line up.
 
 ## Challenge material

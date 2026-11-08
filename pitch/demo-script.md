@@ -16,7 +16,7 @@
 
 1. Phone: open the link, **Check-ins** tab, tap **Reset my answers (demo)** if it shows. Language **EN**. Screen brightness up, Do Not Disturb on, auto-lock off.
 2. Mirror the phone (cable or AirPlay) and check it on the projector. Zoom the browser so text is readable from the back.
-3. Laptop: same link in a second tab, already on **My profile**; backup video at `pitch/backup-demo.mp4` (record it Saturday night, see the end of this file).
+3. Laptop: same link in a second tab, already on **My profile**; backup video at `pitch/backup-demo.mp4` (75 s, same taps as below).
 4. Do one dry run, then reset again.
 
 ## Script
@@ -38,9 +38,9 @@ Spoken lines are in quotes. Taps are for the Driver. Timings are cumulative.
 | 0:50 | **Top 3 risks for Chad**: tap the first three options. **Next**. **What is ACAPS missing?**: **Next** (leave empty). | |
 | 0:55 | **Your answers, and why**: tick **What I see myself**. **Next**. | "What is it based on: seeing it themselves, contacts, media." |
 | 1:00 | **Who can see this answer?**: leave **Fully anonymous** selected. Tap **Submit answers**. | "And who can see it. Fully anonymous is the default: not even ACAPS can link this answer to them. That's the only way some of these people can take part." |
-| 1:07 | **Step 2: Why others answered the way they did.** Scroll slowly through 2–3 comments (Adré water points, drones in French). | "Here's our key idea. Before seeing anyone's numbers, they read the panel's *reasons*. No averages, no majority to follow. Just arguments: water-point incidents in Adré, drones near the border every night." |
-| 1:17 | Tap **Update my forecast**. Drag **Attacks on strategic infrastructure** from 10% to **35%**. Tap **Save update and see the group**. | "The drone report changes this expert's mind, so they update once. Their blind answer is still the one that's scored, so copying the group can't help anyone's record." |
-| 1:25 | Group view: point at the dots chart for the first trigger. | "Only now do the numbers unlock: every answer as a dot, theirs in orange, the middle half shaded." |
+| 1:07 | **Step 2: Why others answered the way they did.** Scroll slowly through 2–3 comments (Telegram and RSF supply routes, clinic data from Sila, drones in French). | "Here's our key idea. Before seeing anyone's numbers, they read the panel's *reasons*. No averages, no majority to follow. Just arguments: Telegram channels discussing RSF supply routes, clinic data from Sila, drones near the border almost every night." |
+| 1:17 | Scroll to the bottom, tap **Update my forecast**. Scroll to the 2nd forecast, **Attacks on strategic infrastructure**, and tap the **30%** preset (no dragging). Tap **Save update and see the group**. | "The drone report changes this expert's mind, so they update once. Their blind answer is still the one that's scored, so copying the group can't help anyone's record." |
+| 1:25 | Group view: the top shows **10% → 30%** and **4 of 7 agree with ACAPS**. Scroll down once to the dots chart for the first trigger. | "Only now do the numbers unlock: every answer as a dot, theirs in orange, the middle half shaded." |
 | 1:30 | Tap **My profile**. Point at **Your input at work** at the top, then the record card (x of y validated) and the accuracy card. | "First thing they see: where their input changed ACAPS's analysis, and when their forecasts resolve. Over time every expert builds a track record against ACAPS's own rating. That's how ACAPS learns whose judgement to trust." |
 
 ### Optional 15-second beat · Comments switch off (phone, use in Q&A or instead of the slide below)
@@ -89,10 +89,10 @@ Slide: calibration chart (`analysis/charts/calibration.svg`) + the two numbers. 
 - **"Doesn't scoring put pressure on experts?"** Each expert sees only their own record, privately; peers never see anyone's record, and there's no public leaderboard. ACAPS's moderator sees all records to weigh views. Scores only count after 5 resolved forecasts.
 - **"Couldn't a small group spread misinformation through comments?"** Comments between experts switch off per round when the area is small: a named town or village (HDX Populated Places), few people affected (ACAPS exposure), or fewer than 30 organisations working there (OCHA 3W). Copy-pasted or coordinated claims are held back for the moderator.
 - **"Is the accuracy real?"** ACAPS's baseline (0.213 on 99 resolved risks) is real data. The expert panel in the demo is synthetic; the pilot is what measures real experts.
+- **"Why does the profile say ACAPS 0.169 and the slide 0.213?"** 0.169 is ACAPS's rating on this (synthetic) expert's 8 resolved questions; 0.213 is ACAPS across all 99 resolved risks in the Risk Radar export.
+- **"Isn't the AI summary on the reasons step an AI feel?"** It's a labelled summary of what other experts flagged, not a chatbot; their own items are listed right under it, and it only appears once 3 have answered and comments are on for the round.
 - **"What about Arabic?"** Next language: it covers about a third of ACAPS risks, including the rest of the Chad panel. Adding a language is one more set of texts.
 
-## Backup video (record Saturday night)
+## Backup video
 
-1. Reset the demo, start a screen recording on the phone.
-2. Do the 0:20–1:35 taps exactly as above, at a calm pace (about 75 seconds).
-3. Save as `pitch/backup-demo.mp4` (or a shared drive link if it's over 50 MB) and copy it to the Backup's laptop.
+`pitch/backup-demo.mp4`: 75 seconds, recorded from the live site at phone size on Sunday morning, following the 0:20–1:35 taps above (orange circles show each tap). No sound, so it can play under the spoken lines.
