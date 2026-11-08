@@ -9,6 +9,7 @@ Everything for the 3-minute pitch on Sunday 8 November.
 | Demo taps, fallbacks, likely jury questions | [`demo-script.md`](demo-script.md) |
 | Project description for the submission form (under 5,000 characters, markdown) | [`description-form.md`](description-form.md) |
 | Full project description (longer, for the repo) | [`submission.md`](submission.md) |
+| All links on one page (for the form's single "additional links" field) | [`links.md`](links.md) |
 
 ## Links
 
