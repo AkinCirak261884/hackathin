@@ -4,7 +4,7 @@ Everything for the 3-minute pitch on Sunday 8 November.
 
 | What | Where |
 |---|---|
-| Slide deck (7 slides + 3 backup slides for questions) | https://claude.ai/artifact/LUYp9dww5VgcuRADFiZ6V2 (private until shared from its Share menu; download PDF/PPTX there) |
+| Slide deck (8 slides + 4 backup slides for questions) | https://claude.ai/artifact/LUYp9dww5VgcuRADFiZ6V2 (private until shared from its Share menu; download PDF/PPTX there) |
 | Backup demo video (76 s, no sound, phone screen recording) | [`backup-demo.mp4`](backup-demo.mp4) |
 | Demo taps, fallbacks, likely jury questions | [`demo-script.md`](demo-script.md) |
 | Project description for the submission form (under 5,000 characters, markdown) | [`description-form.md`](description-form.md) |
@@ -19,14 +19,16 @@ Everything for the 3-minute pitch on Sunday 8 November.
 
 ## Deck order
 
-1. Cover · 2. Live demo (the 6 steps + QR code to the pitch site) · 3. What the moderator sees · 4. Does it work? (backtest) · 5. Trust and anonymity · 6. Roadmap · 7. Ready to pilot (QR code)
-Backup: who sees what per anonymity level · when peer comments switch off · retention and scoring
+1. Cover · 2. The expert app on a phone (4 screenshots) · 3. The same app on a laptop · 4. What ACAPS sees: the moderator page · 5. Does it work? (backtest) · 6. Trust and anonymity · 7. Roadmap · 8. Ready to pilot (QR code)
+Backup: moderator summary with the demo numbers · who sees what per anonymity level · when peer comments switch off · retention and scoring
+
+The app is shown through screenshots, not a live phone demo, so nothing depends on wifi or screen mirroring.
 
 ## Before going on stage
 
 - Download the deck as PDF onto the presenting laptop (works without wifi).
 - Phone: open the pitch site, **Reset my answers (demo)**, EN, brightness up, Do Not Disturb on, auto-lock off.
-- If possible, mirror the phone onto the same laptop that shows the slides (QuickTime → New Movie Recording → pick the iPhone, or iPhone Mirroring), so there's no switching between inputs.
+- Keep the phone with the pitch site open for questions ("can I see it?").
 - Keep `backup-demo.mp4` open in a player, ready to play if the phone or wifi fails.
 
 ## Screen sketches (built as stubs in `web/`)
