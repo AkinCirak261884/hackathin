@@ -4,7 +4,7 @@ Everything for the 3-minute pitch on Sunday 8 November.
 
 | What | Where |
 |---|---|
-| Slide deck (6 slides + 3 backup slides for questions) | https://claude.ai/artifact/LUYp9dww5VgcuRADFiZ6V2 (private until shared from its Share menu; download PDF/PPTX there) |
+| Slide deck (7 slides + 3 backup slides for questions) | https://claude.ai/artifact/LUYp9dww5VgcuRADFiZ6V2 (private until shared from its Share menu; download PDF/PPTX there) |
 | Backup demo video (75 s, no sound) | [`backup-demo.mp4`](backup-demo.mp4) |
 | Demo taps, fallbacks, likely jury questions | [`demo-script.md`](demo-script.md) |
 | Submission text (repo link + short description) | [`submission.md`](submission.md) |
@@ -18,7 +18,7 @@ Everything for the 3-minute pitch on Sunday 8 November.
 
 ## Deck order
 
-1. Cover · 2. Live demo (the 6 steps + QR code to the pitch site) · 3. What the moderator sees · 4. Does it work? (backtest) · 5. Trust and anonymity · 6. Ready to pilot (QR code)
+1. Cover · 2. Live demo (the 6 steps + QR code to the pitch site) · 3. What the moderator sees · 4. Does it work? (backtest) · 5. Trust and anonymity · 6. Roadmap · 7. Ready to pilot (QR code)
 Backup: who sees what per anonymity level · when peer comments switch off · retention and scoring
 
 ## Before going on stage
