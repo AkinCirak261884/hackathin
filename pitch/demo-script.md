@@ -16,7 +16,7 @@
 
 1. Phone: open the link, **Check-ins** tab, tap **Reset my answers (demo)** if it shows. Language **EN**. Screen brightness up, Do Not Disturb on, auto-lock off.
 2. Mirror the phone (cable or AirPlay) and check it on the projector. Zoom the browser so text is readable from the back.
-3. Laptop: same link in a second tab, already on **My profile**; backup video at `pitch/backup-demo.mp4` (75 s, same taps as below).
+3. Laptop: same link in a second tab, already on **My profile**; backup video at `pitch/backup-demo.mp4` (76 s, the same flow as below).
 4. Do one dry run, then reset again.
 
 ## Script
@@ -95,4 +95,4 @@ Slide: calibration chart (`analysis/charts/calibration.svg`) + the two numbers. 
 
 ## Backup video
 
-`pitch/backup-demo.mp4`: 75 seconds, recorded from the live site at phone size on Sunday morning, following the 0:20–1:35 taps above (orange circles show each tap). No sound, so it can play under the spoken lines.
+`pitch/backup-demo.mp4`: 76 seconds, a screen recording of the full check-in on a phone (Sunday morning, pitch site), trimmed and played at 1.25× speed. No sound, so it can play under the spoken lines.
