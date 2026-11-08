@@ -1,7 +1,5 @@
 **Ground Truth** is a three-minute monthly check-in that lets ACAPS's trusted field experts test ACAPS's risk analyses, forecast what happens next and build a track record, without exposing who said what.
 
-Live demo: https://groundtruth-acaps.vercel.app (works on a phone)
-
 ## The problem
 The people closest to a crisis often sense it shifting first, but that knowledge stays in informal chats and never reaches ACAPS's analysis. ACAPS wants a small, trusted panel (5–10 experts per country) that takes minutes, not hours; protects people who can't be seen sharing views; keeps one loud voice or the group average from drowning out independent judgement; and shows over time whose forecasts are worth listening to.
 
